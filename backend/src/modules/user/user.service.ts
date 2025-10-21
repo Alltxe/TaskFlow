@@ -3,5 +3,4 @@ import { PrismaClient, Prisma } from '@prisma/client';
 
 @Injectable()
 export class UserService {
-    private getUsers = 
 }
