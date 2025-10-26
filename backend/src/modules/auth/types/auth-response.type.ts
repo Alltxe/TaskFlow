@@ -6,6 +6,9 @@ export class AuthResponseType {
   @Field()
   accessToken: string;
 
+  @Field()
+  refreshToken: string;
+
   @Field(() => UserType)
   user: UserType;
 }

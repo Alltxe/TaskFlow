@@ -23,17 +23,16 @@ export class CreateGroupInput {
   @IsOptional()
   description?: string;
 
-  @Field(() => Boolean, { defaultValue: true })
+  @Field(() => Boolean, { nullable: true })
   @IsOptional()
   @IsBoolean()
   requiresApproval?: boolean;
 
-  @Field(() => String, { defaultValue: 'ROUND_ROBIN' })
+  @Field(() => String, { nullable: true })
   @IsOptional()
-  @IsEnum(RotationType)
-  rotationType?: RotationType;
+  rotationType?: string;
 
-  @Field(() => Boolean, { defaultValue: true })
+  @Field(() => Boolean, { nullable: true })
   @IsOptional()
   @IsBoolean()
   gamificationEnabled?: boolean;

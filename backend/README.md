@@ -23,13 +23,62 @@
 
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+TaskFlow Backend - NestJS-based GraphQL API для управления задачами в небольших группах с системой геймификации и автоматической ротации задач.
+
+## Основные функции
+
+- 🔐 **JWT аутентификация** с refresh tokens (access token: 15 минут, refresh token: 7 дней)
+- 👥 **Управление группами** с системой ролей (Admin/Member)
+- ✅ **Управление задачами** с поддержкой приоритетов, дедлайнов и рекуррентности
+- 🔄 **Автоматическая ротация задач** (Round Robin, Random, Weighted)
+- 🎮 **Система геймификации** с баллами и наградами
+- 📊 **GraphQL API** с автоматической генерацией схемы
+
+## Технологический стек
+
+- **Framework:** NestJS 11
+- **Database:** SQLite (Prisma ORM)
+- **API:** GraphQL (Apollo Server)
+- **Auth:** JWT + Passport
+- **Validation:** class-validator
+- **Testing:** Jest + Supertest
+
+## Документация
+
+- [📘 Refresh Token Guide](./.docs/REFRESH_TOKEN_GUIDE.md) - Полное руководство по работе с refresh tokens
+- [🧪 Refresh Token Testing](./.docs/REFRESH_TOKEN_TESTING.md) - Руководство по тестированию
+- [🗺️ Development Roadmap](./.docs/DEVELOPMENT_ROADMAP.md) - План разработки
 
 ## Project setup
 
 ```bash
+# Установка зависимостей
 $ npm install
+
+# Копирование .env файла
+$ cp .env.example .env
+
+# Применение миграций БД
+$ npx prisma migrate dev
+
+# Генерация Prisma Client
+$ npx prisma generate
 ```
+
+## Environment Variables
+
+Создайте файл `.env` на основе `.env.example`:
+
+```bash
+DATABASE_URL="file:./dev.db"
+
+# JWT Configuration
+JWT_SECRET="your-super-secret-jwt-key-change-this-in-production"
+JWT_ACCESS_TOKEN_EXPIRES_IN="15m"
+JWT_REFRESH_TOKEN_EXPIRES_IN="7d"
+```
+
+**Важно:** Используйте сложный `JWT_SECRET` в продакшене!
 
 ## Compile and run the project
 
@@ -37,12 +86,16 @@ $ npm install
 # development
 $ npm run start
 
-# watch mode
-$ npm run start:dev
+# watch mode (рекомендуется для разработки)
+$ npm run dev
 
 # production mode
 $ npm run start:prod
 ```
+
+После запуска:
+- GraphQL Playground доступен по адресу: http://localhost:3000/graphql
+- Prisma Studio (БД UI): `npx prisma studio`
 
 ## Run tests
 
@@ -55,7 +108,65 @@ $ npm run test:e2e
 
 # test coverage
 $ npm run test:cov
+
+# refresh token e2e tests
+$ npm run test:e2e -- auth-refresh.e2e-spec.ts
 ```
+
+## Quick Start - GraphQL Examples
+
+### 1. Регистрация
+
+```graphql
+mutation {
+  register(input: {
+    email: "user@example.com"
+    username: "username"
+    password: "password123"
+  }) {
+    accessToken
+    refreshToken
+    user {
+      id
+      email
+    }
+  }
+}
+```
+
+### 2. Обновление access token
+
+```graphql
+mutation {
+  refreshToken(input: {
+    refreshToken: "YOUR_REFRESH_TOKEN"
+  }) {
+    accessToken
+    refreshToken
+    user {
+      id
+      email
+    }
+  }
+}
+```
+
+### 3. Получение текущего пользователя
+
+Добавьте в HTTP Headers: `Authorization: Bearer YOUR_ACCESS_TOKEN`
+
+```graphql
+query {
+  me {
+    id
+    email
+    username
+    isAway
+  }
+}
+```
+
+Больше примеров в [Refresh Token Guide](./.docs/REFRESH_TOKEN_GUIDE.md).
 
 ## Deployment
 

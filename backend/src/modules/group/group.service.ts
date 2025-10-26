@@ -34,7 +34,7 @@ export class GroupService {
         description,
         inviteToken,
         requiresApproval: requiresApproval ?? true,
-        rotationType: rotationType || 'ROUND_ROBIN',
+        rotationType: (rotationType as any) || 'ROUND_ROBIN',
         gamificationEnabled: gamificationEnabled ?? true,
         createdById: userId,
         members: {

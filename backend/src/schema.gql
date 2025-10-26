@@ -2,6 +2,41 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type UserStatistics {
+  """User ID"""
+  userId: ID!
+
+  """Current point balance (total earned - total spent)"""
+  currentPointBalance: Int!
+
+  """Total points earned from completed tasks"""
+  totalPointsEarned: Int!
+
+  """Total points spent on rewards"""
+  totalPointsSpent: Int!
+
+  """Total number of tasks completed"""
+  tasksCompleted: Int!
+
+  """Total number of tasks assigned to user"""
+  tasksAssigned: Int!
+
+  """Task completion rate (completed / assigned) as percentage"""
+  completionRate: Float!
+
+  """Number of tasks completed on time"""
+  tasksCompletedOnTime: Int!
+
+  """On-time completion percentage"""
+  onTimePercentage: Float!
+
+  """Leaderboard position (1-based, null if no completions)"""
+  leaderboardPosition: Int
+
+  """Group ID for group-specific statistics (null for overall stats)"""
+  groupId: ID
+}
+
 type UserType {
   id: ID!
   email: String!
@@ -20,6 +55,7 @@ scalar DateTime
 
 type AuthResponseType {
   accessToken: String!
+  refreshToken: String!
   user: UserType!
 }
 
@@ -81,6 +117,21 @@ type TaskType {
 type Query {
   hello: String!
 
+  """Get statistics for the current authenticated user"""
+  myStatistics(
+    """Optional group ID for group-specific statistics"""
+    groupId: String
+  ): UserStatistics!
+
+  """Get statistics for a specific user by ID"""
+  userStatistics(
+    """User ID to get statistics for"""
+    userId: String!
+
+    """Optional group ID for group-specific statistics"""
+    groupId: String
+  ): UserStatistics!
+
   """Получить информацию о текущем пользователе"""
   me: UserType!
   getGroup(groupId: String!): GroupType!
@@ -100,6 +151,15 @@ type Mutation {
 
   """Сменить пароль текущего пользователя"""
   changePassword(input: ChangePasswordInput!): Boolean!
+
+  """Обновить access token с помощью refresh token"""
+  refreshToken(input: RefreshTokenInput!): AuthResponseType!
+
+  """Выход из системы (отзыв refresh token)"""
+  logout(refreshToken: String!): Boolean!
+
+  """Выход из всех устройств"""
+  logoutAll: Float!
   createGroup(input: CreateGroupInput!): GroupType!
   updateGroup(groupId: String!, input: UpdateGroupInput!): GroupType!
   deleteGroup(groupId: String!): Boolean!
@@ -131,12 +191,16 @@ input ChangePasswordInput {
   newPassword: String!
 }
 
+input RefreshTokenInput {
+  refreshToken: String!
+}
+
 input CreateGroupInput {
   name: String!
   description: String
-  requiresApproval: Boolean! = true
-  rotationType: String! = "ROUND_ROBIN"
-  gamificationEnabled: Boolean! = true
+  requiresApproval: Boolean
+  rotationType: String
+  gamificationEnabled: Boolean
 }
 
 input UpdateGroupInput {

@@ -1,7 +1,4 @@
 // schema.prisma
-generator nextAdmin {
-    provider              = "next-admin-generator-prisma"
-  }
 generator client {
   provider = "prisma-client-js"
 }
@@ -38,6 +35,7 @@ model User {
   completionAttachments TaskCompletionAttachment[]
   rewardCreations   Reward[]
   auditLogs         AuditLog[]
+  refreshTokens     RefreshToken[]
 
   @@map("users")
 }
@@ -74,7 +72,7 @@ model GroupMember {
 
   // Relations
   user  User  @relation(fields: [userId], references: [id])
-  group Group @relation(fields: [groupId], references: [id])
+  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
 
   @@unique([userId, groupId])
   @@map("group_members")
@@ -102,7 +100,7 @@ model Task {
   parentTaskId     String?        @map("parent_task_id")
 
   // Relations
-  group          Group                   @relation(fields: [groupId], references: [id])
+  group          Group                   @relation(fields: [groupId], references: [id], onDelete: Cascade)
   createdBy      User                    @relation("TaskCreator", fields: [createdById], references: [id])
   assignee       User?                   @relation("TaskAssignee", fields: [assigneeId], references: [id])
   approvedBy     User?                   @relation("TaskApprover", fields: [approvedById], references: [id])
@@ -129,8 +127,8 @@ model TaskAttachment {
   uploadedById String  @map("uploaded_by")
 
   // Relations
-  task        Task @relation(fields: [taskId], references: [id])
-  group       Group @relation(fields: [groupId], references: [id])
+  task        Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  group       Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
   uploadedBy  User @relation(fields: [uploadedById], references: [id])
 
   @@index([taskId])
@@ -149,7 +147,7 @@ model Reward {
   createdById String   @map("created_by")
 
   // Relations
-  group           Group               @relation(fields: [groupId], references: [id])
+  group           Group               @relation(fields: [groupId], references: [id], onDelete: Cascade)
   createdBy       User                @relation(fields: [createdById], references: [id])
   transactions    RewardTransaction[]
 
@@ -169,7 +167,7 @@ model RewardTransaction {
 
   // Relations
   user        User   @relation("RewardTransactionRequester", fields: [userId], references: [id])
-  reward      Reward @relation(fields: [rewardId], references: [id])
+  reward      Reward @relation(fields: [rewardId], references: [id], onDelete: Cascade)
   approvedBy  User?  @relation("RewardTransactionApprover", fields: [approvedById], references: [id])
 
   @@map("reward_transactions")
@@ -187,7 +185,7 @@ model TaskCompletionHistory {
   approvedById    String?  @map("approved_by")
 
   // Relations - ИСПРАВЛЕННЫЕ ОТНОШЕНИЯ
-  task        Task @relation(fields: [taskId], references: [id])
+  task        Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
   user        User @relation("TaskCompletionUser", fields: [userId], references: [id])
   approvedBy  User? @relation("TaskCompletionApprover", fields: [approvedById], references: [id])
   attachments TaskCompletionAttachment[]
@@ -208,7 +206,7 @@ model TaskCompletionAttachment {
   uploadedById String  @map("uploaded_by")
 
   // Relations
-  completion  TaskCompletionHistory @relation(fields: [completionId], references: [id])
+  completion  TaskCompletionHistory @relation(fields: [completionId], references: [id], onDelete: Cascade)
   uploadedBy  User @relation(fields: [uploadedById], references: [id])
 
   @@map("task_completion_attachments")
@@ -251,6 +249,22 @@ model AuditLog {
   @@index([entityType, entityId])
   @@index([performedAt])
   @@map("audit_logs")
+}
+
+model RefreshToken {
+  id          String   @id @default(cuid())
+  tokenHash   String   @unique @map("token_hash")
+  expiresAt   DateTime @map("expires_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+  revokedAt   DateTime? @map("revoked_at")
+  userId      String   @map("user_id")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("refresh_tokens")
 }
 
 enum RotationType {
