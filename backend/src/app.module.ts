@@ -4,9 +4,11 @@ import { GraphQlModule } from './modules/graph-ql/graph-ql.module';
 import { UserModule } from './modules/user/user.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { PrismaModule } from './modules/prisma/prisma.module';
+import { GroupModule } from './modules/group/group.module';
+import { TaskModule } from './modules/task/task.module';
 
 @Module({
-  imports: [PrismaModule, GraphQlModule, UserModule, AuthModule],
+  imports: [PrismaModule, GraphQlModule, UserModule, AuthModule, GroupModule, TaskModule],
   providers: [AppService],
 })
 export class AppModule {}

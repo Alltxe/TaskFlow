@@ -1,4 +1,7 @@
 // schema.prisma
+generator nextAdmin {
+    provider              = "next-admin-generator-prisma"
+  }
 generator client {
   provider = "prisma-client-js"
 }
