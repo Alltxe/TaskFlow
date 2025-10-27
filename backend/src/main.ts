@@ -6,6 +6,14 @@ import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  // Включение CORS для поддержки запросов с фронтенда
+  app.enableCors({
+    origin: process.env.CORS_ORIGIN || 'http://localhost:5173' || 'http://localhost:4173', // Vite dev server default port
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+  });
+
   // Глобальная валидация
   app.useGlobalPipes(
     new ValidationPipe({
