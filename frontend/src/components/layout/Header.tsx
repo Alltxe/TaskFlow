@@ -10,14 +10,20 @@ import {
   Badge,
   useMediaQuery,
   useTheme,
+  Button,
 } from '@mui/material'
 import {
   Menu as MenuIcon,
   Notifications as NotificationsIcon,
   AccountCircle,
+  Dashboard as DashboardIcon,
+  Group as GroupIcon,
+  Assignment as TaskIcon,
+  EmojiEvents as RewardsIcon,
+  Leaderboard as LeaderboardIcon,
 } from '@mui/icons-material'
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuthStore } from '../../store/authStore'
 import { useUIStore } from '../../store/uiStore'
 
@@ -25,6 +31,7 @@ export function Header() {
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
   const navigate = useNavigate()
+  const location = useLocation()
   
   const user = useAuthStore((state) => state.user)
   const logout = useAuthStore((state) => state.logout)
@@ -32,6 +39,14 @@ export function Header() {
   
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const [notificationAnchor, setNotificationAnchor] = useState<null | HTMLElement>(null)
+
+  const menuItems = [
+    { text: 'Дашборд', icon: <DashboardIcon />, path: '/dashboard' },
+    { text: 'Группы', icon: <GroupIcon />, path: '/groups' },
+    { text: 'Мои задачи', icon: <TaskIcon />, path: '/tasks' },
+    { text: 'Награды', icon: <RewardsIcon />, path: '/rewards' },
+    { text: 'Рейтинг', icon: <LeaderboardIcon />, path: '/leaderboard' },
+  ]
 
   const handleProfileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget)
@@ -77,9 +92,32 @@ export function Header() {
           </IconButton>
         )}
 
-        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+        <Typography variant="h6" component="div" sx={{ mr: 4 }}>
           TaskFlow
         </Typography>
+
+        {/* Horizontal Navigation Menu - Desktop */}
+        {!isMobile && (
+          <Box sx={{ display: 'flex', gap: 1, flexGrow: 1 }}>
+            {menuItems.map((item) => (
+              <Button
+                key={item.path}
+                startIcon={item.icon}
+                onClick={() => navigate(item.path)}
+                sx={{
+                  color: location.pathname === item.path ? 'primary.main' : 'text.primary',
+                  fontWeight: location.pathname === item.path ? 600 : 400,
+                  textTransform: 'none',
+                  '&:hover': {
+                    bgcolor: 'action.hover',
+                  },
+                }}
+              >
+                {item.text}
+              </Button>
+            ))}
+          </Box>
+        )}
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           {/* Notifications */}

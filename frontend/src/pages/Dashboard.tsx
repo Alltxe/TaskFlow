@@ -1,9 +1,52 @@
-import { Box, Typography, Paper, IconButton, Divider } from '@mui/material'
-import { ChevronLeft as ChevronLeftIcon, ChevronRight as ChevronRightIcon } from '@mui/icons-material'
+import { Box, Typography, Paper, Divider } from '@mui/material'
+import { CalendarMonth as CalendarIcon, ChevronLeft as ChevronLeftIcon, ChevronRight as ChevronRightIcon } from '@mui/icons-material'
 import { useState } from 'react'
+import { useEffect } from 'react'
 
 export function DashboardPage() {
-  const [currentDate, setCurrentDate] = useState(new Date(2025, 9, 1)) // October 2025
+  // Получить текущую неделю (понедельник-воскресенье)
+  const today = new Date();
+  const weekDays = ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'];
+  const getWeekDay = (date: Date) => weekDays[date.getDay()];
+
+  // Находим понедельник текущей недели
+  const getMonday = (date: Date) => {
+    const d = new Date(date);
+    const day = d.getDay();
+    // Если сегодня воскресенье (0), то понедельник — на 6 дней назад
+    const diff = day === 0 ? -6 : 1 - day;
+    d.setDate(d.getDate() + diff);
+    d.setHours(0,0,0,0);
+    return d;
+  };
+
+  // Состояние: смещение недели и выбранная дата
+  const [weekOffset, setWeekOffset] = useState(0);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+
+  // Генерация массива дат для текущей недели
+  const getWeekDates = () => {
+    const monday = getMonday(today);
+    const dates = [];
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(monday);
+      d.setDate(monday.getDate() + weekOffset * 7 + i);
+      dates.push(d);
+    }
+    return dates;
+  };
+  const datesList = getWeekDates();
+
+  // Переключение недели
+  const handlePrevPeriod = () => setWeekOffset(weekOffset - 1);
+  const handleNextPeriod = () => setWeekOffset(weekOffset + 1);
+
+  // После рендера автоматически выбрать текущую дату, если она в текущей неделе
+  useEffect(() => {
+    const found = datesList.find(d => d.toDateString() === today.toDateString());
+    if (found) setSelectedDate(found);
+    else setSelectedDate(datesList[0]);
+  }, [weekOffset]);
 
   // Temporary mock data for upcoming tasks
   const upcomingTasks = [
@@ -15,193 +58,115 @@ export function DashboardPage() {
     { id: '6', title: 'Постирать', date: '6 ПН', time: '15:00' },
   ]
 
-  const monthNames = [
-    'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
-    'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
-  ]
-
-  const weekDays = ['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'вс']
-
-  const getDaysInMonth = (date: Date) => {
-    const year = date.getFullYear()
-    const month = date.getMonth()
-    const firstDay = new Date(year, month, 1)
-    const lastDay = new Date(year, month + 1, 0)
-    const daysInMonth = lastDay.getDate()
-    
-    // Get day of week (0 = Sunday, 1 = Monday, etc.)
-    // Adjust so Monday = 0
-    let startDay = firstDay.getDay() - 1
-    if (startDay < 0) startDay = 6
-    
-    const days: (number | null)[] = []
-    
-    // Add empty cells for days before month starts
-    for (let i = 0; i < startDay; i++) {
-      days.push(null)
-    }
-    
-    // Add days of month
-    for (let i = 1; i <= daysInMonth; i++) {
-      days.push(i)
-    }
-    
-    return days
-  }
-
-  const handlePrevMonth = () => {
-    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1))
-  }
-
-  const handleNextMonth = () => {
-    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1))
-  }
-
-  const days = getDaysInMonth(currentDate)
-  const today = new Date()
-  const isCurrentMonth = currentDate.getMonth() === today.getMonth() && 
-                         currentDate.getFullYear() === today.getFullYear()
-
   return (
     <Box sx={{ display: 'flex', gap: 3, height: 'calc(100vh - 120px)' }}>
-      {/* Left Sidebar - Upcoming Tasks */}
-      <Paper 
-        sx={{ 
-          width: 280, 
-          p: 2, 
-          display: 'flex', 
-          flexDirection: 'column',
-          height: 'fit-content'
-        }}
-      >
-        <Typography variant="h6" fontWeight={600} sx={{ mb: 2 }}>
-          Ближайшие задачи
-        </Typography>
-        <Divider sx={{ mb: 2 }} />
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-          {upcomingTasks.map((task) => (
-            <Box
-              key={task.id}
-              sx={{
-                p: 1.5,
-                borderRadius: 1,
-                bgcolor: 'action.hover',
-                cursor: 'pointer',
-                transition: 'background-color 0.2s',
-                '&:hover': {
-                  bgcolor: 'action.selected',
-                },
-              }}
-            >
-              <Typography variant="body2" fontWeight={500}>
-                {task.title}
-              </Typography>
-              <Typography variant="caption" color="text.secondary">
-                {task.date} • {task.time}
-              </Typography>
-            </Box>
-          ))}
+      {/* Left Side - Vertical Date Selector */}
+      <Paper sx={{ width: 220, p: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', height: '100%' }}>
+        {/* Period navigation */}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+          <ChevronLeftIcon fontSize="medium" sx={{ cursor: 'pointer' }} onClick={handlePrevPeriod} />
+          <CalendarIcon fontSize="small" color="action" />
+          <ChevronRightIcon fontSize="medium" sx={{ cursor: 'pointer' }} onClick={handleNextPeriod} />
         </Box>
-      </Paper>
-
-      {/* Right Side - Calendar */}
-      <Paper sx={{ flex: 1, p: 3, display: 'flex', flexDirection: 'column' }}>
-        {/* Calendar Header */}
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 3 }}>
-          <IconButton onClick={handlePrevMonth} size="small">
-            <ChevronLeftIcon />
-          </IconButton>
-          <Typography variant="h6" fontWeight={600} sx={{ mx: 3, minWidth: 150, textAlign: 'center' }}>
-            {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
-          </Typography>
-          <IconButton onClick={handleNextMonth} size="small">
-            <ChevronRightIcon />
-          </IconButton>
-        </Box>
-
-        {/* Calendar Grid */}
-        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-          {/* Week day headers */}
-          <Box 
-            sx={{ 
-              display: 'grid', 
-              gridTemplateColumns: 'repeat(7, 1fr)', 
-              gap: 1,
-              mb: 1
-            }}
-          >
-            {weekDays.map((day) => (
-              <Box 
-                key={day} 
-                sx={{ 
-                  textAlign: 'center', 
+        <Divider sx={{ width: '100%', mb: 2 }} />
+        {/* Vertical list of dates, evenly distributed */}
+        <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%', width: '100%' }}>
+          {datesList.map((date) => {
+            const isSelected = selectedDate && date.toDateString() === selectedDate.toDateString();
+            return (
+              <Box
+                key={date.toISOString()}
+                onClick={() => setSelectedDate(date)}
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 2,
                   py: 1,
-                  color: 'text.secondary',
-                  fontWeight: 500,
-                  fontSize: '0.875rem'
+                  px: 2,
+                  cursor: 'pointer',
+                  transition: 'background-color 0.2s',
                 }}
               >
-                {day}
-              </Box>
-            ))}
-          </Box>
-
-          {/* Calendar days */}
-          <Box 
-            sx={{ 
-              display: 'grid', 
-              gridTemplateColumns: 'repeat(7, 1fr)', 
-              gap: 1,
-              flex: 1
-            }}
-          >
-            {days.map((day, index) => {
-              const isToday = isCurrentMonth && day === today.getDate()
-              return (
                 <Box
-                  key={index}
                   sx={{
-                    border: '1px solid',
-                    borderColor: 'divider',
-                    borderRadius: 1,
-                    p: 1,
-                    minHeight: 80,
-                    bgcolor: day ? 'background.paper' : 'action.disabledBackground',
-                    position: 'relative',
-                    cursor: day ? 'pointer' : 'default',
+                    width: 44,
+                    height: 44,
+                    borderRadius: '50%',
+                    bgcolor: isSelected ? 'primary.main' : 'transparent',
+                    color: isSelected ? 'primary.contrastText' : 'text.primary',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontWeight: 600,
+                    fontSize: '1.5rem',
+                    boxShadow: isSelected ? 2 : 0,
                     transition: 'background-color 0.2s',
-                    '&:hover': day ? {
-                      bgcolor: 'action.hover',
-                    } : {},
                   }}
                 >
-                  {day && (
-                    <Typography 
-                      variant="body2" 
-                      fontWeight={isToday ? 700 : 400}
-                      sx={{ 
-                        color: isToday ? 'primary.main' : 'text.primary',
-                        mb: 0.5
-                      }}
-                    >
-                      {day}
-                    </Typography>
-                  )}
+                  {date.getDate()}
                 </Box>
-              )
-            })}
-          </Box>
+                <Typography variant="body1" sx={{ textTransform: 'lowercase', color: 'text.secondary', fontWeight: 500 }}>
+                  {getWeekDay(date)}
+                </Typography>
+              </Box>
+            )
+          })}
         </Box>
-
-        {/* Bottom Text */}
-        <Box sx={{ mt: 3, textAlign: 'center' }}>
-          <Typography variant="body2" color="text.secondary">
-            Список ближайших задач
-          </Typography>
+      </Paper>
+      {/* Right Side - Task List */}
+      <Paper 
+        sx={{ 
+          flex: 1,
+          p: 3, 
+          display: 'flex', 
+          flexDirection: 'column'
+        }}
+      >
+        <Typography variant="h5" fontWeight={600} sx={{ mb: 1 }}>
+          Список ближайших задач
+        </Typography>
+        <Divider sx={{ my: 2 }} />
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, flex: 1 }}>
+          {upcomingTasks.length === 0 ? (
+            <Box sx={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center',
+              flex: 1,
+              color: 'text.secondary'
+            }}>
+              <Typography variant="body1">
+                Нет задач
+              </Typography>
+            </Box>
+          ) : (
+            upcomingTasks.map((task) => (
+              <Box
+                key={task.id}
+                sx={{
+                  p: 2,
+                  borderRadius: 2,
+                  border: '1px solid',
+                  borderColor: 'divider',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  '&:hover': {
+                    borderColor: 'primary.main',
+                    boxShadow: 1,
+                  },
+                }}
+              >
+                <Typography variant="body1" fontWeight={500} sx={{ mb: 0.5 }}>
+                  {task.title}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {task.date} • {task.time}
+                </Typography>
+              </Box>
+            ))
+          )}
         </Box>
       </Paper>
     </Box>
   )
 }
-
-

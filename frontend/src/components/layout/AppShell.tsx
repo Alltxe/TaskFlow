@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { Box, Container } from '@mui/material'
+import { Box, Container, useMediaQuery, useTheme } from '@mui/material'
 import { Header } from './Header'
 import { Sidebar } from './Sidebar'
 
@@ -8,9 +8,13 @@ interface AppShellProps {
 }
 
 export function AppShell({ children }: AppShellProps) {
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'))
+
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh' }}>
-      <Sidebar />
+      {/* Show Sidebar only on mobile */}
+      {isMobile && <Sidebar />}
       <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
         <Header />
         <Box
