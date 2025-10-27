@@ -8,7 +8,17 @@ import { JWT_CONFIG } from './auth.config';
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(private authService: AuthService) {
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        ExtractJwt.fromAuthHeaderAsBearerToken(),
+        // Также поддерживаем токен без префикса "Bearer "
+        (request) => {
+          const token = request?.headers?.authorization;
+          if (token && !token.startsWith('Bearer ')) {
+            return token;
+          }
+          return null;
+        },
+      ]),
       ignoreExpiration: false,
       secretOrKey: JWT_CONFIG.secret as string,
     });

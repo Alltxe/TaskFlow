@@ -2,6 +2,41 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type UserStatistics {
+  """User ID"""
+  userId: ID!
+
+  """Current point balance (total earned - total spent)"""
+  currentPointBalance: Int!
+
+  """Total points earned from completed tasks"""
+  totalPointsEarned: Int!
+
+  """Total points spent on rewards"""
+  totalPointsSpent: Int!
+
+  """Total number of tasks completed"""
+  tasksCompleted: Int!
+
+  """Total number of tasks assigned to user"""
+  tasksAssigned: Int!
+
+  """Task completion rate (completed / assigned) as percentage"""
+  completionRate: Float!
+
+  """Number of tasks completed on time"""
+  tasksCompletedOnTime: Int!
+
+  """On-time completion percentage"""
+  onTimePercentage: Float!
+
+  """Leaderboard position (1-based, null if no completions)"""
+  leaderboardPosition: Int
+
+  """Group ID for group-specific statistics (null for overall stats)"""
+  groupId: ID
+}
+
 type UserType {
   id: ID!
   email: String!
@@ -20,14 +55,91 @@ scalar DateTime
 
 type AuthResponseType {
   accessToken: String!
+  refreshToken: String!
   user: UserType!
+}
+
+type GroupMemberUserType {
+  id: ID!
+  username: String!
+  avatarUrl: String
+  isAway: Boolean!
+  awayUntil: DateTime
+}
+
+type GroupType {
+  id: ID!
+  name: String!
+  description: String
+  inviteToken: String
+  requiresApproval: Boolean!
+  rotationType: String!
+  gamificationEnabled: Boolean!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  createdById: String!
+}
+
+type GroupMemberType {
+  id: ID!
+  userId: String!
+  groupId: String!
+  role: String!
+  joinedAt: DateTime!
+  roleChangedAt: DateTime!
+  user: GroupMemberUserType!
+}
+
+type TaskType {
+  id: ID!
+  title: String!
+  description: String
+  deadline: DateTime!
+  priority: String!
+  status: String!
+  points: Int!
+  requiresApproval: Boolean!
+  isRecurring: Boolean!
+  recurrenceRule: String
+  rotationType: String
+  weight: Int!
+  createdAt: DateTime!
+  completedAt: DateTime
+  groupId: String!
+  createdById: String!
+  assigneeId: String
+  approvedById: String
+  parentTaskId: String
+  assignee: GroupMemberUserType
+  createdBy: GroupMemberUserType!
 }
 
 type Query {
   hello: String!
 
+  """Get statistics for the current authenticated user"""
+  myStatistics(
+    """Optional group ID for group-specific statistics"""
+    groupId: String
+  ): UserStatistics!
+
+  """Get statistics for a specific user by ID"""
+  userStatistics(
+    """User ID to get statistics for"""
+    userId: String!
+
+    """Optional group ID for group-specific statistics"""
+    groupId: String
+  ): UserStatistics!
+
   """Получить информацию о текущем пользователе"""
   me: UserType!
+  getGroup(groupId: String!): GroupType!
+  getUserGroups: [GroupType!]!
+  getGroupMembers(groupId: String!): [GroupMemberType!]!
+  getTask(taskId: String!): TaskType!
+  getGroupTasks(groupId: String!, status: String): [TaskType!]!
+  getUserTasks(status: String): [TaskType!]!
 }
 
 type Mutation {
@@ -39,6 +151,28 @@ type Mutation {
 
   """Сменить пароль текущего пользователя"""
   changePassword(input: ChangePasswordInput!): Boolean!
+
+  """Обновить access token с помощью refresh token"""
+  refreshToken(input: RefreshTokenInput!): AuthResponseType!
+
+  """Выход из системы (отзыв refresh token)"""
+  logout(refreshToken: String!): Boolean!
+
+  """Выход из всех устройств"""
+  logoutAll: Float!
+  createGroup(input: CreateGroupInput!): GroupType!
+  updateGroup(groupId: String!, input: UpdateGroupInput!): GroupType!
+  deleteGroup(groupId: String!): Boolean!
+  joinGroup(input: JoinGroupInput!): GroupType!
+  leaveGroup(groupId: String!): Boolean!
+  removeMember(groupId: String!, userId: String!): Boolean!
+  updateMemberRole(groupId: String!, input: UpdateMemberRoleInput!): GroupMemberType!
+  regenerateInviteToken(groupId: String!): String!
+  createTask(input: CreateTaskInput!): TaskType!
+  updateTask(taskId: String!, input: UpdateTaskInput!): TaskType!
+  deleteTask(taskId: String!): Boolean!
+  completeTask(input: CompleteTaskInput!): TaskType!
+  approveTask(input: ApproveTaskInput!): TaskType!
 }
 
 input RegisterInput {
@@ -55,4 +189,67 @@ input LoginInput {
 input ChangePasswordInput {
   oldPassword: String!
   newPassword: String!
+}
+
+input RefreshTokenInput {
+  refreshToken: String!
+}
+
+input CreateGroupInput {
+  name: String!
+  description: String
+  requiresApproval: Boolean
+  rotationType: String
+  gamificationEnabled: Boolean
+}
+
+input UpdateGroupInput {
+  name: String
+  description: String
+  requiresApproval: Boolean
+  rotationType: String
+  gamificationEnabled: Boolean
+}
+
+input JoinGroupInput {
+  inviteToken: String!
+}
+
+input UpdateMemberRoleInput {
+  userId: String!
+  role: String!
+}
+
+input CreateTaskInput {
+  title: String!
+  description: String
+  deadline: String!
+  priority: String!
+  points: Int!
+  requiresApproval: Boolean = true
+  isRecurring: Boolean = false
+  recurrenceRule: String
+  rotationType: String
+  weight: Int = 1
+  groupId: String!
+  assigneeId: String
+}
+
+input UpdateTaskInput {
+  title: String
+  description: String
+  deadline: String
+  priority: String
+  points: Int
+  requiresApproval: Boolean
+  assigneeId: String
+}
+
+input CompleteTaskInput {
+  taskId: String!
+}
+
+input ApproveTaskInput {
+  taskId: String!
+  approved: Boolean!
 }

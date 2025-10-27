@@ -9,8 +9,9 @@ import { AppResolver } from './app.resolver';
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
-      playground: false,
+      graphiql: true,
       introspection: true,
+      csrfPrevention: false, // Отключаем CSRF защиту в режиме разработки
       formatError: (error) => {
         // Получаем оригинальную ошибку
         const originalError = error.extensions?.originalError as any;

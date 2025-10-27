@@ -3,10 +3,9 @@ import { UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './auth.guard';
 import { CurrentUser } from './decorators/current-user.decorator';
-import { RegisterInput, LoginInput, ChangePasswordInput } from './dto/auth.input';
+import { RegisterInput, LoginInput, ChangePasswordInput, RefreshTokenInput } from './dto/auth.input';
 import { AuthResponseType } from './types/auth-response.type';
 import { UserType } from './types/user.type';
-import type { User } from '@prisma/client';
 
 @Resolver()
 export class AuthResolver {
@@ -33,7 +32,7 @@ export class AuthResolver {
    */
   @Query(() => UserType, { description: 'Получить информацию о текущем пользователе' })
   @UseGuards(JwtAuthGuard)
-  async me(@CurrentUser() user: User): Promise<UserType> {
+  async me(@CurrentUser() user: any): Promise<UserType> {
     return this.authService.getCurrentUser(user.id);
   }
 
@@ -43,9 +42,34 @@ export class AuthResolver {
   @Mutation(() => Boolean, { description: 'Сменить пароль текущего пользователя' })
   @UseGuards(JwtAuthGuard)
   async changePassword(
-    @CurrentUser() user: User,
+    @CurrentUser() user: any,
     @Args('input') input: ChangePasswordInput,
   ): Promise<boolean> {
     return this.authService.changePassword(user.id, input.oldPassword, input.newPassword);
+  }
+
+  /**
+   * Обновление access token с помощью refresh token
+   */
+  @Mutation(() => AuthResponseType, { description: 'Обновить access token с помощью refresh token' })
+  async refreshToken(@Args('input') input: RefreshTokenInput): Promise<AuthResponseType> {
+    return this.authService.refreshAccessToken(input);
+  }
+
+  /**
+   * Выход из системы (отзыв refresh token)
+   */
+  @Mutation(() => Boolean, { description: 'Выход из системы (отзыв refresh token)' })
+  async logout(@Args('refreshToken') refreshToken: string): Promise<boolean> {
+    return this.authService.revokeRefreshToken(refreshToken);
+  }
+
+  /**
+   * Выход из всех устройств (отзыв всех refresh tokens пользователя)
+   */
+  @Mutation(() => Number, { description: 'Выход из всех устройств' })
+  @UseGuards(JwtAuthGuard)
+  async logoutAll(@CurrentUser() user: any): Promise<number> {
+    return this.authService.revokeAllUserTokens(user.id);
   }
 }
