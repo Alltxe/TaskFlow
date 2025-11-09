@@ -39,6 +39,9 @@ export class TaskType {
   @Field(() => Int)
   weight: number;
 
+  @Field(() => Boolean)
+  wasClaimedFromPool: boolean;
+
   @Field(() => Date)
   createdAt: Date;
 

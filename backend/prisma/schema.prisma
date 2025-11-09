@@ -91,6 +91,7 @@ model Task {
   recurrenceRule   String?        @map("recurrence_rule")
   rotationType     RotationType?  @map("rotation_type")
   weight           Int            @default(1)
+  wasClaimedFromPool Boolean      @default(false) @map("was_claimed_from_pool")
   createdAt        DateTime       @default(now()) @map("created_at")
   completedAt      DateTime?      @map("completed_at")
   groupId          String         @map("group_id")
@@ -271,6 +272,7 @@ enum RotationType {
   ROUND_ROBIN
   RANDOM
   WEIGHTED_RANDOM
+  LOAD_BALANCING
   DISABLED
 }
 

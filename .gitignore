@@ -88,3 +88,5 @@ typings/
 .dynamodb/
 
 .turbo/daemon/*.log.*
+backend/prisma/dev.db
+backend/src/schema.gql
