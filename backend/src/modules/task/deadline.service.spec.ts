@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { DeadlineService } from './deadline.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { NotificationService } from '../notification/notification.service';
 
 describe('DeadlineService', () => {
   let service: DeadlineService;
@@ -18,6 +19,10 @@ describe('DeadlineService', () => {
               updateMany: jest.fn(),
             },
           },
+        },
+        {
+          provide: NotificationService,
+          useValue: { notify: jest.fn().mockResolvedValue({}) },
         },
       ],
     }).compile();

@@ -3,6 +3,7 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { PrismaService } from '../src/modules/prisma/prisma.service';
+import { NotificationType } from '@prisma/client';
 
 describe('Task Operations (e2e)', () => {
   let app: INestApplication;
@@ -1293,6 +1294,263 @@ describe('Task Operations (e2e)', () => {
 
       expect(history).toBeDefined();
       expect(history!.pointsAwarded).toBe(300); // 200 * 1.5 = 300 (Up-for-Grabs bonus)
+    });
+  });
+
+  describe('Point Award Notifications', () => {
+    it('should create POINT_AWARDED notification when task is auto-completed', async () => {
+      // Create task without approval requirement
+      const taskResponse = await request(app.getHttpServer())
+        .post('/graphql')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({
+          query: `
+            mutation CreateTask($input: CreateTaskInput!) {
+              createTask(input: $input) {
+                id
+              }
+            }
+          `,
+          variables: {
+            input: {
+              groupId,
+              title: 'Notification Test Task',
+              description: 'Testing point award notifications',
+              priority: 'MEDIUM',
+              points: 100,
+              requiresApproval: false,
+              assigneeId: memberId,
+              deadline: new Date(Date.now() + 86400000).toISOString(), // Tomorrow
+            },
+          },
+        });
+
+      if (taskResponse.status !== 200 || !taskResponse.body.data?.createTask) {
+        console.error('Create task error:', JSON.stringify(taskResponse.body, null, 2));
+      }
+      expect(taskResponse.status).toBe(200);
+      expect(taskResponse.body.data?.createTask).toBeDefined();
+      const notifTestTaskId = taskResponse.body.data.createTask.id;
+
+      // Clear existing notifications
+      await prismaService.notification.deleteMany({
+        where: { userId: memberId },
+      });
+
+      // Complete task (should auto-complete and award points)
+      await request(app.getHttpServer())
+        .post('/graphql')
+        .set('Authorization', `Bearer ${memberToken}`)
+        .send({
+          query: `
+            mutation CompleteTask($input: CompleteTaskInput!) {
+              completeTask(input: $input) {
+                id
+                status
+              }
+            }
+          `,
+          variables: {
+            input: {
+              taskId: notifTestTaskId,
+            },
+          },
+        });
+
+      // Verify POINT_AWARDED notification was created
+      const notifications = await prismaService.notification.findMany({
+        where: {
+          userId: memberId,
+          type: NotificationType.POINT_AWARDED,
+        },
+      });
+
+      expect(notifications).toHaveLength(1);
+      expect(notifications[0].title).toBe('Points Awarded');
+      expect(notifications[0].message).toContain('100 points');
+      expect(notifications[0].message).toContain('Notification Test Task');
+      expect(notifications[0].relatedEntityType).toBe('Task');
+      expect(notifications[0].relatedEntityId).toBe(notifTestTaskId);
+    });
+
+    it('should create POINT_AWARDED notification when task is approved', async () => {
+      // Create task with approval requirement
+      const taskResponse = await request(app.getHttpServer())
+        .post('/graphql')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({
+          query: `
+            mutation CreateTask($input: CreateTaskInput!) {
+              createTask(input: $input) {
+                id
+              }
+            }
+          `,
+          variables: {
+            input: {
+              groupId,
+              title: 'Approval Notification Test',
+              description: 'Testing approval point notifications',
+              priority: 'HIGH',
+              points: 150,
+              requiresApproval: true,
+              assigneeId: memberId,
+              deadline: new Date(Date.now() + 86400000).toISOString(), // Tomorrow
+            },
+          },
+        });
+
+      expect(taskResponse.status).toBe(200);
+      expect(taskResponse.body.data?.createTask).toBeDefined();
+      const approvalTaskId = taskResponse.body.data.createTask.id;
+
+      // Complete task (moves to AWAITING_APPROVAL)
+      await request(app.getHttpServer())
+        .post('/graphql')
+        .set('Authorization', `Bearer ${memberToken}`)
+        .send({
+          query: `
+            mutation CompleteTask($input: CompleteTaskInput!) {
+              completeTask(input: $input) {
+                id
+              }
+            }
+          `,
+          variables: {
+            input: {
+              taskId: approvalTaskId,
+            },
+          },
+        });
+
+      // Clear notifications before approval
+      await prismaService.notification.deleteMany({
+        where: { userId: memberId },
+      });
+
+      // Approve task
+      await request(app.getHttpServer())
+        .post('/graphql')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({
+          query: `
+            mutation ApproveTask($input: ApproveTaskInput!) {
+              approveTask(input: $input) {
+                id
+                status
+              }
+            }
+          `,
+          variables: {
+            input: {
+              taskId: approvalTaskId,
+              approved: true,
+            },
+          },
+        });
+
+      // Verify POINT_AWARDED notification was created
+      const notifications = await prismaService.notification.findMany({
+        where: {
+          userId: memberId,
+          type: 'POINT_AWARDED' as any,
+        },
+      });
+
+      expect(notifications).toHaveLength(1);
+      expect(notifications[0].title).toBe('Points Awarded');
+      expect(notifications[0].message).toContain('150 points');
+      expect(notifications[0].message).toContain('Approval Notification Test');
+      expect(notifications[0].message).toContain('approval');
+    });
+
+    it('should include Up-for-Grabs bonus in notification message', async () => {
+      // Create unassigned task
+      const taskResponse = await request(app.getHttpServer())
+        .post('/graphql')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({
+          query: `
+            mutation CreateTask($input: CreateTaskInput!) {
+              createTask(input: $input) {
+                id
+              }
+            }
+          `,
+          variables: {
+            input: {
+              groupId,
+              title: 'Up-for-Grabs Bonus Test',
+              description: 'Testing bonus notification',
+              priority: 'MEDIUM',
+              points: 100,
+              requiresApproval: false,
+              rotationType: 'DISABLED', // Keep task unassigned for Up-for-Grabs pool
+              deadline: new Date(Date.now() + 86400000).toISOString(), // Tomorrow
+            },
+          },
+        });
+
+      expect(taskResponse.status).toBe(200);
+      expect(taskResponse.body.data?.createTask).toBeDefined();
+      const bonusTaskId = taskResponse.body.data.createTask.id;
+
+      // Claim task
+      const claimResponse = await request(app.getHttpServer())
+        .post('/graphql')
+        .set('Authorization', `Bearer ${memberToken}`)
+        .send({
+          query: `
+            mutation ClaimTask($input: ClaimTaskInput!) {
+              claimTask(input: $input) {
+                id
+                assigneeId
+              }
+            }
+          `,
+          variables: {
+            input: {
+              taskId: bonusTaskId,
+            },
+          },
+        });
+
+      // Clear notifications
+      await prismaService.notification.deleteMany({
+        where: { userId: memberId },
+      });
+
+      // Complete task
+      await request(app.getHttpServer())
+        .post('/graphql')
+        .set('Authorization', `Bearer ${memberToken}`)
+        .send({
+          query: `
+            mutation CompleteTask($input: CompleteTaskInput!) {
+              completeTask(input: $input) {
+                id
+                status
+              }
+            }
+          `,
+          variables: {
+            input: {
+              taskId: bonusTaskId,
+            },
+          },
+        });
+
+      // Verify notification mentions bonus
+      const notifications = await prismaService.notification.findMany({
+        where: {
+          userId: memberId,
+          type: 'POINT_AWARDED' as any,
+        },
+      });
+
+      expect(notifications).toHaveLength(1);
+      expect(notifications[0].message).toContain('Up-for-Grabs bonus');
+      expect(notifications[0].message).toContain('150 points'); // 100 * 1.5
     });
   });
 });

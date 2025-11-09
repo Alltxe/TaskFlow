@@ -139,6 +139,22 @@ describe('User Statistics (e2e)', () => {
       },
     });
 
+    // Cleanup notifications and point transactions created during the test before deleting users
+    await prisma.notification.deleteMany({
+      where: {
+        OR: [
+          { userId: { in: [testUser1.id, testUser2.id] } },
+          { sentById: { in: [testUser1.id, testUser2.id] } },
+        ],
+      },
+    });
+
+    await prisma.pointTransaction.deleteMany({
+      where: {
+        userId: { in: [testUser1.id, testUser2.id] },
+      },
+    });
+
     await prisma.user.deleteMany({
       where: {
         email: {

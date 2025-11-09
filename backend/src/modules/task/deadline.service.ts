@@ -1,6 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { PrismaService } from '../prisma/prisma.service';
+import { NotificationService } from '../notification/notification.service';
+import { NotificationType as NotificationTypeEnum } from '@prisma/client';
 
 /**
  * Deadline Monitoring Service (PRD 3.6.3)
@@ -10,7 +12,7 @@ import { PrismaService } from '../prisma/prisma.service';
 export class DeadlineService {
   private readonly logger = new Logger(DeadlineService.name);
 
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService, private notifications: NotificationService) {}
 
   /**
    * Проверка просроченных задач (запускается каждый час)
@@ -120,21 +122,30 @@ export class DeadlineService {
         `Found ${tasks24h.length} tasks due in 24h, ${tasks1h.length} tasks due in 1h`,
       );
 
-      // TODO: Send notifications via Notification Service (Phase 8)
-      // For now, just log the reminders
+      // Send notifications via Notification Service (Phase 8)
       for (const task of tasks24h) {
         if (task.assignee) {
-          this.logger.debug(
-            `Reminder (24h): Task "${task.title}" assigned to ${task.assignee.username}`,
-          );
+          await this.notifications.notify({
+            userId: task.assignee.id,
+            title: 'Task due in 24h',
+            message: `"${task.title}" is due in 24 hours`,
+            type: NotificationTypeEnum.SYSTEM,
+            relatedEntityType: 'Task',
+            relatedEntityId: task.id,
+          });
         }
       }
 
       for (const task of tasks1h) {
         if (task.assignee) {
-          this.logger.debug(
-            `Reminder (1h): Task "${task.title}" assigned to ${task.assignee.username}`,
-          );
+          await this.notifications.notify({
+            userId: task.assignee.id,
+            title: 'Task due in 1h',
+            message: `"${task.title}" is due in 1 hour`,
+            type: NotificationTypeEnum.SYSTEM,
+            relatedEntityType: 'Task',
+            relatedEntityId: task.id,
+          });
         }
       }
     } catch (error) {

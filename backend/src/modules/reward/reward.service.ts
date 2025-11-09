@@ -2,12 +2,15 @@ import { Injectable, ForbiddenException, NotFoundException, BadRequestException 
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateRewardInput, UpdateRewardInput, RequestRewardInput, ApproveRewardRequestInput } from './dto/reward.input';
 import { AuditLogService } from '../audit-log/audit-log.service';
+import { NotificationService } from '../notification/notification.service';
+import { NotificationType as NotificationTypeEnum } from '@prisma/client';
 
 @Injectable()
 export class RewardService {
   constructor(
     private prisma: PrismaService,
     private auditLogService: AuditLogService,
+    private notifications: NotificationService,
   ) {}
 
   // Permission helper
@@ -115,7 +118,7 @@ export class RewardService {
       throw new BadRequestException('Недостаточно очков для обмена награды');
     }
 
-    return this.prisma.$transaction(async (tx) => {
+    const created = await this.prisma.$transaction(async (tx) => {
       const request = await tx.rewardTransaction.create({
         data: {
           userId,
@@ -138,6 +141,18 @@ export class RewardService {
 
       return request;
     });
+
+    // Notify group admins about reward request (PRD 3.6.3)
+    await this.notifications.notifyGroupAdmins(reward.groupId, () => ({
+      title: 'Reward request',
+      message: `New reward request for "${reward.name}"`,
+      type: NotificationTypeEnum.REWARD_REQUESTED,
+      relatedEntityType: 'RewardTransaction',
+      relatedEntityId: created.id,
+      sentById: userId,
+    }));
+
+    return created;
   }
 
   async approveRewardRequest(userId: string, input: ApproveRewardRequestInput) {
@@ -152,7 +167,7 @@ export class RewardService {
 
   if ((request.status as any) !== 'RESERVED') throw new BadRequestException('Запрос должен быть в статусе RESERVED');
 
-    if (!input.approved) {
+  if (!input.approved) {
       // Reject flow
       const updated = await this.prisma.$transaction(async (tx) => {
         const updated = await tx.rewardTransaction.update({
@@ -189,6 +204,17 @@ export class RewardService {
         request.id,
         `Reward request rejected: ${request.reward.name}`,
       );
+
+      // Notify requester about rejection
+      await this.notifications.notify({
+        userId: request.userId,
+        title: 'Reward request rejected',
+        message: `Your reward request for "${request.reward.name}" was rejected: ${input.reason || 'No reason provided'}`,
+        type: NotificationTypeEnum.REWARD_REJECTED,
+        relatedEntityType: 'RewardTransaction',
+        relatedEntityId: request.id,
+        sentById: userId,
+      });
 
       return updated;
     }
@@ -228,6 +254,17 @@ export class RewardService {
       request.id,
       `Reward approved: ${request.reward.name}`,
     );
+
+    // Notify requester about approval
+    await this.notifications.notify({
+      userId: request.userId,
+      title: 'Reward request approved',
+      message: `Your reward request for "${request.reward.name}" has been approved`,
+      type: NotificationTypeEnum.REWARD_APPROVED,
+      relatedEntityType: 'RewardTransaction',
+      relatedEntityId: request.id,
+      sentById: userId,
+    });
 
     return updated;
   }

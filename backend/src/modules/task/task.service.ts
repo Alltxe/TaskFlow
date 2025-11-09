@@ -14,6 +14,8 @@ import {
 } from './dto/task.input';
 import { RotationService } from './rotation.service';
 import { AuditLogService } from '../audit-log/audit-log.service';
+import { NotificationService } from '../notification/notification.service';
+import { NotificationType as NotificationTypeEnum } from '@prisma/client';
 
 @Injectable()
 export class TaskService {
@@ -21,6 +23,7 @@ export class TaskService {
     private prisma: PrismaService,
     private rotationService: RotationService,
     private auditLogService: AuditLogService,
+    private notificationService: NotificationService,
   ) {}
 
   /**
@@ -113,6 +116,19 @@ export class TaskService {
         createdBy: true,
       },
     });
+
+    // Phase 8: Notify assignee on assignment (PRD 3.6.3)
+    if (task.assigneeId) {
+      await this.notificationService.notify({
+        userId: task.assigneeId,
+        title: 'Task assigned',
+        message: `You have been assigned: ${task.title}`,
+        type: NotificationTypeEnum.TASK_ASSIGNED,
+        relatedEntityType: 'Task',
+        relatedEntityId: task.id,
+        sentById: userId,
+      });
+    }
 
     return task;
   }
@@ -335,7 +351,29 @@ export class TaskService {
           description: `Task completed${wasClaimed ? ' (Up-for-Grabs bonus)' : ''}`,
         },
         });
+
+        // Notify user about points awarded (Phase 8 - distinct from TASK_APPROVED)
+        await this.notificationService.notify({
+          userId,
+          title: 'Points Awarded',
+          message: `You earned ${pointsAwarded} points for completing "${task.title}"${wasClaimed ? ' (Up-for-Grabs bonus!)' : ''}`,
+          type: 'POINT_AWARDED' as any,
+          relatedEntityType: 'Task',
+          relatedEntityId: task.id,
+        });
       }
+    }
+
+    // If requires approval, notify group admins that task is awaiting review
+    if (task.requiresApproval && updatedTask.status === 'AWAITING_APPROVAL') {
+      await this.notificationService.notifyGroupAdmins(task.groupId, (adminId) => ({
+        title: 'Task pending review',
+        message: `Task "${task.title}" is awaiting approval`,
+        type: NotificationTypeEnum.TASK_COMPLETED,
+        relatedEntityType: 'Task',
+        relatedEntityId: task.id,
+        sentById: userId,
+      }));
     }
 
     return updatedTask;
@@ -431,6 +469,16 @@ export class TaskService {
           taskId,
           `Task approved${wasClaimed ? ' (Up-for-Grabs bonus)' : ''}`,
         );
+
+        // Notify user about points awarded (Phase 8 - distinct from TASK_APPROVED)
+        await this.notificationService.notify({
+          userId: task.assigneeId,
+          title: 'Points Awarded',
+          message: `You earned ${pointsAwarded} points for "${task.title}" approval${wasClaimed ? ' (Up-for-Grabs bonus!)' : ''}`,
+          type: 'POINT_AWARDED' as any,
+          relatedEntityType: 'Task',
+          relatedEntityId: task.id,
+        });
       }
     }
 
@@ -441,6 +489,31 @@ export class TaskService {
       rejectionReason,
       userId,
     );
+
+    // Phase 8: Notifications to assignee on approval/rejection
+    if (task.assigneeId) {
+      if (approved) {
+        await this.notificationService.notify({
+          userId: task.assigneeId,
+          title: 'Task approved',
+          message: `Your task "${task.title}" has been approved`,
+          type: NotificationTypeEnum.TASK_APPROVED,
+          relatedEntityType: 'Task',
+          relatedEntityId: task.id,
+          sentById: userId,
+        });
+      } else {
+        await this.notificationService.notify({
+          userId: task.assigneeId,
+          title: 'Task rejected',
+          message: `Your task "${task.title}" was rejected: ${rejectionReason}`,
+          type: NotificationTypeEnum.TASK_REJECTED,
+          relatedEntityType: 'Task',
+          relatedEntityId: task.id,
+          sentById: userId,
+        });
+      }
+    }
 
     return updatedTask;
   }
@@ -485,6 +558,17 @@ export class TaskService {
         createdBy: true,
         group: true,
       },
+    });
+
+    // Notify claimer about assignment confirmation
+    await this.notificationService.notify({
+      userId,
+      title: 'Task claimed',
+      message: `You claimed: ${updatedTask.title}`,
+      type: NotificationTypeEnum.TASK_ASSIGNED,
+      relatedEntityType: 'Task',
+      relatedEntityId: updatedTask.id,
+      sentById: userId,
     });
 
     return updatedTask;

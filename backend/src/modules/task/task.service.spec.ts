@@ -130,6 +130,13 @@ describe('TaskService', () => {
             createLog: jest.fn(),
           },
         },
+        {
+          provide: require('../notification/notification.service').NotificationService,
+          useValue: {
+            notify: jest.fn().mockResolvedValue({}),
+            notifyGroupAdmins: jest.fn().mockResolvedValue([]),
+          },
+        },
       ],
     }).compile();
 
