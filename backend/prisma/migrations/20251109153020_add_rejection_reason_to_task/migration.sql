@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "tasks" ADD COLUMN "rejection_reason" TEXT;

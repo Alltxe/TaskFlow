@@ -139,6 +139,11 @@ export class ApproveTaskInput {
   @IsNotEmpty()
   @IsBoolean()
   approved: boolean;
+
+  @Field(() => String, { nullable: true })
+  @IsOptional()
+  @IsString()
+  rejectionReason?: string;
 }
 
 @InputType()

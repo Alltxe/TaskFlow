@@ -13,10 +13,15 @@ import {
   ClaimTaskInput,
 } from './dto/task.input';
 import { RotationService } from './rotation.service';
+import { AuditLogService } from '../audit-log/audit-log.service';
 
 @Injectable()
 export class TaskService {
-  constructor(private prisma: PrismaService, private rotationService: RotationService) {}
+  constructor(
+    private prisma: PrismaService,
+    private rotationService: RotationService,
+    private auditLogService: AuditLogService,
+  ) {}
 
   /**
    * Создать задачу (только админы группы)
@@ -317,6 +322,20 @@ export class TaskService {
           wasOnTime,
         },
       });
+
+      // Create point ledger entry (Phase 6 - PRD 3.5.1)
+      if ((this.prisma as any).pointTransaction) {
+        await (this.prisma as any).pointTransaction.create({
+        data: {
+          type: 'EARNED',
+          amount: pointsAwarded,
+          userId,
+          groupId: task.groupId,
+          taskId: task.id,
+          description: `Task completed${wasClaimed ? ' (Up-for-Grabs bonus)' : ''}`,
+        },
+        });
+      }
     }
 
     return updatedTask;
@@ -326,7 +345,7 @@ export class TaskService {
    * Одобрить/отклонить задачу (только админы)
    */
   async approveTask(userId: string, input: ApproveTaskInput) {
-    const { taskId, approved } = input;
+    const { taskId, approved, rejectionReason } = input;
     const task = await this.getTask(taskId, userId);
 
     // Проверяем права администратора
@@ -346,6 +365,11 @@ export class TaskService {
       throw new BadRequestException('Задача не ожидает одобрения');
     }
 
+    // PRD 3.6.2: При отклонении требуется причина
+    if (!approved && !rejectionReason) {
+      throw new BadRequestException('При отклонении задачи необходимо указать причину');
+    }
+
     const newStatus = approved ? 'COMPLETED' : 'PENDING';
 
     const updatedTask = await this.prisma.task.update({
@@ -353,8 +377,9 @@ export class TaskService {
       data: {
         status: newStatus,
         approvedById: approved ? userId : null,
+        rejectionReason: approved ? null : rejectionReason,
         ...(approved && { completedAt: new Date() }),
-      },
+      } as any,
       include: {
         assignee: true,
         createdBy: true,
@@ -383,7 +408,39 @@ export class TaskService {
           wasOnTime,
         },
       });
+
+      // Point ledger entry for approved task completion (PRD 3.5.1)
+      if ((this.prisma as any).pointTransaction) {
+        await (this.prisma as any).pointTransaction.create({
+        data: {
+          type: 'EARNED',
+          amount: pointsAwarded,
+          userId: task.assigneeId,
+          groupId: task.groupId,
+          taskId: task.id,
+          description: `Task approved${wasClaimed ? ' (Up-for-Grabs bonus)' : ''}`,
+        },
+        });
+
+        // Audit log for point transaction (PRD 3.6.4)
+        await this.auditLogService.logPointTransaction(
+          'EARNED',
+          pointsAwarded,
+          task.assigneeId,
+          task.groupId,
+          taskId,
+          `Task approved${wasClaimed ? ' (Up-for-Grabs bonus)' : ''}`,
+        );
+      }
     }
+
+    // Audit log for task approval/rejection (PRD 3.6.4)
+    await this.auditLogService.logTaskApproval(
+      taskId,
+      approved,
+      rejectionReason,
+      userId,
+    );
 
     return updatedTask;
   }

@@ -525,6 +525,7 @@ describe('Task Operations (e2e)', () => {
               approveTask(input: $input) {
                 id
                 status
+                rejectionReason
               }
             }
           `,
@@ -532,12 +533,14 @@ describe('Task Operations (e2e)', () => {
             input: {
               taskId: stateTaskId,
               approved: false,
+              rejectionReason: 'Требуется доработка',
             },
           },
         });
 
       expect(rejectResponse.status).toBe(200);
       expect(rejectResponse.body.data.approveTask.status).toBe('PENDING');
+      expect(rejectResponse.body.data.approveTask.rejectionReason).toBe('Требуется доработка');
     });
 
     it('should NOT allow non-assignee to complete a task', async () => {

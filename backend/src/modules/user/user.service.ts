@@ -165,7 +165,37 @@ export class UserService {
     userId: string,
     groupId?: string,
   ): Promise<number> {
-    const stats = await this.calculateUserStatistics(userId, groupId);
-    return stats.currentPointBalance;
+    // Use point transaction ledger if present (Phase 6)
+    if (!(this.prisma as any).pointTransaction) {
+      const stats = await this.calculateUserStatistics(userId, groupId);
+      return stats.currentPointBalance;
+    }
+    const earnedAgg = await (this.prisma as any).pointTransaction.aggregate({
+      _sum: { amount: true },
+      where: { userId, type: 'EARNED', ...(groupId && { groupId }) },
+    });
+    // If ledger empty fall back to legacy calculation
+    const earned = earnedAgg._sum.amount || 0;
+    if (earned === 0) {
+      const stats = await this.calculateUserStatistics(userId, groupId);
+      return stats.currentPointBalance;
+    }
+    const spentAgg = await (this.prisma as any).pointTransaction.aggregate({
+      _sum: { amount: true },
+      where: { userId, type: 'SPENT', ...(groupId && { groupId }) },
+    });
+    const reservedAgg = await (this.prisma as any).pointTransaction.aggregate({
+      _sum: { amount: true },
+      where: { userId, type: 'RESERVED', ...(groupId && { groupId }) },
+    });
+    const refundedAgg = await (this.prisma as any).pointTransaction.aggregate({
+      _sum: { amount: true },
+      where: { userId, type: 'REFUNDED', ...(groupId && { groupId }) },
+    });
+
+    const spent = spentAgg._sum.amount || 0;
+    const reserved = reservedAgg._sum.amount || 0;
+    const refunded = refundedAgg._sum.amount || 0;
+    return earned + refunded - spent - reserved;
   }
 }

@@ -7,6 +7,7 @@ import {
 import { TaskService } from './task.service';
 import { RotationService } from './rotation.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { AuditLogService } from '../audit-log/audit-log.service';
 import {
   CreateTaskInput,
   UpdateTaskInput,
@@ -120,6 +121,14 @@ describe('TaskService', () => {
         {
           provide: PrismaService,
           useValue: mockPrismaService,
+        },
+        {
+          provide: AuditLogService,
+          useValue: {
+            logTaskApproval: jest.fn(),
+            logPointTransaction: jest.fn(),
+            createLog: jest.fn(),
+          },
         },
       ],
     }).compile();
@@ -590,6 +599,7 @@ describe('TaskService', () => {
       const input: ApproveTaskInput = {
         taskId: mockTaskId,
         approved: false,
+        rejectionReason: 'Некачественная работа', // PRD 3.6.2: rejection reason required
       };
 
       mockPrismaService.task.findUnique.mockResolvedValue(awaitingTask);
@@ -600,6 +610,7 @@ describe('TaskService', () => {
         ...awaitingTask,
         status: 'PENDING',
         approvedById: null,
+        rejectionReason: 'Некачественная работа',
       });
 
       const result = await service.approveTask(mockAdminUserId, input);

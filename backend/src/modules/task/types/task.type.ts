@@ -42,6 +42,9 @@ export class TaskType {
   @Field(() => Boolean)
   wasClaimedFromPool: boolean;
 
+  @Field(() => String, { nullable: true })
+  rejectionReason?: string | null;
+
   @Field(() => Date)
   createdAt: Date;
 

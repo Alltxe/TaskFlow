@@ -36,6 +36,7 @@ model User {
   rewardCreations   Reward[]
   auditLogs         AuditLog[]
   refreshTokens     RefreshToken[]
+  pointTransactions PointTransaction[]
 
   @@map("users")
 }
@@ -58,6 +59,7 @@ model Group {
   tasks           Task[]
   rewards         Reward[]
   taskAttachments TaskAttachment[]
+  pointTransactions PointTransaction[]
 
   @@map("groups")
 }
@@ -92,6 +94,7 @@ model Task {
   rotationType     RotationType?  @map("rotation_type")
   weight           Int            @default(1)
   wasClaimedFromPool Boolean      @default(false) @map("was_claimed_from_pool")
+  rejectionReason  String?        @map("rejection_reason")
   createdAt        DateTime       @default(now()) @map("created_at")
   completedAt      DateTime?      @map("completed_at")
   groupId          String         @map("group_id")
@@ -109,6 +112,7 @@ model Task {
   childTasks     Task[]                  @relation("TaskRecurrence")
   attachments    TaskAttachment[]
   completions    TaskCompletionHistory[]
+  pointTransactions PointTransaction[]
 
   @@index([groupId, status])
   @@index([assigneeId, status])
@@ -165,6 +169,8 @@ model RewardTransaction {
   userId      String               @map("user_id")
   rewardId    String               @map("reward_id")
   approvedById String?             @map("approved_by")
+  rejectionReason String?          @map("rejection_reason")
+  pointTransactions PointTransaction[]
 
   // Relations
   user        User   @relation("RewardTransactionRequester", fields: [userId], references: [id])
@@ -299,9 +305,39 @@ enum TaskStatus {
 
 enum RewardTransactionStatus {
   PENDING
+  RESERVED
   APPROVED
   REJECTED
   CANCELLED
+}
+
+model PointTransaction {
+  id                String              @id @default(cuid())
+  type              PointTransactionType
+  amount            Int
+  description       String?
+  createdAt         DateTime            @default(now()) @map("created_at")
+  userId            String              @map("user_id")
+  groupId           String              @map("group_id")
+  taskId            String?             @map("task_id")
+  rewardTransactionId String?           @map("reward_transaction_id")
+
+  // Relations
+  user              User                @relation(fields: [userId], references: [id])
+  group             Group               @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  task              Task?               @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  rewardTransaction RewardTransaction?  @relation(fields: [rewardTransactionId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([groupId])
+  @@map("point_transactions")
+}
+
+enum PointTransactionType {
+  EARNED
+  RESERVED
+  SPENT
+  REFUNDED
 }
 
 enum NotificationType {
