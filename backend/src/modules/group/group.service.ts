@@ -14,10 +14,14 @@ import {
   MemberRole,
 } from './dto/group.input';
 import { randomBytes } from 'crypto';
+import { AuditLogService } from '../audit-log/audit-log.service';
 
 @Injectable()
 export class GroupService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private auditLogService: AuditLogService,
+  ) {}
 
   /**
    * Создать группу
@@ -303,6 +307,8 @@ export class GroupService {
       throw new NotFoundException('Участник не найден в группе');
     }
 
+    const oldRole = member.role;
+
     const updatedMember = await this.prisma.groupMember.update({
       where: { id: member.id },
       data: {
@@ -314,6 +320,15 @@ export class GroupService {
         group: true,
       },
     });
+
+    // Audit log for role change (PRD 3.6.4)
+    await this.auditLogService.logRoleChange(
+      groupId,
+      userId,
+      oldRole,
+      role,
+      adminId,
+    );
 
     return updatedMember;
   }

@@ -4,110 +4,119 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 model User {
-  id           String        @id @default(cuid())
-  email        String        @unique
+  id           String    @id @default(cuid())
+  email        String    @unique
   username     String
-  passwordHash String        @map("password_hash")
-  avatarUrl    String?       @map("avatar_url")
-  isAway       Boolean       @default(false) @map("is_away")
-  awayUntil    DateTime?     @map("away_until")
-  createdAt    DateTime      @default(now()) @map("created_at")
-  updatedAt    DateTime      @updatedAt @map("updated_at")
+  passwordHash String    @map("password_hash")
+  avatarUrl    String?   @map("avatar_url")
+  isAway       Boolean   @default(false) @map("is_away")
+  awayUntil    DateTime? @map("away_until")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
 
   // Relations
-  createdGroups     Group[]              @relation("GroupCreator")
-  groupMemberships  GroupMember[]
-  createdTasks      Task[]               @relation("TaskCreator")
-  assignedTasks     Task[]               @relation("TaskAssignee")
-  approvedTasks     Task[]               @relation("TaskApprover")
-  rewardRequests    RewardTransaction[]  @relation("RewardTransactionRequester")
-  approvedRewards   RewardTransaction[]  @relation("RewardTransactionApprover")
-  taskCompletions   TaskCompletionHistory[] @relation("TaskCompletionUser")
-  taskApprovals     TaskCompletionHistory[] @relation("TaskCompletionApprover")
-  notifications     Notification[]       @relation("AssignedUser")
-  sentNotifications Notification[]       @relation("NotificationSender")
-  taskAttachments   TaskAttachment[]
-  completionAttachments TaskCompletionAttachment[]
-  rewardCreations   Reward[]
-  auditLogs         AuditLog[]
-  refreshTokens     RefreshToken[]
+  createdGroups          Group[]                    @relation("GroupCreator")
+  groupMemberships       GroupMember[]
+  createdTasks           Task[]                     @relation("TaskCreator")
+  assignedTasks          Task[]                     @relation("TaskAssignee")
+  approvedTasks          Task[]                     @relation("TaskApprover")
+  rewardRequests         RewardTransaction[]        @relation("RewardTransactionRequester")
+  approvedRewards        RewardTransaction[]        @relation("RewardTransactionApprover")
+  taskCompletions        TaskCompletionHistory[]    @relation("TaskCompletionUser")
+  taskApprovals          TaskCompletionHistory[]    @relation("TaskCompletionApprover")
+  notifications          Notification[]             @relation("AssignedUser")
+  sentNotifications      Notification[]             @relation("NotificationSender")
+  taskAttachments        TaskAttachment[]
+  completionAttachments  TaskCompletionAttachment[]
+  rewardCreations        Reward[]
+  auditLogs              AuditLog[]
+  refreshTokens          RefreshToken[]
+  pointTransactions      PointTransaction[]
+  deviceTokens           DeviceToken[]
+  notificationPreference NotificationPreference?
 
   @@map("users")
 }
 
 model Group {
-  id                  String               @id @default(cuid())
+  id                  String       @id @default(cuid())
   name                String
   description         String?
-  inviteToken         String?              @unique @map("invite_token")
-  requiresApproval    Boolean              @default(true) @map("requires_approval")
-  rotationType        RotationType         @default(ROUND_ROBIN) @map("rotation_type")
-  gamificationEnabled Boolean              @default(true) @map("gamification_enabled")
-  createdAt           DateTime             @default(now()) @map("created_at")
-  updatedAt           DateTime             @updatedAt @map("updated_at")
-  createdById         String               @map("created_by")
+  inviteToken         String?      @unique @map("invite_token")
+  requiresApproval    Boolean      @default(true) @map("requires_approval")
+  rotationType        RotationType @default(ROUND_ROBIN) @map("rotation_type")
+  gamificationEnabled Boolean      @default(true) @map("gamification_enabled")
+  createdAt           DateTime     @default(now()) @map("created_at")
+  updatedAt           DateTime     @updatedAt @map("updated_at")
+  createdById         String       @map("created_by")
 
   // Relations
-  creator         User              @relation("GroupCreator", fields: [createdById], references: [id])
-  members         GroupMember[]
-  tasks           Task[]
-  rewards         Reward[]
-  taskAttachments TaskAttachment[]
+  creator           User               @relation("GroupCreator", fields: [createdById], references: [id])
+  members           GroupMember[]
+  tasks             Task[]
+  rewards           Reward[]
+  taskAttachments   TaskAttachment[]
+  pointTransactions PointTransaction[]
 
   @@map("groups")
 }
 
 model GroupMember {
-  id            String   @id @default(cuid())
-  userId        String   @map("user_id")
-  groupId       String   @map("group_id")
+  id            String     @id @default(cuid())
+  userId        String     @map("user_id")
+  groupId       String     @map("group_id")
   role          MemberRole
-  joinedAt      DateTime @default(now()) @map("joined_at")
-  roleChangedAt DateTime @default(now()) @map("role_changed_at")
+  joinedAt      DateTime   @default(now()) @map("joined_at")
+  roleChangedAt DateTime   @default(now()) @map("role_changed_at")
 
   // Relations
   user  User  @relation(fields: [userId], references: [id])
   group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
 
   @@unique([userId, groupId])
+  @@index([groupId]) // Index for frequent group member lookups
+  @@index([userId]) // Index for user's group memberships
   @@map("group_members")
 }
 
 model Task {
-  id               String         @id @default(cuid())
-  title            String
-  description      String?
-  deadline         DateTime
-  priority         TaskPriority
-  status           TaskStatus     @default(PENDING)
-  points           Int
-  requiresApproval Boolean        @default(true) @map("requires_approval")
-  isRecurring      Boolean        @default(false) @map("is_recurring")
-  recurrenceRule   String?        @map("recurrence_rule")
-  rotationType     RotationType?  @map("rotation_type")
-  weight           Int            @default(1)
-  createdAt        DateTime       @default(now()) @map("created_at")
-  completedAt      DateTime?      @map("completed_at")
-  groupId          String         @map("group_id")
-  createdById      String         @map("created_by")
-  assigneeId       String?        @map("assignee_id")
-  approvedById     String?        @map("approved_by")
-  parentTaskId     String?        @map("parent_task_id")
+  id                 String        @id @default(cuid())
+  title              String
+  description        String?
+  deadline           DateTime
+  priority           TaskPriority
+  status             TaskStatus    @default(PENDING)
+  points             Int
+  requiresApproval   Boolean       @default(true) @map("requires_approval")
+  isRecurring        Boolean       @default(false) @map("is_recurring")
+  recurrenceRule     String?       @map("recurrence_rule")
+  rotationType       RotationType? @map("rotation_type")
+  weight             Int           @default(1)
+  wasClaimedFromPool Boolean       @default(false) @map("was_claimed_from_pool")
+  rejectionReason    String?       @map("rejection_reason")
+  createdAt          DateTime      @default(now()) @map("created_at")
+  completedAt        DateTime?     @map("completed_at")
+  groupId            String        @map("group_id")
+  createdById        String        @map("created_by")
+  assigneeId         String?       @map("assignee_id")
+  approvedById       String?       @map("approved_by")
+  parentTaskId       String?       @map("parent_task_id")
 
   // Relations
-  group          Group                   @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  createdBy      User                    @relation("TaskCreator", fields: [createdById], references: [id])
-  assignee       User?                   @relation("TaskAssignee", fields: [assigneeId], references: [id])
-  approvedBy     User?                   @relation("TaskApprover", fields: [approvedById], references: [id])
-  parentTask     Task?                   @relation("TaskRecurrence", fields: [parentTaskId], references: [id])
-  childTasks     Task[]                  @relation("TaskRecurrence")
-  attachments    TaskAttachment[]
-  completions    TaskCompletionHistory[]
+  group             Group                   @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  createdBy         User                    @relation("TaskCreator", fields: [createdById], references: [id])
+  assignee          User?                   @relation("TaskAssignee", fields: [assigneeId], references: [id])
+  approvedBy        User?                   @relation("TaskApprover", fields: [approvedById], references: [id])
+  parentTask        Task?                   @relation("TaskRecurrence", fields: [parentTaskId], references: [id])
+  childTasks        Task[]                  @relation("TaskRecurrence")
+  attachments       TaskAttachment[]
+  completions       TaskCompletionHistory[]
+  pointTransactions PointTransaction[]
 
   @@index([groupId, status])
   @@index([assigneeId, status])
@@ -116,20 +125,20 @@ model Task {
 }
 
 model TaskAttachment {
-  id          String   @id @default(cuid())
-  url         String
-  filename    String
-  fileSize    Int      @map("file_size")
-  mimeType    String   @map("mime_type")
-  uploadedAt  DateTime @default(now()) @map("uploaded_at")
-  taskId      String   @map("task_id")
-  groupId     String   @map("group_id")
-  uploadedById String  @map("uploaded_by")
+  id           String   @id @default(cuid())
+  url          String
+  filename     String
+  fileSize     Int      @map("file_size")
+  mimeType     String   @map("mime_type")
+  uploadedAt   DateTime @default(now()) @map("uploaded_at")
+  taskId       String   @map("task_id")
+  groupId      String   @map("group_id")
+  uploadedById String   @map("uploaded_by")
 
   // Relations
-  task        Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
-  group       Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  uploadedBy  User @relation(fields: [uploadedById], references: [id])
+  task       Task  @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  group      Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  uploadedBy User  @relation(fields: [uploadedById], references: [id])
 
   @@index([taskId])
   @@map("task_attachments")
@@ -147,47 +156,51 @@ model Reward {
   createdById String   @map("created_by")
 
   // Relations
-  group           Group               @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  createdBy       User                @relation(fields: [createdById], references: [id])
-  transactions    RewardTransaction[]
+  group        Group               @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  createdBy    User                @relation(fields: [createdById], references: [id])
+  transactions RewardTransaction[]
 
   @@map("rewards")
 }
 
 model RewardTransaction {
-  id          String               @id @default(cuid())
-  pointsSpent Int                  @map("points_spent")
-  status      RewardTransactionStatus
-  requestedAt DateTime             @default(now()) @map("requested_at")
-  approvedAt  DateTime?            @map("approved_at")
-  rejectedAt  DateTime?            @map("rejected_at")
-  userId      String               @map("user_id")
-  rewardId    String               @map("reward_id")
-  approvedById String?             @map("approved_by")
+  id                String                  @id @default(cuid())
+  pointsSpent       Int                     @map("points_spent")
+  status            RewardTransactionStatus
+  requestedAt       DateTime                @default(now()) @map("requested_at")
+  approvedAt        DateTime?               @map("approved_at")
+  rejectedAt        DateTime?               @map("rejected_at")
+  userId            String                  @map("user_id")
+  rewardId          String                  @map("reward_id")
+  approvedById      String?                 @map("approved_by")
+  rejectionReason   String?                 @map("rejection_reason")
+  pointTransactions PointTransaction[]
 
   // Relations
-  user        User   @relation("RewardTransactionRequester", fields: [userId], references: [id])
-  reward      Reward @relation(fields: [rewardId], references: [id], onDelete: Cascade)
-  approvedBy  User?  @relation("RewardTransactionApprover", fields: [approvedById], references: [id])
+  user       User   @relation("RewardTransactionRequester", fields: [userId], references: [id])
+  reward     Reward @relation(fields: [rewardId], references: [id], onDelete: Cascade)
+  approvedBy User?  @relation("RewardTransactionApprover", fields: [approvedById], references: [id])
 
+  @@index([userId, status]) // Index for user's reward requests with filtering
+  @@index([rewardId]) // Index for reward transaction lookups
   @@map("reward_transactions")
 }
 
 model TaskCompletionHistory {
-  id              String   @id @default(cuid())
-  pointsAwarded   Int      @map("points_awarded")
-  completedAt     DateTime @map("completed_at")
-  approvedAt      DateTime? @map("approved_at")
-  wasUpForGrabs   Boolean  @default(false) @map("was_up_for_grabs")
-  wasOnTime       Boolean  @default(false) @map("was_on_time")
-  taskId          String   @map("task_id")
-  userId          String   @map("user_id")
-  approvedById    String?  @map("approved_by")
+  id            String    @id @default(cuid())
+  pointsAwarded Int       @map("points_awarded")
+  completedAt   DateTime  @map("completed_at")
+  approvedAt    DateTime? @map("approved_at")
+  wasUpForGrabs Boolean   @default(false) @map("was_up_for_grabs")
+  wasOnTime     Boolean   @default(false) @map("was_on_time")
+  taskId        String    @map("task_id")
+  userId        String    @map("user_id")
+  approvedById  String?   @map("approved_by")
 
   // Relations - ИСПРАВЛЕННЫЕ ОТНОШЕНИЯ
-  task        Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
-  user        User @relation("TaskCompletionUser", fields: [userId], references: [id])
-  approvedBy  User? @relation("TaskCompletionApprover", fields: [approvedById], references: [id])
+  task        Task                       @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  user        User                       @relation("TaskCompletionUser", fields: [userId], references: [id])
+  approvedBy  User?                      @relation("TaskCompletionApprover", fields: [approvedById], references: [id])
   attachments TaskCompletionAttachment[]
 
   @@unique([taskId, userId, completedAt])
@@ -196,52 +209,52 @@ model TaskCompletionHistory {
 }
 
 model TaskCompletionAttachment {
-  id          String   @id @default(cuid())
-  url         String
-  filename    String
-  fileSize    Int      @map("file_size")
-  mimeType    String   @map("mime_type")
-  uploadedAt  DateTime @default(now()) @map("uploaded_at")
-  completionId String  @map("completion_id")
-  uploadedById String  @map("uploaded_by")
+  id           String   @id @default(cuid())
+  url          String
+  filename     String
+  fileSize     Int      @map("file_size")
+  mimeType     String   @map("mime_type")
+  uploadedAt   DateTime @default(now()) @map("uploaded_at")
+  completionId String   @map("completion_id")
+  uploadedById String   @map("uploaded_by")
 
   // Relations
-  completion  TaskCompletionHistory @relation(fields: [completionId], references: [id], onDelete: Cascade)
-  uploadedBy  User @relation(fields: [uploadedById], references: [id])
+  completion TaskCompletionHistory @relation(fields: [completionId], references: [id], onDelete: Cascade)
+  uploadedBy User                  @relation(fields: [uploadedById], references: [id])
 
   @@map("task_completion_attachments")
 }
 
 model Notification {
-  id                  String   @id @default(cuid())
-  title               String
-  message             String
-  type                NotificationType
-  isRead              Boolean  @default(false) @map("is_read")
-  relatedEntityType   String?  @map("related_entity_type")
-  relatedEntityId     String?  @map("related_entity_id")
-  createdAt           DateTime @default(now()) @map("created_at")
-  userId              String   @map("user_id")
-  sentById            String?  @map("sent_by")
+  id                String           @id @default(cuid())
+  title             String
+  message           String
+  type              NotificationType
+  isRead            Boolean          @default(false) @map("is_read")
+  relatedEntityType String?          @map("related_entity_type")
+  relatedEntityId   String?          @map("related_entity_id")
+  createdAt         DateTime         @default(now()) @map("created_at")
+  userId            String           @map("user_id")
+  sentById          String?          @map("sent_by")
 
   // Relations
-  user    User @relation("AssignedUser", fields: [userId], references: [id])
-  sentBy  User? @relation("NotificationSender", fields: [sentById], references: [id])
+  user   User  @relation("AssignedUser", fields: [userId], references: [id])
+  sentBy User? @relation("NotificationSender", fields: [sentById], references: [id])
 
   @@index([userId, isRead])
   @@map("notifications")
 }
 
 model AuditLog {
-  id              String   @id @default(cuid())
-  action          String
-  entityType      String   @map("entity_type")
-  entityId        String?  @map("entity_id")
-  oldValues       Json?    @map("old_values")
-  newValues       Json?    @map("new_values")
-  performedAt     DateTime @default(now()) @map("performed_at")
-  ipAddress       String?  @map("ip_address")
-  userId          String?  @map("user_id")
+  id          String   @id @default(cuid())
+  action      String
+  entityType  String   @map("entity_type")
+  entityId    String?  @map("entity_id")
+  oldValues   Json?    @map("old_values")
+  newValues   Json?    @map("new_values")
+  performedAt DateTime @default(now()) @map("performed_at")
+  ipAddress   String?  @map("ip_address")
+  userId      String?  @map("user_id")
 
   // Relations
   user User? @relation(fields: [userId], references: [id])
@@ -252,12 +265,12 @@ model AuditLog {
 }
 
 model RefreshToken {
-  id          String   @id @default(cuid())
-  tokenHash   String   @unique @map("token_hash")
-  expiresAt   DateTime @map("expires_at")
-  createdAt   DateTime @default(now()) @map("created_at")
-  revokedAt   DateTime? @map("revoked_at")
-  userId      String   @map("user_id")
+  id        String    @id @default(cuid())
+  tokenHash String    @unique @map("token_hash")
+  expiresAt DateTime  @map("expires_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  revokedAt DateTime? @map("revoked_at")
+  userId    String    @map("user_id")
 
   // Relations
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -271,6 +284,7 @@ enum RotationType {
   ROUND_ROBIN
   RANDOM
   WEIGHTED_RANDOM
+  LOAD_BALANCING
   DISABLED
 }
 
@@ -297,9 +311,40 @@ enum TaskStatus {
 
 enum RewardTransactionStatus {
   PENDING
+  RESERVED
   APPROVED
   REJECTED
   CANCELLED
+}
+
+model PointTransaction {
+  id                  String               @id @default(cuid())
+  type                PointTransactionType
+  amount              Int
+  description         String?
+  createdAt           DateTime             @default(now()) @map("created_at")
+  userId              String               @map("user_id")
+  groupId             String               @map("group_id")
+  taskId              String?              @map("task_id")
+  rewardTransactionId String?              @map("reward_transaction_id")
+
+  // Relations
+  user              User               @relation(fields: [userId], references: [id])
+  group             Group              @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  task              Task?              @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  rewardTransaction RewardTransaction? @relation(fields: [rewardTransactionId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt]) // Index for user point history
+  @@index([groupId, userId]) // Index for group leaderboard calculations
+  @@index([groupId, type]) // Index for filtering by transaction type
+  @@map("point_transactions")
+}
+
+enum PointTransactionType {
+  EARNED
+  RESERVED
+  SPENT
+  REFUNDED
 }
 
 enum NotificationType {
@@ -310,6 +355,40 @@ enum NotificationType {
   REWARD_REQUESTED
   REWARD_APPROVED
   REWARD_REJECTED
+  POINT_AWARDED
   INVITATION
   SYSTEM
+}
+
+model DeviceToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  provider  String?
+  platform  String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  userId    String   @map("user_id")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("device_tokens")
+}
+
+model NotificationPreference {
+  id              String   @id @default(cuid())
+  enablePush      Boolean  @default(true) @map("enable_push")
+  quietHoursStart String?  @map("quiet_hours_start")
+  quietHoursEnd   String?  @map("quiet_hours_end")
+  mutedTypes      Json?    @map("muted_types")
+  batchingEnabled Boolean  @default(false) @map("batching_enabled")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+  userId          String   @unique @map("user_id")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notification_preferences")
 }

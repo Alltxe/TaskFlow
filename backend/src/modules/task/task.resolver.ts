@@ -7,6 +7,7 @@ import {
   UpdateTaskInput,
   CompleteTaskInput,
   ApproveTaskInput,
+  ClaimTaskInput,
 } from './dto/task.input';
 import { JwtAuthGuard } from '../auth/auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
@@ -106,5 +107,20 @@ export class TaskResolver {
     @CurrentUser() user: User,
   ) {
     return this.taskService.approveTask(user.id, input);
+  }
+
+  /**
+   * Взять задачу из Up-for-Grabs пула (PRD 3.4.2)
+   */
+  @Mutation(() => TaskType, {
+    description:
+      'Claim an unassigned task from the Up-for-Grabs pool. User receives bonus points (1.5x multiplier).',
+  })
+  @UseGuards(JwtAuthGuard)
+  async claimTask(
+    @Args('input') input: ClaimTaskInput,
+    @CurrentUser() user: User,
+  ) {
+    return this.taskService.claimTask(user.id, input.taskId);
   }
 }

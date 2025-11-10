@@ -3,6 +3,7 @@ import {
   NotFoundException,
   ForbiddenException,
   BadRequestException,
+  Inject,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import {
@@ -10,11 +11,24 @@ import {
   UpdateTaskInput,
   CompleteTaskInput,
   ApproveTaskInput,
+  ClaimTaskInput,
 } from './dto/task.input';
+import { RotationService } from './rotation.service';
+import { AuditLogService } from '../audit-log/audit-log.service';
+import { NotificationService } from '../notification/notification.service';
+import { NotificationType as NotificationTypeEnum } from '@prisma/client';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 
 @Injectable()
 export class TaskService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private rotationService: RotationService,
+    private auditLogService: AuditLogService,
+    private notificationService: NotificationService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+  ) {}
 
   /**
    * Создать задачу (только админы группы)
@@ -67,18 +81,16 @@ export class TaskService {
     }
 
     // Если assignee не указан, назначаем по алгоритму ротации
+    // ИСКЛЮЧЕНИЕ: если rotationType = DISABLED, оставляем задачу в Up-for-Grabs
     let finalAssigneeId: string | null | undefined = assigneeId;
     if (!finalAssigneeId) {
       const group = await this.prisma.group.findUnique({
         where: { id: groupId },
-        include: {
-          members: true,
-        },
+        select: { rotationType: true },
       });
-
-      if (group) {
-        const effectiveRotationType = rotationType || group.rotationType;
-        finalAssigneeId = await this.selectAssignee(
+      const effectiveRotationType = rotationType || group?.rotationType || 'ROUND_ROBIN';
+      if (effectiveRotationType !== 'DISABLED') {
+        finalAssigneeId = await this.rotationService.selectAssignee(
           groupId,
           effectiveRotationType,
           weight || 1,
@@ -96,7 +108,7 @@ export class TaskService {
         requiresApproval: requiresApproval ?? true,
         isRecurring: isRecurring ?? false,
         recurrenceRule,
-        rotationType,
+        rotationType: rotationType as any,
         weight: weight || 1,
         groupId,
         createdById: userId,
@@ -109,120 +121,23 @@ export class TaskService {
       },
     });
 
+    // Phase 8: Notify assignee on assignment (PRD 3.6.3)
+    if (task.assigneeId) {
+      await this.notificationService.notify({
+        userId: task.assigneeId,
+        title: 'Task assigned',
+        message: `You have been assigned: ${task.title}`,
+        type: NotificationTypeEnum.TASK_ASSIGNED,
+        relatedEntityType: 'Task',
+        relatedEntityId: task.id,
+        sentById: userId,
+      });
+    }
+
     return task;
   }
 
-  /**
-   * Выбрать исполнителя по алгоритму ротации
-   */
-  private async selectAssignee(
-    groupId: string,
-    rotationType: string,
-    weight: number,
-  ): Promise<string | null> {
-    const members = await this.prisma.groupMember.findMany({
-      where: {
-        groupId,
-        user: {
-          isAway: false,
-        },
-      },
-      include: {
-        user: true,
-      },
-    });
-
-    if (members.length === 0) return null;
-
-    switch (rotationType) {
-      case 'ROUND_ROBIN':
-        return this.roundRobinSelection(groupId, members);
-
-      case 'RANDOM':
-        return this.randomSelection(members);
-
-      case 'WEIGHTED_RANDOM':
-        return this.weightedRandomSelection(groupId, members, weight);
-
-      case 'DISABLED':
-        return null;
-
-      default:
-        return this.roundRobinSelection(groupId, members);
-    }
-  }
-
-  /**
-   * Round Robin - выбор следующего по очереди
-   */
-  private async roundRobinSelection(
-    groupId: string,
-    members: any[],
-  ): Promise<string> {
-    // Получаем последнюю назначенную задачу в группе
-    const lastTask = await this.prisma.task.findFirst({
-      where: { groupId, assigneeId: { not: null } },
-      orderBy: { createdAt: 'desc' },
-    });
-
-    if (!lastTask || !lastTask.assigneeId) {
-      return members[0].userId;
-    }
-
-    // Находим индекс последнего исполнителя
-    const lastIndex = members.findIndex((m) => m.userId === lastTask.assigneeId);
-    const nextIndex = (lastIndex + 1) % members.length;
-    return members[nextIndex].userId;
-  }
-
-  /**
-   * Random - случайный выбор
-   */
-  private randomSelection(members: any[]): string {
-    const randomIndex = Math.floor(Math.random() * members.length);
-    return members[randomIndex].userId;
-  }
-
-  /**
-   * Weighted Random - взвешенный случайный выбор (меньше задач = больше шанс)
-   */
-  private async weightedRandomSelection(
-    groupId: string,
-    members: any[],
-    taskWeight: number,
-  ): Promise<string> {
-    // Подсчитываем активные задачи для каждого участника
-    const memberWeights = await Promise.all(
-      members.map(async (member) => {
-        const activeTasks = await this.prisma.task.count({
-          where: {
-            groupId,
-            assigneeId: member.userId,
-            status: {
-              in: ['PENDING', 'IN_PROGRESS'],
-            },
-          },
-        });
-
-        // Чем меньше задач, тем больше вес
-        const weight = Math.max(1, 10 - activeTasks);
-        return { userId: member.userId, weight };
-      }),
-    );
-
-    // Взвешенный случайный выбор
-    const totalWeight = memberWeights.reduce((sum, m) => sum + m.weight, 0);
-    let random = Math.random() * totalWeight;
-
-    for (const member of memberWeights) {
-      random -= member.weight;
-      if (random <= 0) {
-        return member.userId;
-      }
-    }
-
-    return memberWeights[0].userId;
-  }
+  // Rotation logic moved to RotationService (PRD 3.4.x Phase 5)
 
   /**
    * Получить задачу по ID
@@ -409,15 +324,64 @@ export class TaskService {
 
     // Если не требуется одобрение, создаем запись в истории
     if (!task.requiresApproval) {
+      const wasOnTime = new Date() <= task.deadline;
+      const wasClaimed = (task as any).wasClaimedFromPool === true;
+      const pointsAwarded = this.calculatePoints(
+        task.points,
+        wasOnTime,
+        wasClaimed,
+        false,
+      );
+
       await this.prisma.taskCompletionHistory.create({
         data: {
           taskId,
           userId,
-          pointsAwarded: task.points,
+          pointsAwarded,
           completedAt: new Date(),
-          wasOnTime: new Date() <= task.deadline,
+          wasOnTime,
         },
       });
+
+      // Invalidate user statistics cache after task completion (PRD 4.1)
+      await this.cacheManager.del(`user:stats:${userId}`);
+      await this.cacheManager.del(`user:stats:${userId}:group:${task.groupId}`);
+
+      // Create point ledger entry (Phase 6 - PRD 3.5.1)
+      if ((this.prisma as any).pointTransaction) {
+        await (this.prisma as any).pointTransaction.create({
+        data: {
+          type: 'EARNED',
+          amount: pointsAwarded,
+          userId,
+          groupId: task.groupId,
+          taskId: task.id,
+          description: `Task completed${wasClaimed ? ' (Up-for-Grabs bonus)' : ''}`,
+        },
+        });
+
+        // Notify user about points awarded (Phase 8 - distinct from TASK_APPROVED)
+        await this.notificationService.notify({
+          userId,
+          title: 'Points Awarded',
+          message: `You earned ${pointsAwarded} points for completing "${task.title}"${wasClaimed ? ' (Up-for-Grabs bonus!)' : ''}`,
+          type: 'POINT_AWARDED' as any,
+          relatedEntityType: 'Task',
+          relatedEntityId: task.id,
+        });
+      }
+    }
+
+    // If requires approval, notify group admins that task is awaiting review
+    if (task.requiresApproval && updatedTask.status === 'AWAITING_APPROVAL') {
+      await this.notificationService.notifyGroupAdmins(task.groupId, (adminId) => ({
+        title: 'Task pending review',
+        message: `Task "${task.title}" is awaiting approval`,
+        type: NotificationTypeEnum.TASK_COMPLETED,
+        relatedEntityType: 'Task',
+        relatedEntityId: task.id,
+        sentById: userId,
+      }));
     }
 
     return updatedTask;
@@ -427,7 +391,7 @@ export class TaskService {
    * Одобрить/отклонить задачу (только админы)
    */
   async approveTask(userId: string, input: ApproveTaskInput) {
-    const { taskId, approved } = input;
+    const { taskId, approved, rejectionReason } = input;
     const task = await this.getTask(taskId, userId);
 
     // Проверяем права администратора
@@ -447,6 +411,11 @@ export class TaskService {
       throw new BadRequestException('Задача не ожидает одобрения');
     }
 
+    // PRD 3.6.2: При отклонении требуется причина
+    if (!approved && !rejectionReason) {
+      throw new BadRequestException('При отклонении задачи необходимо указать причину');
+    }
+
     const newStatus = approved ? 'COMPLETED' : 'PENDING';
 
     const updatedTask = await this.prisma.task.update({
@@ -454,8 +423,9 @@ export class TaskService {
       data: {
         status: newStatus,
         approvedById: approved ? userId : null,
+        rejectionReason: approved ? null : rejectionReason,
         ...(approved && { completedAt: new Date() }),
-      },
+      } as any,
       include: {
         assignee: true,
         createdBy: true,
@@ -464,19 +434,183 @@ export class TaskService {
 
     // Если одобрено, создаем запись в истории и начисляем очки
     if (approved && task.assigneeId) {
+      const wasOnTime = new Date() <= task.deadline;
+      const wasClaimed = (task as any).wasClaimedFromPool === true;
+      const pointsAwarded = this.calculatePoints(
+        task.points,
+        wasOnTime,
+        wasClaimed,
+        false,
+      );
+
       await this.prisma.taskCompletionHistory.create({
         data: {
           taskId,
           userId: task.assigneeId,
           approvedById: userId,
-          pointsAwarded: task.points,
+          pointsAwarded,
           completedAt: new Date(),
           approvedAt: new Date(),
-          wasOnTime: new Date() <= task.deadline,
+          wasOnTime,
         },
       });
+
+      // Point ledger entry for approved task completion (PRD 3.5.1)
+      if ((this.prisma as any).pointTransaction) {
+        await (this.prisma as any).pointTransaction.create({
+        data: {
+          type: 'EARNED',
+          amount: pointsAwarded,
+          userId: task.assigneeId,
+          groupId: task.groupId,
+          taskId: task.id,
+          description: `Task approved${wasClaimed ? ' (Up-for-Grabs bonus)' : ''}`,
+        },
+        });
+
+        // Audit log for point transaction (PRD 3.6.4)
+        await this.auditLogService.logPointTransaction(
+          'EARNED',
+          pointsAwarded,
+          task.assigneeId,
+          task.groupId,
+          taskId,
+          `Task approved${wasClaimed ? ' (Up-for-Grabs bonus)' : ''}`,
+        );
+
+        // Notify user about points awarded (Phase 8 - distinct from TASK_APPROVED)
+        await this.notificationService.notify({
+          userId: task.assigneeId,
+          title: 'Points Awarded',
+          message: `You earned ${pointsAwarded} points for "${task.title}" approval${wasClaimed ? ' (Up-for-Grabs bonus!)' : ''}`,
+          type: 'POINT_AWARDED' as any,
+          relatedEntityType: 'Task',
+          relatedEntityId: task.id,
+        });
+      }
+    }
+
+    // Audit log for task approval/rejection (PRD 3.6.4)
+    await this.auditLogService.logTaskApproval(
+      taskId,
+      approved,
+      rejectionReason,
+      userId,
+    );
+
+    // Phase 8: Notifications to assignee on approval/rejection
+    if (task.assigneeId) {
+      if (approved) {
+        await this.notificationService.notify({
+          userId: task.assigneeId,
+          title: 'Task approved',
+          message: `Your task "${task.title}" has been approved`,
+          type: NotificationTypeEnum.TASK_APPROVED,
+          relatedEntityType: 'Task',
+          relatedEntityId: task.id,
+          sentById: userId,
+        });
+
+        // Invalidate user statistics cache after task approval (PRD 4.1)
+        await this.cacheManager.del(`user:stats:${task.assigneeId}`);
+        await this.cacheManager.del(`user:stats:${task.assigneeId}:group:${task.groupId}`);
+      } else {
+        await this.notificationService.notify({
+          userId: task.assigneeId,
+          title: 'Task rejected',
+          message: `Your task "${task.title}" was rejected: ${rejectionReason}`,
+          type: NotificationTypeEnum.TASK_REJECTED,
+          relatedEntityType: 'Task',
+          relatedEntityId: task.id,
+          sentById: userId,
+        });
+      }
     }
 
     return updatedTask;
+  }
+
+  /**
+   * Взять задачу из Up-for-Grabs пула (PRD 3.4.2)
+   * Участник может взять задачу без исполнителя
+   * Получает бонусные очки (+50% = 1.5x multiplier)
+   */
+  async claimTask(userId: string, taskId: string) {
+    const task = await this.getTask(taskId, userId);
+
+    // Проверяем, что у задачи нет исполнителя
+    if (task.assigneeId !== null) {
+      throw new BadRequestException(
+        'Эта задача уже назначена исполнителю. Только задачи без исполнителя можно взять из Up-for-Grabs пула',
+      );
+    }
+
+    // Проверяем, что пользователь - член группы
+    const member = await this.prisma.groupMember.findFirst({
+      where: {
+        groupId: task.groupId,
+        userId,
+      },
+    });
+
+    if (!member) {
+      throw new ForbiddenException('Вы не являетесь членом этой группы');
+    }
+
+    // Назначаем задачу пользователю
+    const updatedTask = await this.prisma.task.update({
+      where: { id: taskId },
+      data: ({
+        assigneeId: userId,
+        status: 'PENDING', // Переводим в статус PENDING (назначена)
+        wasClaimedFromPool: true, // Отмечаем, что задача взята из Up-for-Grabs
+      } as any),
+      include: {
+        assignee: true,
+        createdBy: true,
+        group: true,
+      },
+    });
+
+    // Notify claimer about assignment confirmation
+    await this.notificationService.notify({
+      userId,
+      title: 'Task claimed',
+      message: `You claimed: ${updatedTask.title}`,
+      type: NotificationTypeEnum.TASK_ASSIGNED,
+      relatedEntityType: 'Task',
+      relatedEntityId: updatedTask.id,
+      sentById: userId,
+    });
+
+    return updatedTask;
+  }
+
+  /**
+   * Рассчитать очки с учетом мультипликаторов (PRD 3.5.1-3.5.2)
+   * - On-time completion: 1.0x
+   * - Late completion: 0.5x
+   * - Up-for-Grabs: 1.5x
+   * - Rejected/Overdue: 0.0x
+   */
+  calculatePoints(
+    basePoints: number,
+    wasOnTime: boolean,
+    wasUpForGrabs: boolean = false,
+    wasRejected: boolean = false,
+  ): number {
+    if (wasRejected) {
+      return 0; // Rejected or overdue = 0 points
+    }
+
+    let multiplier = 1.0;
+
+    if (wasUpForGrabs) {
+      multiplier = 1.5; // Up-for-Grabs bonus
+    } else if (!wasOnTime) {
+      multiplier = 0.5; // Late completion penalty
+    }
+
+    return Math.round(basePoints * multiplier);
   }
 }
