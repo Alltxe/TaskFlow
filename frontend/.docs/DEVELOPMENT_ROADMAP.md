@@ -267,19 +267,24 @@ Test Coverage: ~80% for Phase 2
 
 ## Phase 3: Group Management (Week 3-4) 🚧 IN PROGRESS
 
-### 3.1 Group Dashboard
-- [ ] Create Dashboard page (`/dashboard`)
+### 3.1 Groups List Page
+- [ ] Create Groups page (`/groups`)
   - [ ] Fetch user's groups (GraphQL query)
-  - [ ] Display groups as cards
+  - [ ] Display groups as cards (grid layout)
     - [ ] Group name
     - [ ] Member count
     - [ ] Last activity timestamp
     - [ ] Active tasks count
+    - [ ] "Open Group" button
   - [ ] Empty state (no groups yet)
+    - [ ] Illustration or icon
+    - [ ] "Create your first group" message
+    - [ ] Primary CTA button
   - [ ] Loading skeleton
-- [ ] Add "+ Create Group" button (admin only)
-- [ ] Add "Leave Group" action on cards
-- [ ] Implement group card click → navigate to group
+- [ ] Add "+ Create Group" floating action button
+- [ ] Add "Leave Group" action in card menu (kebab menu)
+- [ ] Implement group card click → navigate to `/group/:id/tasks`
+- [ ] Add route to Sidebar navigation
 
 ### 3.2 Create Group Flow
 - [ ] Create multi-step wizard modal (PRD 3.2)
@@ -344,21 +349,46 @@ Test Coverage: ~80% for Phase 2
 - [ ] Handle role-based tab visibility
 - [ ] Make tabs responsive (dropdown on mobile)
 
-### 3.6 Testing
+### 3.6 Dashboard Enhancements
+- [ ] Integrate real task data from GraphQL
+  - [ ] Replace mock data with actual user tasks
+  - [ ] Fetch tasks for selected date
+  - [ ] Handle loading and error states
+- [ ] Add task filtering by group
+  - [ ] Dropdown to select specific group
+  - [ ] "All Groups" option (default)
+- [ ] Implement task status indicators
+  - [ ] Color-coded badges (Pending, In Progress, Review, Done)
+  - [ ] Priority indicators (Low, Medium, High)
+- [ ] Add task quick actions
+  - [ ] Click to open task detail modal
+  - [ ] "Complete" button for executor
+  - [ ] "View in group" link
+- [ ] Add statistics summary cards (above calendar)
+  - [ ] Total tasks this week
+  - [ ] Completed tasks
+  - [ ] Pending tasks
+  - [ ] Points earned this week
+
+### 3.7 Testing
 - [ ] Unit tests for group store
 - [ ] Component tests for group wizard
+- [ ] Component tests for Groups list page
 - [ ] Integration tests for group CRUD
 - [ ] E2E tests:
   - [ ] Create group flow
   - [ ] Invite and join group
   - [ ] Update group settings
   - [ ] Remove member
+  - [ ] Navigate from Groups page to group tasks
 - [ ] Accessibility tests for all group pages
 
 **Deliverables:**
-- ✅ Complete group management UI
+- ✅ Groups list page with CRUD operations
 - ✅ Multi-step group creation wizard
 - ✅ Member invitation system
+- ✅ Enhanced Dashboard with real task data
+- ✅ Statistics summary on Dashboard
 - ✅ Role-based access control enforced in UI
 - ✅ Comprehensive testing coverage
 

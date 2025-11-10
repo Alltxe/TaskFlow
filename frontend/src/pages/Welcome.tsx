@@ -62,7 +62,7 @@ export function WelcomePage() {
               opacity: 0.9,
             }}
           >
-            Автоматизированное распределение домашних задач
+            Автоматизированное распределение задач
             <br />с геймификацией и ротацией исполнителей
           </Typography>
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} justifyContent="center">
