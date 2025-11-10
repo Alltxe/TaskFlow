@@ -6,6 +6,7 @@ import { CurrentUser } from './decorators/current-user.decorator';
 import { RegisterInput, LoginInput, ChangePasswordInput, RefreshTokenInput } from './dto/auth.input';
 import { AuthResponseType } from './types/auth-response.type';
 import { UserType } from './types/user.type';
+import { SkipThrottle, Throttle } from '@nestjs/throttler';
 
 @Resolver()
 export class AuthResolver {
@@ -13,16 +14,20 @@ export class AuthResolver {
 
   /**
    * Регистрация нового пользователя
+   * Rate limit: 5 requests per minute (PRD 4.3)
    */
   @Mutation(() => AuthResponseType, { description: 'Регистрация нового пользователя' })
+  @Throttle({ auth: { limit: 5, ttl: 60000 } })
   async register(@Args('input') input: RegisterInput): Promise<AuthResponseType> {
     return this.authService.register(input);
   }
 
   /**
    * Вход пользователя
+   * Rate limit: 5 requests per minute (PRD 4.3)
    */
   @Mutation(() => AuthResponseType, { description: 'Вход пользователя' })
+  @Throttle({ auth: { limit: 5, ttl: 60000 } })
   async login(@Args('input') input: LoginInput): Promise<AuthResponseType> {
     return this.authService.login(input);
   }
@@ -50,8 +55,10 @@ export class AuthResolver {
 
   /**
    * Обновление access token с помощью refresh token
+   * Rate limit: 5 requests per minute (PRD 4.3)
    */
   @Mutation(() => AuthResponseType, { description: 'Обновить access token с помощью refresh token' })
+  @Throttle({ auth: { limit: 5, ttl: 60000 } })
   async refreshToken(@Args('input') input: RefreshTokenInput): Promise<AuthResponseType> {
     return this.authService.refreshAccessToken(input);
   }
@@ -60,6 +67,7 @@ export class AuthResolver {
    * Выход из системы (отзыв refresh token)
    */
   @Mutation(() => Boolean, { description: 'Выход из системы (отзыв refresh token)' })
+  @Throttle({ auth: { limit: 5, ttl: 60000 } })
   async logout(@Args('refreshToken') refreshToken: string): Promise<boolean> {
     return this.authService.revokeRefreshToken(refreshToken);
   }

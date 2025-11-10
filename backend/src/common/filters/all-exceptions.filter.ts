@@ -34,10 +34,18 @@ export class AllExceptionsFilter implements ExceptionFilter {
     if (exception instanceof HttpException) {
       status = exception.getStatus();
       const response = exception.getResponse();
+      
+      // Extract message
       message = typeof response === 'string' 
         ? response 
         : (response as any).message || exception.message;
-      code = this.getErrorCode(status);
+      
+      // Extract code - check if custom exception provides it
+      if (typeof response === 'object' && (response as any).code) {
+        code = (response as any).code;
+      } else {
+        code = this.getErrorCode(status);
+      }
     } else if (exception instanceof Error) {
       status = HttpStatus.INTERNAL_SERVER_ERROR;
       message = exception.message || 'Внутренняя ошибка сервера';
@@ -113,6 +121,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
       403: 'FORBIDDEN',
       404: 'NOT_FOUND',
       409: 'CONFLICT',
+      429: 'TOO_MANY_REQUESTS',
       500: 'INTERNAL_SERVER_ERROR',
     };
     return errorCodes[status] || 'ERROR';

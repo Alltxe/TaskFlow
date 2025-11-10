@@ -4,6 +4,7 @@ import {
   ForbiddenException,
   BadRequestException,
 } from '@nestjs/common';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { TaskService } from './task.service';
 import { RotationService } from './rotation.service';
 import { PrismaService } from '../prisma/prisma.service';
@@ -135,6 +136,15 @@ describe('TaskService', () => {
           useValue: {
             notify: jest.fn().mockResolvedValue({}),
             notifyGroupAdmins: jest.fn().mockResolvedValue([]),
+          },
+        },
+        {
+          provide: CACHE_MANAGER,
+          useValue: {
+            get: jest.fn(),
+            set: jest.fn(),
+            del: jest.fn(),
+            reset: jest.fn(),
           },
         },
       ],

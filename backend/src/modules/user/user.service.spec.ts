@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { UserService } from './user.service';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -147,6 +148,15 @@ describe('UserService', () => {
         {
           provide: PrismaService,
           useValue: mockPrismaService,
+        },
+        {
+          provide: CACHE_MANAGER,
+          useValue: {
+            get: jest.fn(),
+            set: jest.fn(),
+            del: jest.fn(),
+            reset: jest.fn(),
+          },
         },
       ],
     }).compile();

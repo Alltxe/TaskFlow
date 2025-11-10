@@ -3,6 +3,7 @@ import {
   NotFoundException,
   ForbiddenException,
   BadRequestException,
+  Inject,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import {
@@ -16,6 +17,8 @@ import { RotationService } from './rotation.service';
 import { AuditLogService } from '../audit-log/audit-log.service';
 import { NotificationService } from '../notification/notification.service';
 import { NotificationType as NotificationTypeEnum } from '@prisma/client';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 
 @Injectable()
 export class TaskService {
@@ -24,6 +27,7 @@ export class TaskService {
     private rotationService: RotationService,
     private auditLogService: AuditLogService,
     private notificationService: NotificationService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
   /**
@@ -339,6 +343,10 @@ export class TaskService {
         },
       });
 
+      // Invalidate user statistics cache after task completion (PRD 4.1)
+      await this.cacheManager.del(`user:stats:${userId}`);
+      await this.cacheManager.del(`user:stats:${userId}:group:${task.groupId}`);
+
       // Create point ledger entry (Phase 6 - PRD 3.5.1)
       if ((this.prisma as any).pointTransaction) {
         await (this.prisma as any).pointTransaction.create({
@@ -502,6 +510,10 @@ export class TaskService {
           relatedEntityId: task.id,
           sentById: userId,
         });
+
+        // Invalidate user statistics cache after task approval (PRD 4.1)
+        await this.cacheManager.del(`user:stats:${task.assigneeId}`);
+        await this.cacheManager.del(`user:stats:${task.assigneeId}:group:${task.groupId}`);
       } else {
         await this.notificationService.notify({
           userId: task.assigneeId,

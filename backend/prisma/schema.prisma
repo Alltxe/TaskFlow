@@ -4,7 +4,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -79,6 +79,8 @@ model GroupMember {
   group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
 
   @@unique([userId, groupId])
+  @@index([groupId]) // Index for frequent group member lookups
+  @@index([userId]) // Index for user's group memberships
   @@map("group_members")
 }
 
@@ -179,6 +181,8 @@ model RewardTransaction {
   reward     Reward @relation(fields: [rewardId], references: [id], onDelete: Cascade)
   approvedBy User?  @relation("RewardTransactionApprover", fields: [approvedById], references: [id])
 
+  @@index([userId, status]) // Index for user's reward requests with filtering
+  @@index([rewardId]) // Index for reward transaction lookups
   @@map("reward_transactions")
 }
 
@@ -330,8 +334,9 @@ model PointTransaction {
   task              Task?              @relation(fields: [taskId], references: [id], onDelete: Cascade)
   rewardTransaction RewardTransaction? @relation(fields: [rewardTransactionId], references: [id], onDelete: Cascade)
 
-  @@index([userId, createdAt])
-  @@index([groupId])
+  @@index([userId, createdAt]) // Index for user point history
+  @@index([groupId, userId]) // Index for group leaderboard calculations
+  @@index([groupId, type]) // Index for filtering by transaction type
   @@map("point_transactions")
 }
 

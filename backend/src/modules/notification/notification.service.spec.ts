@@ -3,6 +3,7 @@ import { NotificationService } from './notification.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { NotificationType as NotificationTypeEnum } from '@prisma/client';
 import { NotificationPreferenceService } from '../notification-preference/notification-preference.service';
+import { FirebaseService } from '../firebase/firebase.service';
 
 // Minimal Prisma mock covering methods used by NotificationService
 class PrismaMock {
@@ -22,6 +23,12 @@ const mockPreferenceService = {
   getPreference: jest.fn().mockResolvedValue(null),
 };
 
+// Mock FirebaseService
+const mockFirebaseService = {
+  sendPushNotification: jest.fn().mockResolvedValue({ success: true }),
+  sendBatchPushNotifications: jest.fn().mockResolvedValue([]),
+};
+
 describe('NotificationService', () => {
   let service: NotificationService;
   let prisma: PrismaMock;
@@ -33,6 +40,7 @@ describe('NotificationService', () => {
         NotificationService,
         { provide: PrismaService, useValue: prisma },
         { provide: NotificationPreferenceService, useValue: mockPreferenceService },
+        { provide: FirebaseService, useValue: mockFirebaseService },
       ],
     }).compile();
 
