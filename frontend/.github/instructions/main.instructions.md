@@ -19,6 +19,7 @@ applyTo: '**'
 - **GraphQL Client**: urql with GraphCache
 - **Testing**: Vitest + Playwright + Testing Library
 - **Styling**: Emotion (CSS-in-JS)
+- **Localization**: i18next (Russian interface required)
 
 ### Project Structure
 ```
@@ -47,6 +48,9 @@ src/
    - Server state (React Query) vs Client state (Zustand)
    - Component props flow and event handlers
 5. **Check PRD Requirements**: Reference `.docs/PRD.md` for feature specifications
+6. **Review API Documentation**: 
+   - GraphQL API Documentation: `.docs/GRAPHQL_API_DOCUMENTATION.md` - comprehensive guide with examples
+   - GraphQL Schema: `.docs/schema.gql` - complete type definitions and API surface
 
 **Never assume** - if you're unsure about existing code structure, search for it first.
 
@@ -57,6 +61,15 @@ src/
 - Use GraphQL Codegen for type-safe operations
 - Authentication: JWT tokens managed by `authStore`, injected via urql `fetchOptions`
 - Real-time updates: Use subscriptions via `subscriptionExchange` (WebSocket)
+- **API Reference Documentation**:
+  - `.docs/GRAPHQL_API_DOCUMENTATION.md` - Complete API guide with:
+    - All queries, mutations, and types
+    - Request/response examples for every operation
+    - Error handling patterns
+    - Authentication flows
+    - Business logic rules (point calculations, permissions, etc.)
+  - `.docs/schema.gql` - Auto-generated schema with all type definitions
+- **Before implementing GraphQL features**: Always check the documentation first to understand available operations and their expected inputs/outputs
 
 #### Component Patterns
 - **Functional components** with hooks only (no class components)
@@ -292,10 +305,12 @@ cd src/components && ls
 5. Wrap with `<AppShell>` for layout
 
 **Creating GraphQL Operations**:
-1. Define query/mutation in `src/api/queries.ts`
-2. Run `npm run codegen` to generate TypeScript types
-3. Import generated types: `import { UseTasksQuery } from '@api/generated'`
-4. Use with urql hooks: `useQuery(TASKS_QUERY)`
+1. **Reference documentation**: Check `.docs/GRAPHQL_API_DOCUMENTATION.md` for operation details and examples
+2. Define query/mutation in `src/api/queries.ts` (copy from docs or adapt existing)
+3. Run `npm run codegen` to generate TypeScript types
+4. Import generated types: `import { UseTasksQuery } from '@api/generated'`
+5. Use with urql hooks: `useQuery(TASKS_QUERY)`
+6. Handle errors according to documentation error patterns
 
 **Adding Zustand Stores**:
 1. Create store file in `src/store/<storeName>.ts`
@@ -409,17 +424,19 @@ npm run lint; npm run test; npm run build
 
 ```
 1. [Context] 
-   - Review backend GraphQL schema
+   - Read .docs/GRAPHQL_API_DOCUMENTATION.md for the specific operation
+   - Review .docs/schema.gql for exact type definitions
    - Check existing query patterns in src/api/queries.ts
+   - Verify request/response format from documentation examples
 2. [List] Plan integration steps
-3. [Explain] Describe query structure
+3. [Explain] Describe query structure and expected data flow
 4. [Actionable]
-   - Add query to queries.ts
-   - Run npm run codegen
+   - Copy/adapt query from documentation to queries.ts
+   - Run npm run codegen to generate TypeScript types
    - Create React Query hook
    - Integrate into component
-   - Handle loading/error states
-5. [Realistic] Test query execution
+   - Handle loading/error states per documentation error patterns
+5. [Realistic] Test query execution with expected inputs from docs
 ```
 
 ### Pattern: Debugging an Issue
@@ -608,6 +625,9 @@ const isAdmin = groupMember?.role === 'ADMIN'
 - Follow MUI design system patterns
 - Keep components under 250 lines
 - Extract reusable logic into custom hooks
+- **Use Russian language for all UI text** (labels, buttons, messages, etc.)
+- Use i18next for localization (all text in `src/locales/ru/`)
+- Never hardcode English text in components
 
 ### DON'T ❌
 - Mutate state directly
@@ -620,6 +640,7 @@ const isAdmin = groupMember?.role === 'ADMIN'
 - Bypass authentication checks
 - Create deeply nested component trees
 - Use `console.log` in production code
+- **Hardcode English text in UI** (use translation keys instead)
 
 ---
 

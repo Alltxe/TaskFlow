@@ -79,6 +79,7 @@ export function Header() {
         bgcolor: 'background.paper',
         borderBottom: '1px solid',
         borderColor: 'divider',
+        zIndex: theme.zIndex.appBar,
       }}
     >
       <Toolbar>

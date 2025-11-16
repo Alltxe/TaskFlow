@@ -1,172 +1,445 @@
-import { Box, Typography, Paper, Divider } from '@mui/material'
-import { CalendarMonth as CalendarIcon, ChevronLeft as ChevronLeftIcon, ChevronRight as ChevronRightIcon } from '@mui/icons-material'
-import { useState } from 'react'
-import { useEffect } from 'react'
+import {
+  Box,
+  Typography,
+  Paper,
+  Chip,
+  IconButton,
+  Card,
+  CardContent,
+  Grid,
+  CircularProgress,
+  Alert,
+  FormControl,
+  Select,
+  MenuItem,
+  InputLabel,
+} from '@mui/material'
+import {
+  ChevronLeft as ChevronLeftIcon,
+  ChevronRight as ChevronRightIcon,
+  AccessTime as TimeIcon,
+  CheckCircleOutline as CheckIcon,
+  Assignment as TaskIcon,
+  Stars as PointsIcon,
+} from '@mui/icons-material'
+import { useState, useEffect } from 'react'
+import { useGetUserTasksQuery, useGetUserGroupsQuery, useMyStatisticsQuery } from '@api/generated/graphql'
+import { format, isWithinInterval, startOfDay, endOfDay } from 'date-fns'
+import { ru } from 'date-fns/locale'
 
 export function DashboardPage() {
-  // Получить текущую неделю (понедельник-воскресенье)
-  const today = new Date();
-  const weekDays = ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'];
-  const getWeekDay = (date: Date) => weekDays[date.getDay()];
-
-  // Находим понедельник текущей недели
-  const getMonday = (date: Date) => {
-    const d = new Date(date);
-    const day = d.getDay();
-    // Если сегодня воскресенье (0), то понедельник — на 6 дней назад
-    const diff = day === 0 ? -6 : 1 - day;
-    d.setDate(d.getDate() + diff);
-    d.setHours(0,0,0,0);
-    return d;
-  };
-
-  // Состояние: смещение недели и выбранная дата
-  const [weekOffset, setWeekOffset] = useState(0);
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-
-  // Генерация массива дат для текущей недели
-  const getWeekDates = () => {
-    const monday = getMonday(today);
-    const dates = [];
-    for (let i = 0; i < 7; i++) {
-      const d = new Date(monday);
-      d.setDate(monday.getDate() + weekOffset * 7 + i);
-      dates.push(d);
-    }
-    return dates;
-  };
-  const datesList = getWeekDates();
-
-  // Переключение недели
-  const handlePrevPeriod = () => setWeekOffset(weekOffset - 1);
-  const handleNextPeriod = () => setWeekOffset(weekOffset + 1);
-
-  // После рендера автоматически выбрать текущую дату, если она в текущей неделе
-  useEffect(() => {
-    const found = datesList.find(d => d.toDateString() === today.toDateString());
-    if (found) setSelectedDate(found);
-    else setSelectedDate(datesList[0]);
-  }, [weekOffset]);
-
-  // Temporary mock data for upcoming tasks
-  const upcomingTasks = [
-    { id: '1', title: 'Убрать на кухне', date: '30 ВТ', time: '10:00' },
-    { id: '2', title: 'Вынести мусор', date: '1 СР', time: '14:00' },
-    { id: '3', title: 'Помыть пол', date: '2 ЧТ', time: '16:00' },
-    { id: '4', title: 'Пропылесосить', date: '3 ПТ', time: '11:00' },
-    { id: '5', title: 'Полить цветы', date: '5 ВС', time: '09:00' },
-    { id: '6', title: 'Постирать', date: '6 ПН', time: '15:00' },
+  const today = new Date()
+  const weekDays = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб']
+  const monthNames = [
+    'января',
+    'февраля',
+    'марта',
+    'апреля',
+    'мая',
+    'июня',
+    'июля',
+    'августа',
+    'сентября',
+    'октября',
+    'ноября',
+    'декабря',
   ]
 
+  const [weekOffset, setWeekOffset] = useState(0)
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null)
+  const [selectedGroup, setSelectedGroup] = useState<string>('all')
+
+  // Fetch user's tasks
+  const [tasksResult] = useGetUserTasksQuery()
+
+  // Fetch user's groups
+  const [groupsResult] = useGetUserGroupsQuery()
+
+  // Fetch statistics
+  const [statsResult] = useMyStatisticsQuery({
+    variables: { groupId: selectedGroup === 'all' ? undefined : selectedGroup },
+  })
+
+  const { data: tasksData, fetching: fetchingTasks, error: tasksError } = tasksResult
+  const { data: groupsData } = groupsResult
+  const { data: statsData } = statsResult
+
+  const getWeekDay = (date: Date) => weekDays[date.getDay()]
+
+  const getMonday = (date: Date) => {
+    const d = new Date(date)
+    const day = d.getDay()
+    const diff = day === 0 ? -6 : 1 - day
+    d.setDate(d.getDate() + diff)
+    d.setHours(0, 0, 0, 0)
+    return d
+  }
+
+  const getWeekDates = () => {
+    const monday = getMonday(today)
+    const dates = []
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(monday)
+      d.setDate(monday.getDate() + weekOffset * 7 + i)
+      dates.push(d)
+    }
+    return dates
+  }
+
+  const datesList = getWeekDates()
+
+  const handlePrevPeriod = () => setWeekOffset(weekOffset - 1)
+  const handleNextPeriod = () => setWeekOffset(weekOffset + 1)
+
+  useEffect(() => {
+    const found = datesList.find((d) => d.toDateString() === today.toDateString())
+    if (found) setSelectedDate(found)
+    else setSelectedDate(datesList[0])
+  }, [weekOffset])
+
+  // Filter tasks for selected date and group
+  const allTasks = tasksData?.getUserTasks || []
+  const filteredTasks = allTasks
+    .filter((task) => {
+      const taskDate = new Date(task.deadline)
+      const dateMatch =
+        selectedDate &&
+        isWithinInterval(taskDate, {
+          start: startOfDay(selectedDate),
+          end: endOfDay(selectedDate),
+        })
+      const groupMatch = selectedGroup === 'all' || task.groupId === selectedGroup
+      return dateMatch && groupMatch
+    })
+    .sort((a, b) => {
+      // Completed tasks go to the end
+      const aCompleted = a.status === 'COMPLETED'
+      const bCompleted = b.status === 'COMPLETED'
+      if (aCompleted && !bCompleted) return 1
+      if (!aCompleted && bCompleted) return -1
+      // If both have same completion status, sort by deadline
+      return new Date(a.deadline).getTime() - new Date(b.deadline).getTime()
+    })
+
+  const stats = statsData?.myStatistics
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'HIGH':
+        return 'error'
+      case 'MEDIUM':
+        return 'warning'
+      case 'LOW':
+        return 'success'
+      default:
+        return 'default'
+    }
+  }
+
+  const getPriorityLabel = (priority: string) => {
+    switch (priority) {
+      case 'HIGH':
+        return 'Высокий'
+      case 'MEDIUM':
+        return 'Средний'
+      case 'LOW':
+        return 'Низкий'
+      default:
+        return priority
+    }
+  }
+
+  if (fetchingTasks) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 8 }}>
+        <CircularProgress />
+      </Box>
+    )
+  }
+
+  if (tasksError) {
+    return (
+      <Box sx={{ mt: 4 }}>
+        <Alert severity="error">Ошибка загрузки задач: {tasksError.message}</Alert>
+      </Box>
+    )
+  }
+
   return (
-    <Box sx={{ display: 'flex', gap: 3, height: 'calc(100vh - 120px)' }}>
-      {/* Left Side - Vertical Date Selector */}
-      <Paper sx={{ width: 220, p: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', height: '100%' }}>
-        {/* Period navigation */}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-          <ChevronLeftIcon fontSize="medium" sx={{ cursor: 'pointer' }} onClick={handlePrevPeriod} />
-          <CalendarIcon fontSize="small" color="action" />
-          <ChevronRightIcon fontSize="medium" sx={{ cursor: 'pointer' }} onClick={handleNextPeriod} />
-        </Box>
-        <Divider sx={{ width: '100%', mb: 2 }} />
-        {/* Vertical list of dates, evenly distributed */}
-        <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%', width: '100%' }}>
-          {datesList.map((date) => {
-            const isSelected = selectedDate && date.toDateString() === selectedDate.toDateString();
-            return (
-              <Box
-                key={date.toISOString()}
-                onClick={() => setSelectedDate(date)}
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 2,
-                  py: 1,
-                  px: 2,
-                  cursor: 'pointer',
-                  transition: 'background-color 0.2s',
-                }}
-              >
-                <Box
-                  sx={{
-                    width: 44,
-                    height: 44,
-                    borderRadius: '50%',
-                    bgcolor: isSelected ? 'primary.main' : 'transparent',
-                    color: isSelected ? 'primary.contrastText' : 'text.primary',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontWeight: 600,
-                    fontSize: '1.5rem',
-                    boxShadow: isSelected ? 2 : 0,
-                    transition: 'background-color 0.2s',
-                  }}
-                >
-                  {date.getDate()}
-                </Box>
-                <Typography variant="body1" sx={{ textTransform: 'lowercase', color: 'text.secondary', fontWeight: 500 }}>
-                  {getWeekDay(date)}
-                </Typography>
-              </Box>
-            )
-          })}
-        </Box>
-      </Paper>
-      {/* Right Side - Task List */}
+    <Box sx={{ maxWidth: 1400, mx: 'auto' }}>
+      {/* Header Section */}
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h4" fontWeight={700} sx={{ mb: 1 }}>
+          Мои задачи
+        </Typography>
+        <Typography variant="body1" color="text.secondary">
+          {selectedDate &&
+            `${selectedDate.getDate()} ${monthNames[selectedDate.getMonth()]} ${selectedDate.getFullYear()} г.`}
+        </Typography>
+      </Box>
+
+      {/* Statistics Cards */}
+      {stats && (
+        <Grid container spacing={2} sx={{ mb: 4 }}>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+            <Paper sx={{ p: 2, textAlign: 'center' }}>
+              <TaskIcon sx={{ fontSize: 32, color: 'primary.main', mb: 1 }} />
+              <Typography variant="h4" fontWeight={700}>
+                {stats.tasksAssigned}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Назначено задач
+              </Typography>
+            </Paper>
+          </Grid>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+            <Paper sx={{ p: 2, textAlign: 'center' }}>
+              <CheckIcon sx={{ fontSize: 32, color: 'success.main', mb: 1 }} />
+              <Typography variant="h4" fontWeight={700}>
+                {stats.tasksCompleted}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Выполнено задач
+              </Typography>
+            </Paper>
+          </Grid>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+            <Paper sx={{ p: 2, textAlign: 'center' }}>
+              <PointsIcon sx={{ fontSize: 32, color: 'warning.main', mb: 1 }} />
+              <Typography variant="h4" fontWeight={700}>
+                {stats.currentPointBalance}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Очков
+              </Typography>
+            </Paper>
+          </Grid>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+            <Paper sx={{ p: 2, textAlign: 'center' }}>
+              <CheckIcon sx={{ fontSize: 32, color: 'info.main', mb: 1 }} />
+              <Typography variant="h4" fontWeight={700}>
+                {Math.round(stats.completionRate * 100)}%
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Процент выполнения
+              </Typography>
+            </Paper>
+          </Grid>
+        </Grid>
+      )}
+
+      {/* Group Filter */}
+      <Box sx={{ mb: 3 }}>
+        <FormControl size="small" sx={{ minWidth: 200 }}>
+          <InputLabel>Группа</InputLabel>
+          <Select
+            value={selectedGroup}
+            label="Группа"
+            onChange={(e) => setSelectedGroup(e.target.value)}
+          >
+            <MenuItem value="all">Все группы</MenuItem>
+            {groupsData?.getUserGroups.map((group) => (
+              <MenuItem key={group.id} value={group.id}>
+                {group.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      </Box>
+
+      {/* Week Calendar Strip */}
       <Paper 
+        elevation={0}
         sx={{ 
-          flex: 1,
-          p: 3, 
-          display: 'flex', 
-          flexDirection: 'column'
+          p: 2.5,
+          mb: 4,
+          borderRadius: 3,
+          border: '1px solid',
+          borderColor: 'divider',
+          bgcolor: 'background.paper'
         }}
       >
-        <Typography variant="h5" fontWeight={600} sx={{ mb: 1 }}>
-          Список ближайших задач
-        </Typography>
-        <Divider sx={{ my: 2 }} />
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, flex: 1 }}>
-          {upcomingTasks.length === 0 ? (
-            <Box sx={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'center',
-              flex: 1,
-              color: 'text.secondary'
-            }}>
-              <Typography variant="body1">
-                Нет задач
-              </Typography>
-            </Box>
-          ) : (
-            upcomingTasks.map((task) => (
-              <Box
-                key={task.id}
-                sx={{
-                  p: 2,
-                  borderRadius: 2,
-                  border: '1px solid',
-                  borderColor: 'divider',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s',
-                  '&:hover': {
-                    borderColor: 'primary.main',
-                    boxShadow: 1,
-                  },
-                }}
-              >
-                <Typography variant="body1" fontWeight={500} sx={{ mb: 0.5 }}>
-                  {task.title}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {task.date} • {task.time}
-                </Typography>
-              </Box>
-            ))
-          )}
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <IconButton onClick={handlePrevPeriod} size="small">
+            <ChevronLeftIcon />
+          </IconButton>
+          
+          <Box sx={{ display: 'flex', gap: 1.5, flex: 1, justifyContent: 'center' }}>
+            {datesList.map((date) => {
+              const isSelected = selectedDate && date.toDateString() === selectedDate.toDateString()
+              const isToday = date.toDateString() === today.toDateString()
+              
+              return (
+                <Box
+                  key={date.toISOString()}
+                  onClick={() => setSelectedDate(date)}
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: 0.5,
+                    py: 1.5,
+                    px: 2.5,
+                    minWidth: 70,
+                    borderRadius: 2,
+                    cursor: 'pointer',
+                    bgcolor: isSelected ? 'primary.main' : 'transparent',
+                    color: isSelected ? 'primary.contrastText' : 'text.primary',
+                    transition: 'all 0.2s',
+                    border: '2px solid',
+                    borderColor: isSelected ? 'primary.main' : isToday ? 'primary.light' : 'transparent',
+                    '&:hover': {
+                      bgcolor: isSelected ? 'primary.dark' : 'action.hover',
+                    },
+                  }}
+                >
+                  <Typography 
+                    variant="caption" 
+                    sx={{ 
+                      fontWeight: 600,
+                      fontSize: '0.7rem',
+                      textTransform: 'uppercase',
+                      letterSpacing: 0.5,
+                      opacity: isSelected ? 1 : 0.7
+                    }}
+                  >
+                    {getWeekDay(date)}
+                  </Typography>
+                  <Typography 
+                    variant="h6" 
+                    sx={{ 
+                      fontWeight: 700,
+                      lineHeight: 1
+                    }}
+                  >
+                    {date.getDate()}
+                  </Typography>
+                </Box>
+              )
+            })}
+          </Box>
+
+          <IconButton onClick={handleNextPeriod} size="small">
+            <ChevronRightIcon />
+          </IconButton>
         </Box>
       </Paper>
+
+      {/* Tasks Section */}
+      <Box>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
+          <Typography variant="h6" fontWeight={600}>
+            Задачи на выбранную дату
+          </Typography>
+          <Chip
+            label={`${filteredTasks.filter((t) => t.status !== 'COMPLETED').length} ожидают`}
+            size="small"
+            color="primary"
+            variant="outlined"
+          />
+        </Box>
+
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+          {filteredTasks.length === 0 ? (
+            <Card
+              elevation={0}
+              sx={{
+                border: '1px solid',
+                borderColor: 'divider',
+                borderRadius: 2,
+              }}
+            >
+              <CardContent sx={{ textAlign: 'center', py: 6 }}>
+                <Typography variant="body1" color="text.secondary">
+                  Нет запланированных задач на эту дату
+                </Typography>
+              </CardContent>
+            </Card>
+          ) : (
+            filteredTasks.map((task) => {
+              const isCompleted = task.status === 'COMPLETED'
+              const taskDate = new Date(task.deadline)
+              const timeStr = format(taskDate, 'HH:mm', { locale: ru })
+
+              return (
+                <Card
+                  key={task.id}
+                  elevation={0}
+                  sx={{
+                    border: '1px solid',
+                    borderColor: isCompleted ? 'success.light' : 'divider',
+                    borderRadius: 2,
+                    transition: 'all 0.2s',
+                    opacity: isCompleted ? 0.7 : 1,
+                    '&:hover': {
+                      borderColor: 'primary.main',
+                      boxShadow: 2,
+                    },
+                  }}
+                >
+                  <CardContent sx={{ p: 2.5 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
+                      <Box
+                        sx={{
+                          width: 40,
+                          height: 40,
+                          borderRadius: 1.5,
+                          bgcolor: isCompleted ? 'success.light' : 'primary.light',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          flexShrink: 0,
+                        }}
+                      >
+                        <CheckIcon
+                          sx={{
+                            color: isCompleted ? 'success.dark' : 'primary.main',
+                            fontSize: 24,
+                          }}
+                        />
+                      </Box>
+
+                      <Box sx={{ flex: 1 }}>
+                        <Typography
+                          variant="body1"
+                          fontWeight={600}
+                          sx={{
+                            mb: 1,
+                            textDecoration: isCompleted ? 'line-through' : 'none',
+                          }}
+                        >
+                          {task.title}
+                        </Typography>
+
+                        <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center', flexWrap: 'wrap' }}>
+                          <Chip
+                            label={getPriorityLabel(task.priority)}
+                            size="small"
+                            color={getPriorityColor(task.priority)}
+                            sx={{ fontSize: '0.75rem' }}
+                          />
+                          <Chip
+                            label={`${task.points} очков`}
+                            size="small"
+                            variant="outlined"
+                            sx={{ fontSize: '0.75rem' }}
+                          />
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                            <TimeIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
+                            <Typography variant="caption" color="text.secondary">
+                              {timeStr}
+                            </Typography>
+                          </Box>
+                        </Box>
+                      </Box>
+                    </Box>
+                  </CardContent>
+                </Card>
+              )
+            })
+          )}
+        </Box>
+      </Box>
     </Box>
   )
 }

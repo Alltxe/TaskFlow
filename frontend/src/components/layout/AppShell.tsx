@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { Box, Container, useMediaQuery, useTheme } from '@mui/material'
+import { Box, useMediaQuery, useTheme } from '@mui/material'
 import { Header } from './Header'
 import { Sidebar } from './Sidebar'
 
@@ -22,10 +22,12 @@ export function AppShell({ children }: AppShellProps) {
           sx={{
             flex: 1,
             bgcolor: 'background.default',
-            p: 3,
+            pt: 3,
+            px: 3,
+            pb: 3,
           }}
         >
-          <Container maxWidth="xl">{children}</Container>
+          {children}
         </Box>
       </Box>
     </Box>

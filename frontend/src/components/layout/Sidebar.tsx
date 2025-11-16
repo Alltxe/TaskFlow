@@ -17,6 +17,7 @@ import {
   Assignment as TaskIcon,
   EmojiEvents as RewardsIcon,
   Leaderboard as LeaderboardIcon,
+  Person as PersonIcon,
 } from '@mui/icons-material'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useUIStore } from '../../store/uiStore'
@@ -38,6 +39,7 @@ export function Sidebar() {
     { text: 'Мои задачи', icon: <TaskIcon />, path: '/tasks' },
     { text: 'Награды', icon: <RewardsIcon />, path: '/rewards' },
     { text: 'Рейтинг', icon: <LeaderboardIcon />, path: '/leaderboard' },
+    { text: 'Профиль', icon: <PersonIcon />, path: '/profile' },
   ]
 
   const handleNavigate = (path: string) => {

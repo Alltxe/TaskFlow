@@ -5,8 +5,7 @@ const config: CodegenConfig = {
   schema: 'http://localhost:3000/graphql', // Backend GraphQL endpoint
   documents: 'src/**/*.{ts,tsx}',
   generates: {
-    'src/api/generated/': {
-      preset: 'client',
+    'src/api/generated/graphql.ts': {
       plugins: [
         'typescript',
         'typescript-operations',
@@ -17,6 +16,7 @@ const config: CodegenConfig = {
         withHooks: true,
         withHOC: false,
         withComponent: false,
+        enumsAsTypes: true,
       },
     },
     './graphql.schema.json': {
