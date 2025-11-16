@@ -294,4 +294,107 @@ export class RewardService {
     });
     return earned.map((e, idx) => ({ userId: e.userId, points: e._sum.amount || 0, rank: idx + 1 }));
   }
+
+  /**
+   * Get point transaction history for a user
+   * Implements BACKEND_API_REQUIREMENTS.md - getPointTransactionHistory query (Critical - Phase 6.4)
+   * 
+   * @param userId - User ID
+   * @param groupId - Optional group ID filter
+   * @param limit - Max results
+   * @param offset - Pagination offset
+   * @returns Paginated transaction history
+   */
+  async getPointTransactionHistory(
+    userId: string,
+    groupId?: string,
+    limit: number = 50,
+    offset: number = 0,
+  ): Promise<{ items: any[]; total: number }> {
+    // Get transactions with related task and reward data
+    const transactions = await (this.prisma as any).pointTransaction.findMany({
+      where: {
+        userId,
+        ...(groupId && { groupId }),
+      },
+      include: {
+        task: {
+          select: {
+            id: true,
+            title: true,
+          },
+        },
+        rewardTransaction: {
+          select: {
+            id: true,
+            reward: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+      take: limit,
+      skip: offset,
+    });
+
+    // Count total
+    const total = await (this.prisma as any).pointTransaction.count({
+      where: {
+        userId,
+        ...(groupId && { groupId }),
+      },
+    });
+
+    // Map to PointTransactionType format with descriptions
+    const items = transactions.map((tx: any) => {
+      let description = '';
+      const taskTitle = tx.task?.title;
+      const rewardName = tx.rewardTransaction?.reward?.name;
+
+      switch (tx.type) {
+        case 'EARNED':
+          description = taskTitle
+            ? `Выполнение задачи: ${taskTitle}`
+            : 'Баллы начислены';
+          break;
+        case 'SPENT':
+          description = rewardName
+            ? `Награда: ${rewardName}`
+            : 'Баллы потрачены';
+          break;
+        case 'RESERVED':
+          description = rewardName
+            ? `Резерв для награды: ${rewardName}`
+            : 'Баллы зарезервированы';
+          break;
+        case 'REFUNDED':
+          description = rewardName
+            ? `Возврат за отклоненную награду: ${rewardName}`
+            : 'Баллы возвращены';
+          break;
+        default:
+          description = tx.description || 'Транзакция';
+      }
+
+      return {
+        id: tx.id,
+        type: tx.type,
+        amount: tx.amount,
+        description: description,
+        relatedTaskId: tx.task?.id || null,
+        relatedTaskTitle: tx.task?.title || null,
+        relatedRewardId: tx.rewardTransaction?.reward?.id || null,
+        relatedRewardName: tx.rewardTransaction?.reward?.name || null,
+        createdAt: tx.createdAt,
+      };
+    });
+
+    return { items, total };
+  }
 }

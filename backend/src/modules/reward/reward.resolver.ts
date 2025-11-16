@@ -1,10 +1,11 @@
-import { Resolver, Mutation, Query, Args } from '@nestjs/graphql';
+import { Resolver, Mutation, Query, Args, Int } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/auth.guard';
 import { GroupAdminGuard } from '../group/guards/group-admin.guard';
 import { RewardService } from './reward.service';
 import { CreateRewardInput, UpdateRewardInput, RequestRewardInput, ApproveRewardRequestInput } from './dto/reward.input';
 import { RewardType, RewardTransactionType, PointBalanceType, LeaderboardEntryType } from './types/reward.type';
+import { PointTransactionHistoryResult } from './types/point-transaction.type';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { User } from '@prisma/client';
 
@@ -77,5 +78,21 @@ export class RewardResolver {
   @UseGuards(JwtAuthGuard)
   async getGroupLeaderboard(@Args('groupId') groupId: string) {
     return this.rewardService.getLeaderboard(groupId);
+  }
+
+  @Query(() => PointTransactionHistoryResult, {
+    description: 'Get point transaction history for current user (BACKEND_API_REQUIREMENTS.md - Critical Phase 6.4)',
+  })
+  @UseGuards(JwtAuthGuard)
+  async getPointTransactionHistory(
+    @CurrentUser() user: User,
+    @Args('groupId', { nullable: true, description: 'Optional group ID filter' })
+    groupId?: string,
+    @Args('limit', { type: () => Int, nullable: true, defaultValue: 50 })
+    limit: number = 50,
+    @Args('offset', { type: () => Int, nullable: true, defaultValue: 0 })
+    offset: number = 0,
+  ): Promise<PointTransactionHistoryResult> {
+    return this.rewardService.getPointTransactionHistory(user.id, groupId, limit, offset);
   }
 }

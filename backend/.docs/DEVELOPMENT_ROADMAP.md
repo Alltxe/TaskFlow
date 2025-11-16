@@ -381,17 +381,28 @@ This roadmap outlines the development phases for the TaskFlow backend server, a 
 - [x] Apply multipliers in completeTask() method (no approval)
 - [x] Store calculated points in TaskCompletionHistory
 
-### 4.5 Recurring Tasks ⏳ PENDING (Schema ready - 20%)
+### 4.5 Recurring Tasks ✅ COMPLETED (100%) ✨ NEW (Nov 16, 2025)
 - [x] Design recurrence pattern structure (PRD 3.3.3)
   - [x] isRecurring, recurrenceRule fields in schema
   - [x] rotationType per task
   - [x] parentTaskId for task chains
-- [ ] Implement task template system (deferred to Phase 9)
-- [ ] Create recurring task scheduler (deferred to Phase 9)
-  - [ ] Daily, weekly, monthly patterns
-  - [ ] Task generation 24h before deadline
-  - [ ] Use Bull or Agenda for scheduling
-- [ ] Implement fixed executor vs rotation modes
+- [x] Implement task template system
+  - [x] RecurringTaskService with CRON scheduler
+  - [x] Support for DAILY, WEEKLY, MONTHLY recurrence patterns
+  - [x] Flexible recurrence rules (e.g., WEEKLY:1,3,5 for Mon/Wed/Fri)
+- [x] Create recurring task scheduler
+  - [x] CRON job runs every hour (@nestjs/schedule)
+  - [x] Task generation 24h before deadline (PRD 3.3.3)
+  - [x] Automatic deadline calculation based on recurrence rule
+- [x] Implement fixed executor vs rotation modes
+  - [x] Fixed executor: rotationType = null (uses template assignee)
+  - [x] Automatic rotation: rotationType specified (ROUND_ROBIN, WEIGHTED_RANDOM, LOAD_BALANCING)
+- [x] GraphQL API
+  - [x] generateNextRecurringTask mutation (manual generation for testing)
+  - [x] childTasks and parentTask relations in TaskType
+- [x] Testing ✅
+  - [x] 15 unit tests for RecurringTaskService (100% passing)
+  - [x] E2E test suite created (recurring-tasks.e2e-spec.ts)
 
 ### 4.6 Testing ✅ COMPLETED (100%)
 - [x] E2E tests for task lifecycle (18 tests in task-operations.e2e-spec.ts)

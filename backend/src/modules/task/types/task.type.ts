@@ -71,4 +71,10 @@ export class TaskType {
 
   @Field(() => GroupMemberUserType)
   createdBy: GroupMemberUserType;
+
+  @Field(() => [TaskType], { nullable: true })
+  childTasks?: TaskType[];
+
+  @Field(() => TaskType, { nullable: true })
+  parentTask?: TaskType | null;
 }

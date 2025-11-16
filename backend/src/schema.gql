@@ -146,6 +146,100 @@ type TaskType {
   parentTaskId: String
   assignee: GroupMemberUserType
   createdBy: GroupMemberUserType!
+  childTasks: [TaskType!]
+  parentTask: TaskType
+}
+
+type RotationScheduleEntry {
+  """Task ID (for recurring tasks - template ID)"""
+  taskId: ID!
+
+  """Task title"""
+  taskTitle: String!
+
+  """User ID who will be assigned the task"""
+  userId: ID!
+
+  """Username of assignee"""
+  username: String!
+
+  """Avatar URL of assignee"""
+  avatarUrl: String
+
+  """Scheduled assignment date and time"""
+  scheduledDate: DateTime!
+
+  """Rotation type for this task"""
+  rotationType: String!
+
+  """Task priority level"""
+  priority: String!
+
+  """Base points for task completion"""
+  points: Int!
+}
+
+type RotationHistoryEntry {
+  """Task ID"""
+  taskId: ID!
+
+  """Task title"""
+  taskTitle: String!
+
+  """User ID who was assigned the task"""
+  userId: ID!
+
+  """Username of assignee"""
+  username: String!
+
+  """Avatar URL of assignee"""
+  avatarUrl: String
+
+  """Date and time when task was assigned"""
+  assignedAt: DateTime!
+
+  """Date and time when task was completed (null if not completed)"""
+  completedAt: DateTime
+
+  """Current task status"""
+  status: String!
+
+  """Rotation type used for assignment"""
+  rotationType: String!
+
+  """Points earned for completion (0 if not completed)"""
+  pointsEarned: Int!
+}
+
+type RotationHistoryResult {
+  """List of rotation history entries"""
+  items: [RotationHistoryEntry!]!
+
+  """Total number of entries"""
+  total: Int!
+}
+
+type RotationPatternType {
+  """Rotation type of the group"""
+  rotationType: String!
+
+  """Array of user IDs in rotation order (CYCLIC only)"""
+  currentCycle: [String!]!
+
+  """Current index in cycle (CYCLIC only, 0-based)"""
+  currentCycleIndex: Int
+
+  """Date of last rotation assignment"""
+  lastRotationAt: DateTime
+
+  """Date of next planned rotation assignment"""
+  nextRotationAt: DateTime
+
+  """Active members (not away)"""
+  activeMembers: [GroupMemberUserType!]!
+
+  """Members currently away"""
+  awayMembers: [GroupMemberUserType!]!
 }
 
 type NotificationType {
@@ -243,6 +337,31 @@ type LeaderboardEntryType {
   rank: Int!
 }
 
+type PointTransactionType {
+  id: ID!
+  type: PointTransactionTypeEnum!
+  amount: Int!
+  description: String!
+  relatedTaskId: ID
+  relatedTaskTitle: String
+  relatedRewardId: ID
+  relatedRewardName: String
+  createdAt: DateTime!
+}
+
+"""Тип транзакции поинтов"""
+enum PointTransactionTypeEnum {
+  EARNED
+  SPENT
+  RESERVED
+  REFUNDED
+}
+
+type PointTransactionHistoryResult {
+  items: [PointTransactionType!]!
+  total: Int!
+}
+
 type Query {
   hello: String!
 
@@ -282,6 +401,17 @@ type Query {
   getGroupTasks(groupId: String!, status: String): [TaskType!]!
   getUserTasks(status: String): [TaskType!]!
 
+  """
+  Get planned rotation schedule for next 30 days (requires recurring task scheduler - Phase 9)
+  """
+  getRotationSchedule(groupId: String!): [RotationScheduleEntry!]!
+
+  """Get history of tasks assigned through rotation system"""
+  getRotationHistory(groupId: String!, limit: Int = 50, offset: Int = 0): RotationHistoryResult!
+
+  """Get current rotation configuration and cycle state"""
+  getRotationPattern(groupId: String!): RotationPatternType!
+
   """List my notifications (PRD 3.6.3)"""
   myNotifications(input: ListNotificationsInput): NotificationListResult!
 
@@ -305,6 +435,16 @@ type Query {
 
   """Group leaderboard by earned points (PRD 3.5.5)"""
   getGroupLeaderboard(groupId: String!): [LeaderboardEntryType!]!
+
+  """
+  Get point transaction history for current user (BACKEND_API_REQUIREMENTS.md - Critical Phase 6.4)
+  """
+  getPointTransactionHistory(
+    """Optional group ID filter"""
+    groupId: String
+    limit: Int = 50
+    offset: Int = 0
+  ): PointTransactionHistoryResult!
 }
 
 input GetAuditLogsInput {
@@ -325,6 +465,12 @@ input ListNotificationsInput {
 }
 
 type Mutation {
+  """Update current user profile (username, avatarUrl)"""
+  updateUser(input: UpdateUserInput!): UserType!
+
+  """Set "Away" status for current user (affects task rotation)"""
+  setUserAwayStatus(input: SetAwayStatusInput!): UserType!
+
   """Регистрация нового пользователя"""
   register(input: RegisterInput!): AuthResponseType!
 
@@ -361,6 +507,9 @@ type Mutation {
   """
   claimTask(input: ClaimTaskInput!): TaskType!
 
+  """Manually generate next task from recurring template (admin only)"""
+  generateNextRecurringTask(taskId: String!): TaskType!
+
   """Mark notifications as read (PRD 3.6.3)"""
   markNotificationsRead(input: MarkNotificationsReadInput!): Boolean!
 
@@ -393,6 +542,22 @@ type Mutation {
 
   """Approve or reject reward request (PRD 3.5.4) - admin only"""
   approveRewardRequest(input: ApproveRewardRequestInput!): RewardTransactionType!
+}
+
+input UpdateUserInput {
+  """New username (3-30 characters, alphanumeric and underscore only)"""
+  username: String
+
+  """URL of user avatar image"""
+  avatarUrl: String
+}
+
+input SetAwayStatusInput {
+  """Flag indicating if user is away"""
+  isAway: Boolean!
+
+  """Date when user will return (null for indefinite)"""
+  awayUntil: String
 }
 
 input RegisterInput {

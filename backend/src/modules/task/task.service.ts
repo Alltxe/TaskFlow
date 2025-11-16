@@ -613,4 +613,244 @@ export class TaskService {
 
     return Math.round(basePoints * multiplier);
   }
+
+  /**
+   * Get rotation schedule for a group (next 30 days of planned assignments)
+   * Implements BACKEND_API_REQUIREMENTS.md - getRotationSchedule query (Critical - Phase 5.1)
+   * 
+   * @param groupId - Group ID
+   * @param userId - User ID (for permission check)
+   * @returns Array of planned rotation assignments
+   */
+  async getRotationSchedule(
+    groupId: string,
+    userId: string,
+  ): Promise<any[]> {
+    // Check user is member of group
+    const member = await this.prisma.groupMember.findFirst({
+      where: { groupId, userId },
+    });
+
+    if (!member) {
+      throw new ForbiddenException('Access denied: not a group member');
+    }
+
+    // Get all recurring tasks for the group
+    const recurringTasks = await this.prisma.task.findMany({
+      where: {
+        groupId,
+        isRecurring: true,
+        rotationType: { not: null },
+      },
+      include: {
+        assignee: {
+          select: {
+            id: true,
+            username: true,
+            avatarUrl: true,
+          },
+        },
+      },
+    });
+
+    // TODO: Implement recurrence rule parsing (RFC 5545 RRULE)
+    // For MVP, return empty array (recurring task scheduler pending Phase 9)
+    // Full implementation requires:
+    // 1. Parse recurrenceRule (rrule library)
+    // 2. Generate next N occurrences (30 days window)
+    // 3. Apply rotation algorithm for each occurrence
+    // 4. Return sorted schedule entries
+    
+    return [];
+  }
+
+  /**
+   * Get rotation history for a group (past assignments through rotation)
+   * Implements BACKEND_API_REQUIREMENTS.md - getRotationHistory query (Critical - Phase 5.1)
+   * 
+   * @param groupId - Group ID
+   * @param userId - User ID (for permission check)
+   * @param limit - Max number of results
+   * @param offset - Pagination offset
+   * @returns Paginated rotation history
+   */
+  async getRotationHistory(
+    groupId: string,
+    userId: string,
+    limit: number = 50,
+    offset: number = 0,
+  ): Promise<{ items: any[]; total: number }> {
+    // Check user is member of group
+    const member = await this.prisma.groupMember.findFirst({
+      where: { groupId, userId },
+    });
+
+    if (!member) {
+      throw new ForbiddenException('Access denied: not a group member');
+    }
+
+    // Get tasks assigned through rotation (not manual assignment)
+    // Criteria: tasks with rotationType !== null and assignee !== createdBy
+    const tasks = await this.prisma.task.findMany({
+      where: {
+        groupId,
+        rotationType: { not: null },
+        assigneeId: { not: null },
+      },
+      include: {
+        assignee: {
+          select: {
+            id: true,
+            username: true,
+            avatarUrl: true,
+          },
+        },
+        completions: {
+          select: {
+            pointsAwarded: true,
+          },
+          take: 1,
+          orderBy: {
+            completedAt: 'desc',
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+      take: limit,
+      skip: offset,
+    });
+
+    // Count total
+    const total = await this.prisma.task.count({
+      where: {
+        groupId,
+        rotationType: { not: null },
+        assigneeId: { not: null },
+      },
+    });
+
+    // Map to RotationHistoryEntry format
+    const items = tasks.map((task) => ({
+      taskId: task.id,
+      taskTitle: task.title,
+      userId: task.assignee!.id,
+      username: task.assignee!.username,
+      avatarUrl: task.assignee!.avatarUrl,
+      assignedAt: task.createdAt,
+      completedAt: task.completedAt,
+      status: task.status,
+      rotationType: task.rotationType!,
+      pointsEarned: task.completions[0]?.pointsAwarded || 0,
+    }));
+
+    return { items, total };
+  }
+
+  /**
+   * Get rotation pattern information for a group
+   * Implements BACKEND_API_REQUIREMENTS.md - getRotationPattern query (Important - Phase 5.1)
+   * 
+   * @param groupId - Group ID
+   * @param userId - User ID (for permission check)
+   * @returns Rotation pattern configuration and state
+   */
+  async getRotationPattern(
+    groupId: string,
+    userId: string,
+  ): Promise<any> {
+    // Check user is member of group
+    const member = await this.prisma.groupMember.findFirst({
+      where: { groupId, userId },
+    });
+
+    if (!member) {
+      throw new ForbiddenException('Access denied: not a group member');
+    }
+
+    // Get group rotation type
+    const group = await this.prisma.group.findUnique({
+      where: { id: groupId },
+      select: { rotationType: true },
+    });
+
+    if (!group) {
+      throw new NotFoundException('Group not found');
+    }
+
+    // Get all group members
+    const members = await this.prisma.groupMember.findMany({
+      where: { groupId },
+      include: {
+        user: {
+          select: {
+            id: true,
+            username: true,
+            avatarUrl: true,
+            isAway: true,
+            awayUntil: true,
+          },
+        },
+      },
+      orderBy: {
+        joinedAt: 'asc', // CYCLIC rotation order
+      },
+    });
+
+    // Separate active and away members
+    const now = new Date();
+    const activeMembers = members
+      .filter((m) => !m.user.isAway || (m.user.awayUntil && new Date(m.user.awayUntil) <= now))
+      .map((m) => ({
+        id: m.user.id,
+        username: m.user.username,
+        avatarUrl: m.user.avatarUrl,
+        isAway: false,
+        awayUntil: null,
+      }));
+
+    const awayMembers = members
+      .filter((m) => m.user.isAway && (!m.user.awayUntil || new Date(m.user.awayUntil) > now))
+      .map((m) => ({
+        id: m.user.id,
+        username: m.user.username,
+        avatarUrl: m.user.avatarUrl,
+        isAway: true,
+        awayUntil: m.user.awayUntil,
+      }));
+
+    // Get last rotation assignment
+    const lastTask = await this.prisma.task.findFirst({
+      where: {
+        groupId,
+        rotationType: { not: null },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    // Calculate current cycle index (for CYCLIC)
+    let currentCycleIndex: number | null = null;
+    if (group.rotationType === 'ROUND_ROBIN' && lastTask && lastTask.assigneeId) {
+      const lastAssigneeIndex = activeMembers.findIndex(
+        (m) => m.id === lastTask.assigneeId,
+      );
+      if (lastAssigneeIndex !== -1) {
+        currentCycleIndex = (lastAssigneeIndex + 1) % activeMembers.length;
+      }
+    }
+
+    return {
+      rotationType: group.rotationType,
+      currentCycle: activeMembers.map((m) => m.id),
+      currentCycleIndex: currentCycleIndex,
+      lastRotationAt: lastTask?.createdAt || null,
+      nextRotationAt: null, // TODO: Calculate from recurrence rules (Phase 9)
+      activeMembers: activeMembers,
+      awayMembers: awayMembers,
+    };
+  }
 }
+

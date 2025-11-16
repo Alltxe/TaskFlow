@@ -1,7 +1,9 @@
-import { Injectable, Inject } from '@nestjs/common';
-import { PrismaClient, Prisma } from '@prisma/client';
+import { Injectable, Inject, ConflictException, BadRequestException } from '@nestjs/common';
+import { PrismaClient, Prisma, User } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { UserStatistics } from './types/user-statistics.type';
+import { UpdateUserInput } from './dto/update-user.input';
+import { SetAwayStatusInput } from './dto/set-away-status.input';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 
@@ -216,5 +218,86 @@ export class UserService {
     const reserved = reservedAgg._sum.amount || 0;
     const refunded = refundedAgg._sum.amount || 0;
     return earned + refunded - spent - reserved;
+  }
+
+  /**
+   * Update user profile information
+   * Implements BACKEND_API_REQUIREMENTS.md - updateUser mutation (Critical - Phase 8.1)
+   * PRD 3.1.2 - User Profile Management
+   * 
+   * @param userId - User ID to update
+   * @param input - Update data (username, avatarUrl)
+   * @returns Updated user object
+   * @throws ConflictException if username is already taken
+   */
+  async updateUser(userId: string, input: UpdateUserInput): Promise<User> {
+    // Check if username is being changed and is already taken
+    if (input.username) {
+      const existingUser = await this.prisma.user.findFirst({
+        where: {
+          username: input.username,
+          id: { not: userId }, // Exclude current user
+        },
+      });
+
+      if (existingUser) {
+        throw new ConflictException('Username already taken');
+      }
+    }
+
+    // Update user (partial update - only provided fields)
+    const updatedUser = await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        ...(input.username && { username: input.username }),
+        ...(input.avatarUrl !== undefined && { avatarUrl: input.avatarUrl }),
+      },
+    });
+
+    // Invalidate cached statistics for this user
+    const cacheKeyPattern = `user:stats:${userId}*`;
+    // Note: Cache invalidation by pattern requires Redis
+    // For now, we'll accept that cache will expire naturally in 5 minutes
+    
+    return updatedUser;
+  }
+
+  /**
+   * Set user "Away" status
+   * Implements BACKEND_API_REQUIREMENTS.md - setUserAwayStatus mutation (Critical - Phase 5.3)
+   * PRD 3.1.2 - User Profile Management
+   * PRD 3.4.1 - Rotation Algorithm (Away status affects rotation)
+   * 
+   * @param userId - User ID
+   * @param input - Away status data
+   * @returns Updated user object
+   * @throws BadRequestException if validation fails
+   */
+  async setAwayStatus(userId: string, input: SetAwayStatusInput): Promise<User> {
+    // Validation: if isAway = false, awayUntil must be null
+    if (!input.isAway && input.awayUntil) {
+      throw new BadRequestException(
+        'awayUntil must be null when isAway is false',
+      );
+    }
+
+    // Validation: awayUntil must be in the future
+    if (input.isAway && input.awayUntil) {
+      const awayDate = new Date(input.awayUntil);
+      if (awayDate <= new Date()) {
+        throw new BadRequestException('awayUntil must be a future date');
+      }
+    }
+
+    // Update user status
+    const updatedUser = await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        isAway: input.isAway,
+        awayUntil: input.awayUntil ? new Date(input.awayUntil) : null,
+      },
+    });
+
+    return updatedUser;
   }
 }
