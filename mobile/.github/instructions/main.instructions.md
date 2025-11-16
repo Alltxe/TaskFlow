@@ -13,6 +13,18 @@ applyTo: '**'
 3. **Check Backend API**: Review `backend.docs/API_DOCUMENTATION.md` for GraphQL schema and available endpoints
 4. **Read Related Files**: Use `read_file` or `semantic_search` to understand existing patterns
 5. **Check Dependencies**: Identify package dependencies in `pubspec.yaml`
+6. **Use Context7 before adding new packages**: Before introducing any new third-party library or package, consult Context7 to retrieve authoritative documentation, canonical examples, and licensing information. This ensures library suitability and avoids licensing or API surprises.
+
+  - Use the Context7 resolver to find a Context7-compatible library ID (example: use the request "graphql_flutter" and pick the best match).
+  - Call Context7 to fetch documentation and examples for the library using the returned library ID.
+  - Confirm the library license is compatible with the project and check for major breaking changes or major releases.
+  - If Context7 does not return relevant results, document the manual research steps and the reason to proceed.
+
+  Example workflow:
+  1. Resolve the library ID using Context7 (e.g., "graphql_flutter").
+  2. Fetch docs and typical usage examples for the library from Context7.
+  3. Add the library to `pubspec.yaml` only after verifying compatibility.
+  4. Add a short note in the PR that links the Context7 docs reviewed.
 6. **Review Similar Code**: Look for existing implementations to maintain consistency
 7. **Understand State Management**: Trace how data flows through widgets and state management
 8. **Consult Flutter Documentation**: When unsure about Flutter/Dart APIs or widget patterns
@@ -101,6 +113,7 @@ lib/
 3. Consult `.docs/PRD.md` for mobile requirements and UI specifications
 4. Reference `backend.docs/PRD.md` if understanding backend business logic
 5. Check `backend.docs/DEVELOPMENT_ROADMAP.md` for backend API readiness
+6. Use Context7 to review any new packages or third-party libraries before adding them to `pubspec.yaml`. Follow the Context7 workflow described in the "Context: Understanding Before Acting" section to resolve library IDs and fetch usage examples and license details.
 
 ### Complete Mobile App Features (from PRD)
 
