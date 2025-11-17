@@ -5,7 +5,9 @@
       "Bash(flutter pub run build_runner build:*)",
       "Bash(flutter pub get:*)",
       "Bash(flutter analyze:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(flutter gen-l10n:*)",
+      "Bash(findstr:*)"
     ],
     "deny": [],
     "ask": []

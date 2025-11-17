@@ -9,7 +9,7 @@ import 'package:mobile/data/providers/group_providers.dart';
 import 'package:mobile/l10n/app_localizations.dart';
 import 'package:mobile/presentation/screens/groups/group_leaderboard_screen.dart';
 import 'package:mobile/presentation/screens/groups/group_rewards_screen.dart';
-import 'package:mobile/presentation/screens/groups/group_tasks_screen.dart';
+import 'package:mobile/presentation/screens/tasks/tasks_screen.dart';
 
 /// Layout for group screens with tabs
 class GroupLayoutScreen extends ConsumerStatefulWidget {
@@ -202,7 +202,8 @@ class _GroupLayoutScreenState extends ConsumerState<GroupLayoutScreen>
   }
 
   Widget _buildTasksTab() {
-    return GroupTasksScreen(groupId: widget.groupId);
+    // Show tasks in the context of this group — which now includes a My Tasks tab
+    return TasksScreen(groupId: widget.groupId);
   }
 
   Widget _buildRewardsTab() {

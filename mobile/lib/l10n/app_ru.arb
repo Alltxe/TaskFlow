@@ -254,5 +254,127 @@
     "pointsLabelDetail": "Очки",
     "deadlineLabel": "Срок",
     "assignedToLabel": "Назначено",
-    "requiresApprovalLabel": "Требует одобрения"
+    "requiresApprovalLabel": "Требует одобрения",
+    "taskDetailsTitle": "Детали задачи",
+    "editTask": "Редактировать задачу",
+    "deleteTask": "Удалить задачу",
+    "deleteTaskConfirmTitle": "Удалить задачу",
+    "deleteTaskConfirmMessage": "Вы уверены, что хотите удалить эту задачу?",
+    "executor": "Исполнитель",
+    "upForGrabs": "Доступно всем",
+    "claimTask": "Взять задачу",
+    "reward": "Награда",
+    "pts": "очк.",
+    "bonusPoints": "+50% бонус",
+    "createdBy": "Создал",
+    "rejectionReason": "Причина отклонения",
+    "markAsComplete": "Отметить как выполненную",
+    "reject": "Отклонить",
+    "approve": "Одобрить",
+    "rejectTaskTitle": "Отклонить задачу",
+    "rejectionReasonHint": "Введите причину отклонения",
+    "errorLoadingTask": "Ошибка загрузки задачи",
+    "retry": "Повторить",
+    "createTask": "Создать задачу",
+    "updateTask": "Обновить задачу",
+    "taskTitle": "Название задачи",
+    "enterTaskTitle": "Введите название задачи",
+    "enterTitleValidation": "Пожалуйста, введите название задачи",
+    "descriptionOptional": "Описание (необязательно)",
+    "enterTaskDescription": "Введите описание задачи",
+    "tapToSelectDeadline": "Нажмите, чтобы выбрать срок",
+    "priority": "Приоритет",
+    "enterPointValue": "Введите количество очков",
+    "enterPointValueValidation": "Пожалуйста, введите количество очков",
+    "pointsRangeValidation": "Очки должны быть от 1 до 1000",
+    "requiresApprovalTitle": "Требует одобрения",
+    "requiresApprovalSubtitle": "Задача должна быть одобрена админом после выполнения",
+    "taskCreatedSuccessfully": "Задача успешно создана",
+    "groupTasksTab": "Задачи группы",
+    "upForGrabsTab": "Доступно всем",
+    "pendingApprovalTab": "Ожидают одобрения",
+    "noTasksAssigned": "Вам не назначены задачи",
+    "tasksWillAppearHere": "Задачи появятся здесь",
+    "selectGroup": "Выберите группу",
+    "viewGroupTasksFromGroupsTab": "Просмотрите задачи группы на вкладке Группы",
+    "noTasksAvailable": "Нет доступных задач",
+    "noTasksPendingApproval": "Нет задач, ожидающих одобрения",
+    "errorLoadingTasks": "Ошибка загрузки задач",
+    "priorityHigh": "Высокий",
+    "priorityMedium": "Средний",
+    "priorityLow": "Низкий",
+    "statusActive": "Активна",
+    "statusPendingReview": "Ожидает проверки",
+    "daysLeft": "{count} дн. осталось",
+    "@daysLeft": {
+        "description": "Days left countdown",
+        "placeholders": {
+            "count": {}
+        }
+    },
+    "hoursLeft": "{count} ч. осталось",
+    "@hoursLeft": {
+        "description": "Hours left countdown",
+        "placeholders": {
+            "count": {}
+        }
+    },
+    "minutesLeft": "{count} мин. осталось",
+    "@minutesLeft": {
+        "description": "Minutes left countdown",
+        "placeholders": {
+            "count": {}
+        }
+    },
+    "daysOverdue": "{count} дн. просрочено",
+    "@daysOverdue": {
+        "description": "Days overdue",
+        "placeholders": {
+            "count": {}
+        }
+    },
+    "hoursOverdue": "{count} ч. просрочено",
+    "@hoursOverdue": {
+        "description": "Hours overdue",
+        "placeholders": {
+            "count": {}
+        }
+    },
+    "minutesOverdue": "{count} мин. просрочено",
+    "@minutesOverdue": {
+        "description": "Minutes overdue",
+        "placeholders": {
+            "count": {}
+        }
+    },
+    "tasksAssigned": "Задачи назначены",
+    "tasksCompletedLabel": "Задачи завершены",
+    "pointsBalance": "Баланс очков",
+    "completionRateLabel": "Процент завершения",
+    "upcomingTasks": "Предстоящие задачи",
+    "dueTasks": "Задачи на сегодня",
+    "overdueTasks": "Просроченные задачи",
+    "pendingApprovalTasks": "Ожидают одобрения",
+    "quickStats": "Быстрая статистика",
+    "allGroups": "Все группы",
+    "filterByGroup": "Фильтр по группе",
+    "tasksDueToday": "Задачи на сегодня",
+    "noTasksDueToday": "Нет задач на сегодня",
+    "monday": "Понедельник",
+    "tuesday": "Вторник",
+    "wednesday": "Среда",
+    "thursday": "Четверг",
+    "friday": "Пятница",
+    "saturday": "Суббота",
+    "sunday": "Воскресенье",
+    "previousWeek": "Предыдущая неделя",
+    "nextWeek": "Следующая неделя",
+    "selectDate": "Выберите дату",
+    "tasksForDate": "Задачи на {date}",
+    "@tasksForDate": {
+        "description": "Tasks for specific date",
+        "placeholders": {
+            "date": {}
+        }
+    }
 }

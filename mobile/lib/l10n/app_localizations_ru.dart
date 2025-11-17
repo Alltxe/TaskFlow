@@ -496,7 +496,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get request => 'Запросить';
 
   @override
-  String get claimTask => 'Забрать задачу';
+  String get claimTask => 'Взять задачу';
 
   @override
   String get markComplete => 'Отметить выполненным';
@@ -651,4 +651,256 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get requiresApprovalLabel => 'Требует одобрения';
+
+  @override
+  String get taskDetailsTitle => 'Детали задачи';
+
+  @override
+  String get editTask => 'Редактировать задачу';
+
+  @override
+  String get deleteTask => 'Удалить задачу';
+
+  @override
+  String get deleteTaskConfirmTitle => 'Удалить задачу';
+
+  @override
+  String get deleteTaskConfirmMessage =>
+      'Вы уверены, что хотите удалить эту задачу?';
+
+  @override
+  String get executor => 'Исполнитель';
+
+  @override
+  String get upForGrabs => 'Доступно всем';
+
+  @override
+  String get reward => 'Награда';
+
+  @override
+  String get pts => 'очк.';
+
+  @override
+  String get bonusPoints => '+50% бонус';
+
+  @override
+  String get createdBy => 'Создал';
+
+  @override
+  String get rejectionReason => 'Причина отклонения';
+
+  @override
+  String get markAsComplete => 'Отметить как выполненную';
+
+  @override
+  String get reject => 'Отклонить';
+
+  @override
+  String get approve => 'Одобрить';
+
+  @override
+  String get rejectTaskTitle => 'Отклонить задачу';
+
+  @override
+  String get rejectionReasonHint => 'Введите причину отклонения';
+
+  @override
+  String get errorLoadingTask => 'Ошибка загрузки задачи';
+
+  @override
+  String get createTask => 'Создать задачу';
+
+  @override
+  String get updateTask => 'Обновить задачу';
+
+  @override
+  String get taskTitle => 'Название задачи';
+
+  @override
+  String get enterTaskTitle => 'Введите название задачи';
+
+  @override
+  String get enterTitleValidation => 'Пожалуйста, введите название задачи';
+
+  @override
+  String get descriptionOptional => 'Описание (необязательно)';
+
+  @override
+  String get enterTaskDescription => 'Введите описание задачи';
+
+  @override
+  String get tapToSelectDeadline => 'Нажмите, чтобы выбрать срок';
+
+  @override
+  String get priority => 'Приоритет';
+
+  @override
+  String get enterPointValue => 'Введите количество очков';
+
+  @override
+  String get enterPointValueValidation =>
+      'Пожалуйста, введите количество очков';
+
+  @override
+  String get pointsRangeValidation => 'Очки должны быть от 1 до 1000';
+
+  @override
+  String get requiresApprovalTitle => 'Требует одобрения';
+
+  @override
+  String get requiresApprovalSubtitle =>
+      'Задача должна быть одобрена админом после выполнения';
+
+  @override
+  String get taskCreatedSuccessfully => 'Задача успешно создана';
+
+  @override
+  String get groupTasksTab => 'Задачи группы';
+
+  @override
+  String get upForGrabsTab => 'Доступно всем';
+
+  @override
+  String get pendingApprovalTab => 'Ожидают одобрения';
+
+  @override
+  String get noTasksAssigned => 'Вам не назначены задачи';
+
+  @override
+  String get tasksWillAppearHere => 'Задачи появятся здесь';
+
+  @override
+  String get selectGroup => 'Выберите группу';
+
+  @override
+  String get viewGroupTasksFromGroupsTab =>
+      'Просмотрите задачи группы на вкладке Группы';
+
+  @override
+  String get noTasksAvailable => 'Нет доступных задач';
+
+  @override
+  String get noTasksPendingApproval => 'Нет задач, ожидающих одобрения';
+
+  @override
+  String get errorLoadingTasks => 'Ошибка загрузки задач';
+
+  @override
+  String get priorityHigh => 'Высокий';
+
+  @override
+  String get priorityMedium => 'Средний';
+
+  @override
+  String get priorityLow => 'Низкий';
+
+  @override
+  String get statusActive => 'Активна';
+
+  @override
+  String get statusPendingReview => 'Ожидает проверки';
+
+  @override
+  String daysLeft(Object count) {
+    return '$count дн. осталось';
+  }
+
+  @override
+  String hoursLeft(Object count) {
+    return '$count ч. осталось';
+  }
+
+  @override
+  String minutesLeft(Object count) {
+    return '$count мин. осталось';
+  }
+
+  @override
+  String daysOverdue(Object count) {
+    return '$count дн. просрочено';
+  }
+
+  @override
+  String hoursOverdue(Object count) {
+    return '$count ч. просрочено';
+  }
+
+  @override
+  String minutesOverdue(Object count) {
+    return '$count мин. просрочено';
+  }
+
+  @override
+  String get tasksAssigned => 'Задачи назначены';
+
+  @override
+  String get tasksCompletedLabel => 'Задачи завершены';
+
+  @override
+  String get pointsBalance => 'Баланс очков';
+
+  @override
+  String get completionRateLabel => 'Процент завершения';
+
+  @override
+  String get upcomingTasks => 'Предстоящие задачи';
+
+  @override
+  String get dueTasks => 'Задачи на сегодня';
+
+  @override
+  String get overdueTasks => 'Просроченные задачи';
+
+  @override
+  String get pendingApprovalTasks => 'Ожидают одобрения';
+
+  @override
+  String get quickStats => 'Быстрая статистика';
+
+  @override
+  String get allGroups => 'Все группы';
+
+  @override
+  String get filterByGroup => 'Фильтр по группе';
+
+  @override
+  String get tasksDueToday => 'Задачи на сегодня';
+
+  @override
+  String get noTasksDueToday => 'Нет задач на сегодня';
+
+  @override
+  String get monday => 'Понедельник';
+
+  @override
+  String get tuesday => 'Вторник';
+
+  @override
+  String get wednesday => 'Среда';
+
+  @override
+  String get thursday => 'Четверг';
+
+  @override
+  String get friday => 'Пятница';
+
+  @override
+  String get saturday => 'Суббота';
+
+  @override
+  String get sunday => 'Воскресенье';
+
+  @override
+  String get previousWeek => 'Предыдущая неделя';
+
+  @override
+  String get nextWeek => 'Следующая неделя';
+
+  @override
+  String get selectDate => 'Выберите дату';
+
+  @override
+  String tasksForDate(Object date) {
+    return 'Задачи на $date';
+  }
 }

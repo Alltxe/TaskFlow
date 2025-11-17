@@ -240,8 +240,8 @@ class TaskRemoteDataSource {
 
   Future<Task> claimTask(String taskId) async {
     const mutation = r'''
-      mutation ClaimTask($taskId: String!) {
-        claimTask(taskId: $taskId) {
+      mutation ClaimTask($input: ClaimTaskInput!) {
+        claimTask(input: $input) {
           ...TaskFields
         }
       }
@@ -251,7 +251,9 @@ class TaskRemoteDataSource {
       final result = await client.mutate(
         MutationOptions(
           document: gql(mutation + _taskFragment + _userFragment),
-          variables: {'taskId': taskId},
+          variables: {
+            'input': {'taskId': taskId}
+          },
         ),
       );
 
@@ -271,43 +273,11 @@ class TaskRemoteDataSource {
     }
   }
 
-  Future<Task> unclaimTask(String taskId) async {
-    const mutation = r'''
-      mutation UnclaimTask($taskId: String!) {
-        unclaimTask(taskId: $taskId) {
-          ...TaskFields
-        }
-      }
-    ''';
-
-    try {
-      final result = await client.mutate(
-        MutationOptions(
-          document: gql(mutation + _taskFragment + _userFragment),
-          variables: {'taskId': taskId},
-        ),
-      );
-
-      if (result.hasException) {
-        _handleGraphQLException(result.exception!);
-      }
-
-      final taskData = result.data?['unclaimTask'];
-      if (taskData == null) {
-        throw const app_exceptions.ServerException(message: 'Failed to unclaim task');
-      }
-
-      return Task.fromJson(taskData);
-    } catch (e) {
-      if (e is app_exceptions.AppException) rethrow;
-      throw app_exceptions.NetworkException(message: 'Failed to unclaim task: ${e.toString()}');
-    }
-  }
 
   Future<Task> completeTask(String taskId) async {
     const mutation = r'''
-      mutation CompleteTask($taskId: String!) {
-        completeTask(taskId: $taskId) {
+      mutation CompleteTask($input: CompleteTaskInput!) {
+        completeTask(input: $input) {
           ...TaskFields
         }
       }
@@ -317,7 +287,9 @@ class TaskRemoteDataSource {
       final result = await client.mutate(
         MutationOptions(
           document: gql(mutation + _taskFragment + _userFragment),
-          variables: {'taskId': taskId},
+          variables: {
+            'input': {'taskId': taskId}
+          },
         ),
       );
 
@@ -337,10 +309,10 @@ class TaskRemoteDataSource {
     }
   }
 
-  Future<Task> approveTask(String taskId) async {
+  Future<Task> approveTask(String taskId, bool approved, {String? rejectionReason}) async {
     const mutation = r'''
-      mutation ApproveTask($taskId: String!) {
-        approveTask(taskId: $taskId) {
+      mutation ApproveTask($input: ApproveTaskInput!) {
+        approveTask(input: $input) {
           ...TaskFields
         }
       }
@@ -350,7 +322,13 @@ class TaskRemoteDataSource {
       final result = await client.mutate(
         MutationOptions(
           document: gql(mutation + _taskFragment + _userFragment),
-          variables: {'taskId': taskId},
+          variables: {
+            'input': {
+              'taskId': taskId,
+              'approved': approved,
+              if (rejectionReason != null) 'rejectionReason': rejectionReason,
+            }
+          },
         ),
       );
 
@@ -360,46 +338,13 @@ class TaskRemoteDataSource {
 
       final taskData = result.data?['approveTask'];
       if (taskData == null) {
-        throw const app_exceptions.ServerException(message: 'Failed to approve task');
+        throw const app_exceptions.ServerException(message: 'Failed to approve/reject task');
       }
 
       return Task.fromJson(taskData);
     } catch (e) {
       if (e is app_exceptions.AppException) rethrow;
-      throw app_exceptions.NetworkException(message: 'Failed to approve task: ${e.toString()}');
-    }
-  }
-
-  Future<Task> rejectTask(String taskId, String reason) async {
-    const mutation = r'''
-      mutation RejectTask($taskId: String!, $reason: String!) {
-        rejectTask(taskId: $taskId, reason: $reason) {
-          ...TaskFields
-        }
-      }
-    ''';
-
-    try {
-      final result = await client.mutate(
-        MutationOptions(
-          document: gql(mutation + _taskFragment + _userFragment),
-          variables: {'taskId': taskId, 'reason': reason},
-        ),
-      );
-
-      if (result.hasException) {
-        _handleGraphQLException(result.exception!);
-      }
-
-      final taskData = result.data?['rejectTask'];
-      if (taskData == null) {
-        throw const app_exceptions.ServerException(message: 'Failed to reject task');
-      }
-
-      return Task.fromJson(taskData);
-    } catch (e) {
-      if (e is app_exceptions.AppException) rethrow;
-      throw app_exceptions.NetworkException(message: 'Failed to reject task: ${e.toString()}');
+      throw app_exceptions.NetworkException(message: 'Failed to approve/reject task: ${e.toString()}');
     }
   }
 

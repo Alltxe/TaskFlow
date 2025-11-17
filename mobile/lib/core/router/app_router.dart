@@ -15,9 +15,9 @@ import 'package:mobile/presentation/screens/groups/invite_screen.dart';
 import 'package:mobile/presentation/screens/groups/join_group_screen.dart';
 import 'package:mobile/presentation/screens/main_navigation_screen.dart';
 import 'package:mobile/presentation/screens/profile/profile_screen.dart';
-import 'package:mobile/presentation/screens/rewards/rewards_screen.dart';
 import 'package:mobile/presentation/screens/settings/settings_screen.dart';
-import 'package:mobile/presentation/screens/tasks/tasks_screen.dart';
+import 'package:mobile/presentation/screens/tasks/create_task_screen.dart';
+import 'package:mobile/presentation/screens/tasks/task_detail_screen.dart';
 
 /// Router configuration for the app
 final routerProvider = Provider<GoRouter>((ref) {
@@ -67,15 +67,11 @@ final routerProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(
             routes: [GoRoute(path: '/home', builder: (context, state) => const DashboardScreen())],
           ),
-          StatefulShellBranch(
-            routes: [GoRoute(path: '/tasks', builder: (context, state) => const TasksScreen())],
-          ),
+          // Tasks removed from main nav shell — accessible from GroupLayout only
           StatefulShellBranch(
             routes: [GoRoute(path: '/groups', builder: (context, state) => const GroupsScreen())],
           ),
-          StatefulShellBranch(
-            routes: [GoRoute(path: '/rewards', builder: (context, state) => const RewardsScreen())],
-          ),
+          // Rewards removed from main navigation for now (destination not shown)
           StatefulShellBranch(
             routes: [GoRoute(path: '/profile', builder: (context, state) => const ProfileScreen())],
           ),
@@ -121,6 +117,30 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final inviteToken = state.pathParameters['inviteToken']!;
           return JoinGroupScreen(inviteToken: inviteToken);
+        },
+      ),
+
+      // Task routes
+      GoRoute(
+        path: '/tasks/create',
+        builder: (context, state) {
+          final groupId = state.uri.queryParameters['groupId'] ?? '';
+          return CreateTaskScreen(groupId: groupId);
+        },
+      ),
+      GoRoute(
+        path: '/tasks/:taskId',
+        builder: (context, state) {
+          final taskId = state.pathParameters['taskId']!;
+          return TaskDetailScreen(taskId: taskId);
+        },
+      ),
+      GoRoute(
+        path: '/tasks/:taskId/edit',
+        builder: (context, state) {
+          final taskId = state.pathParameters['taskId']!;
+          final groupId = state.uri.queryParameters['groupId'] ?? '';
+          return CreateTaskScreen(taskId: taskId, groupId: groupId);
         },
       ),
     ],

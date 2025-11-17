@@ -243,5 +243,128 @@
     "deadlineLabel": "Deadline",
     "assignedToLabel": "Assigned to",
     "requiresApprovalLabel": "Requires Approval",
-    "yes": "Yes"
+    "yes": "Yes",
+    "taskDetailsTitle": "Task Details",
+    "editTask": "Edit Task",
+    "deleteTask": "Delete Task",
+    "deleteTaskConfirmTitle": "Delete Task",
+    "deleteTaskConfirmMessage": "Are you sure you want to delete this task?",
+    "executor": "Executor",
+    "upForGrabs": "Up-for-Grabs",
+    "claimTask": "Claim Task",
+    "reward": "Reward",
+    "pts": "pts",
+    "bonusPoints": "+50% bonus",
+    "createdBy": "Created By",
+    "rejectionReason": "Rejection Reason",
+    "markAsComplete": "Mark as Complete",
+    "reject": "Reject",
+    "approve": "Approve",
+    "rejectTaskTitle": "Reject Task",
+    "rejectionReasonHint": "Enter reason for rejection",
+    "errorLoadingTask": "Error loading task",
+    "retry": "Retry",
+    "createTask": "Create Task",
+    "updateTask": "Update Task",
+    "taskTitle": "Task Title",
+    "enterTaskTitle": "Enter task title",
+    "enterTitleValidation": "Please enter a task title",
+    "descriptionOptional": "Description (Optional)",
+    "enterTaskDescription": "Enter task description",
+    "tapToSelectDeadline": "Tap to select deadline",
+    "priority": "Priority",
+    "enterPointValue": "Enter point value",
+    "enterPointValueValidation": "Please enter point value",
+    "pointsRangeValidation": "Points must be between 1 and 1000",
+    "requiresApprovalTitle": "Requires Approval",
+    "requiresApprovalSubtitle": "Task must be approved by admin after completion",
+    "taskCreatedSuccessfully": "Task created successfully",
+    "myTasksTab": "My Tasks",
+    "groupTasksTab": "Group Tasks",
+    "upForGrabsTab": "Up-for-Grabs",
+    "pendingApprovalTab": "Pending Approval",
+    "noTasksAssigned": "No tasks assigned to you",
+    "tasksWillAppearHere": "Tasks will appear here",
+    "selectGroup": "Select a group",
+    "viewGroupTasksFromGroupsTab": "View group tasks from the Groups tab",
+    "noTasksAvailable": "No tasks available",
+    "noTasksPendingApproval": "No tasks pending approval",
+    "errorLoadingTasks": "Error loading tasks",
+    "priorityHigh": "High",
+    "priorityMedium": "Medium",
+    "priorityLow": "Low",
+    "statusActive": "Active",
+    "statusPendingReview": "Pending Review",
+    "daysLeft": "{count}d left",
+    "@daysLeft": {
+        "description": "Days left countdown",
+        "placeholders": {
+            "count": {}
+        }
+    },
+    "hoursLeft": "{count}h left",
+    "@hoursLeft": {
+        "description": "Hours left countdown",
+        "placeholders": {
+            "count": {}
+        }
+    },
+    "minutesLeft": "{count}m left",
+    "@minutesLeft": {
+        "description": "Minutes left countdown",
+        "placeholders": {
+            "count": {}
+        }
+    },
+    "daysOverdue": "{count}d overdue",
+    "@daysOverdue": {
+        "description": "Days overdue",
+        "placeholders": {
+            "count": {}
+        }
+    },
+    "hoursOverdue": "{count}h overdue",
+    "@hoursOverdue": {
+        "description": "Hours overdue",
+        "placeholders": {
+            "count": {}
+        }
+    },
+    "minutesOverdue": "{count}m overdue",
+    "@minutesOverdue": {
+        "description": "Minutes overdue",
+        "placeholders": {
+            "count": {}
+        }
+    },
+    "tasksAssigned": "Tasks Assigned",
+    "tasksCompletedLabel": "Tasks Completed",
+    "pointsBalance": "Points Balance",
+    "completionRateLabel": "Completion Rate",
+    "upcomingTasks": "Upcoming Tasks",
+    "dueTasks": "Due Tasks",
+    "overdueTasks": "Overdue Tasks",
+    "pendingApprovalTasks": "Pending Approval",
+    "quickStats": "Quick Stats",
+    "allGroups": "All Groups",
+    "filterByGroup": "Filter by Group",
+    "tasksDueToday": "Tasks Due Today",
+    "noTasksDueToday": "No tasks due today",
+    "monday": "Monday",
+    "tuesday": "Tuesday",
+    "wednesday": "Wednesday",
+    "thursday": "Thursday",
+    "friday": "Friday",
+    "saturday": "Saturday",
+    "sunday": "Sunday",
+    "previousWeek": "Previous Week",
+    "nextWeek": "Next Week",
+    "selectDate": "Select Date",
+    "tasksForDate": "Tasks for {date}",
+    "@tasksForDate": {
+        "description": "Tasks for specific date",
+        "placeholders": {
+            "date": {}
+        }
+    }
 }

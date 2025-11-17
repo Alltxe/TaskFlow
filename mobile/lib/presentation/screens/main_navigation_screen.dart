@@ -19,8 +19,13 @@ class MainNavigationScreen extends ConsumerWidget {
       bottomNavigationBar: NavigationBar(
         selectedIndex: navigationShell.currentIndex,
         onDestinationSelected: (index) {
-          navigationShell.goBranch(index, initialLocation: index == navigationShell.currentIndex);
-          ref.read(bottomNavIndexProvider.notifier).state = index;
+          // Map nav index to path explicitly to avoid misalignment with shell branches
+          const paths = ['/home', '/groups', '/profile'];
+          if (index >= 0 && index < paths.length) {
+            // Use goRouter to navigate directly — this ensures the correct branch is selected
+            GoRouter.of(context).go(paths[index]);
+            ref.read(bottomNavIndexProvider.notifier).state = index;
+          }
         },
         destinations: [
           NavigationDestination(
@@ -28,11 +33,7 @@ class MainNavigationScreen extends ConsumerWidget {
             selectedIcon: const Icon(Icons.home),
             label: AppLocalizations.of(context)!.home,
           ),
-          NavigationDestination(
-            icon: const Icon(Icons.task_outlined),
-            selectedIcon: const Icon(Icons.task),
-            label: AppLocalizations.of(context)!.tasksTitle,
-          ),
+          // Task tab removed from main navigation — tasks are shown in group context
           NavigationDestination(
             icon: const Icon(Icons.group_outlined),
             selectedIcon: const Icon(Icons.group),

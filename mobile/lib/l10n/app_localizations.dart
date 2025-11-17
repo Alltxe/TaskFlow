@@ -1267,6 +1267,474 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Requires Approval'**
   String get requiresApprovalLabel;
+
+  /// No description provided for @taskDetailsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Task Details'**
+  String get taskDetailsTitle;
+
+  /// No description provided for @editTask.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Task'**
+  String get editTask;
+
+  /// No description provided for @deleteTask.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Task'**
+  String get deleteTask;
+
+  /// No description provided for @deleteTaskConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Task'**
+  String get deleteTaskConfirmTitle;
+
+  /// No description provided for @deleteTaskConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this task?'**
+  String get deleteTaskConfirmMessage;
+
+  /// No description provided for @executor.
+  ///
+  /// In en, this message translates to:
+  /// **'Executor'**
+  String get executor;
+
+  /// No description provided for @upForGrabs.
+  ///
+  /// In en, this message translates to:
+  /// **'Up-for-Grabs'**
+  String get upForGrabs;
+
+  /// No description provided for @reward.
+  ///
+  /// In en, this message translates to:
+  /// **'Reward'**
+  String get reward;
+
+  /// No description provided for @pts.
+  ///
+  /// In en, this message translates to:
+  /// **'pts'**
+  String get pts;
+
+  /// No description provided for @bonusPoints.
+  ///
+  /// In en, this message translates to:
+  /// **'+50% bonus'**
+  String get bonusPoints;
+
+  /// No description provided for @createdBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Created By'**
+  String get createdBy;
+
+  /// No description provided for @rejectionReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Rejection Reason'**
+  String get rejectionReason;
+
+  /// No description provided for @markAsComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as Complete'**
+  String get markAsComplete;
+
+  /// No description provided for @reject.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject'**
+  String get reject;
+
+  /// No description provided for @approve.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve'**
+  String get approve;
+
+  /// No description provided for @rejectTaskTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject Task'**
+  String get rejectTaskTitle;
+
+  /// No description provided for @rejectionReasonHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter reason for rejection'**
+  String get rejectionReasonHint;
+
+  /// No description provided for @errorLoadingTask.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading task'**
+  String get errorLoadingTask;
+
+  /// No description provided for @createTask.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Task'**
+  String get createTask;
+
+  /// No description provided for @updateTask.
+  ///
+  /// In en, this message translates to:
+  /// **'Update Task'**
+  String get updateTask;
+
+  /// No description provided for @taskTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Task Title'**
+  String get taskTitle;
+
+  /// No description provided for @enterTaskTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter task title'**
+  String get enterTaskTitle;
+
+  /// No description provided for @enterTitleValidation.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a task title'**
+  String get enterTitleValidation;
+
+  /// No description provided for @descriptionOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Description (Optional)'**
+  String get descriptionOptional;
+
+  /// No description provided for @enterTaskDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter task description'**
+  String get enterTaskDescription;
+
+  /// No description provided for @tapToSelectDeadline.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to select deadline'**
+  String get tapToSelectDeadline;
+
+  /// No description provided for @priority.
+  ///
+  /// In en, this message translates to:
+  /// **'Priority'**
+  String get priority;
+
+  /// No description provided for @enterPointValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter point value'**
+  String get enterPointValue;
+
+  /// No description provided for @enterPointValueValidation.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter point value'**
+  String get enterPointValueValidation;
+
+  /// No description provided for @pointsRangeValidation.
+  ///
+  /// In en, this message translates to:
+  /// **'Points must be between 1 and 1000'**
+  String get pointsRangeValidation;
+
+  /// No description provided for @requiresApprovalTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Requires Approval'**
+  String get requiresApprovalTitle;
+
+  /// No description provided for @requiresApprovalSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Task must be approved by admin after completion'**
+  String get requiresApprovalSubtitle;
+
+  /// No description provided for @taskCreatedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Task created successfully'**
+  String get taskCreatedSuccessfully;
+
+  /// No description provided for @groupTasksTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Group Tasks'**
+  String get groupTasksTab;
+
+  /// No description provided for @upForGrabsTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Up-for-Grabs'**
+  String get upForGrabsTab;
+
+  /// No description provided for @pendingApprovalTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending Approval'**
+  String get pendingApprovalTab;
+
+  /// No description provided for @noTasksAssigned.
+  ///
+  /// In en, this message translates to:
+  /// **'No tasks assigned to you'**
+  String get noTasksAssigned;
+
+  /// No description provided for @tasksWillAppearHere.
+  ///
+  /// In en, this message translates to:
+  /// **'Tasks will appear here'**
+  String get tasksWillAppearHere;
+
+  /// No description provided for @selectGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a group'**
+  String get selectGroup;
+
+  /// No description provided for @viewGroupTasksFromGroupsTab.
+  ///
+  /// In en, this message translates to:
+  /// **'View group tasks from the Groups tab'**
+  String get viewGroupTasksFromGroupsTab;
+
+  /// No description provided for @noTasksAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No tasks available'**
+  String get noTasksAvailable;
+
+  /// No description provided for @noTasksPendingApproval.
+  ///
+  /// In en, this message translates to:
+  /// **'No tasks pending approval'**
+  String get noTasksPendingApproval;
+
+  /// No description provided for @errorLoadingTasks.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading tasks'**
+  String get errorLoadingTasks;
+
+  /// No description provided for @priorityHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'High'**
+  String get priorityHigh;
+
+  /// No description provided for @priorityMedium.
+  ///
+  /// In en, this message translates to:
+  /// **'Medium'**
+  String get priorityMedium;
+
+  /// No description provided for @priorityLow.
+  ///
+  /// In en, this message translates to:
+  /// **'Low'**
+  String get priorityLow;
+
+  /// No description provided for @statusActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get statusActive;
+
+  /// No description provided for @statusPendingReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending Review'**
+  String get statusPendingReview;
+
+  /// Days left countdown
+  ///
+  /// In en, this message translates to:
+  /// **'{count}d left'**
+  String daysLeft(Object count);
+
+  /// Hours left countdown
+  ///
+  /// In en, this message translates to:
+  /// **'{count}h left'**
+  String hoursLeft(Object count);
+
+  /// Minutes left countdown
+  ///
+  /// In en, this message translates to:
+  /// **'{count}m left'**
+  String minutesLeft(Object count);
+
+  /// Days overdue
+  ///
+  /// In en, this message translates to:
+  /// **'{count}d overdue'**
+  String daysOverdue(Object count);
+
+  /// Hours overdue
+  ///
+  /// In en, this message translates to:
+  /// **'{count}h overdue'**
+  String hoursOverdue(Object count);
+
+  /// Minutes overdue
+  ///
+  /// In en, this message translates to:
+  /// **'{count}m overdue'**
+  String minutesOverdue(Object count);
+
+  /// No description provided for @tasksAssigned.
+  ///
+  /// In en, this message translates to:
+  /// **'Tasks Assigned'**
+  String get tasksAssigned;
+
+  /// No description provided for @tasksCompletedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Tasks Completed'**
+  String get tasksCompletedLabel;
+
+  /// No description provided for @pointsBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Points Balance'**
+  String get pointsBalance;
+
+  /// No description provided for @completionRateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Completion Rate'**
+  String get completionRateLabel;
+
+  /// No description provided for @upcomingTasks.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming Tasks'**
+  String get upcomingTasks;
+
+  /// No description provided for @dueTasks.
+  ///
+  /// In en, this message translates to:
+  /// **'Due Tasks'**
+  String get dueTasks;
+
+  /// No description provided for @overdueTasks.
+  ///
+  /// In en, this message translates to:
+  /// **'Overdue Tasks'**
+  String get overdueTasks;
+
+  /// No description provided for @pendingApprovalTasks.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending Approval'**
+  String get pendingApprovalTasks;
+
+  /// No description provided for @quickStats.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick Stats'**
+  String get quickStats;
+
+  /// No description provided for @allGroups.
+  ///
+  /// In en, this message translates to:
+  /// **'All Groups'**
+  String get allGroups;
+
+  /// No description provided for @filterByGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter by Group'**
+  String get filterByGroup;
+
+  /// No description provided for @tasksDueToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Tasks Due Today'**
+  String get tasksDueToday;
+
+  /// No description provided for @noTasksDueToday.
+  ///
+  /// In en, this message translates to:
+  /// **'No tasks due today'**
+  String get noTasksDueToday;
+
+  /// No description provided for @monday.
+  ///
+  /// In en, this message translates to:
+  /// **'Monday'**
+  String get monday;
+
+  /// No description provided for @tuesday.
+  ///
+  /// In en, this message translates to:
+  /// **'Tuesday'**
+  String get tuesday;
+
+  /// No description provided for @wednesday.
+  ///
+  /// In en, this message translates to:
+  /// **'Wednesday'**
+  String get wednesday;
+
+  /// No description provided for @thursday.
+  ///
+  /// In en, this message translates to:
+  /// **'Thursday'**
+  String get thursday;
+
+  /// No description provided for @friday.
+  ///
+  /// In en, this message translates to:
+  /// **'Friday'**
+  String get friday;
+
+  /// No description provided for @saturday.
+  ///
+  /// In en, this message translates to:
+  /// **'Saturday'**
+  String get saturday;
+
+  /// No description provided for @sunday.
+  ///
+  /// In en, this message translates to:
+  /// **'Sunday'**
+  String get sunday;
+
+  /// No description provided for @previousWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous Week'**
+  String get previousWeek;
+
+  /// No description provided for @nextWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Next Week'**
+  String get nextWeek;
+
+  /// No description provided for @selectDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Date'**
+  String get selectDate;
+
+  /// Tasks for specific date
+  ///
+  /// In en, this message translates to:
+  /// **'Tasks for {date}'**
+  String tasksForDate(Object date);
 }
 
 class _AppLocalizationsDelegate

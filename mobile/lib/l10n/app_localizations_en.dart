@@ -643,4 +643,255 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get requiresApprovalLabel => 'Requires Approval';
+
+  @override
+  String get taskDetailsTitle => 'Task Details';
+
+  @override
+  String get editTask => 'Edit Task';
+
+  @override
+  String get deleteTask => 'Delete Task';
+
+  @override
+  String get deleteTaskConfirmTitle => 'Delete Task';
+
+  @override
+  String get deleteTaskConfirmMessage =>
+      'Are you sure you want to delete this task?';
+
+  @override
+  String get executor => 'Executor';
+
+  @override
+  String get upForGrabs => 'Up-for-Grabs';
+
+  @override
+  String get reward => 'Reward';
+
+  @override
+  String get pts => 'pts';
+
+  @override
+  String get bonusPoints => '+50% bonus';
+
+  @override
+  String get createdBy => 'Created By';
+
+  @override
+  String get rejectionReason => 'Rejection Reason';
+
+  @override
+  String get markAsComplete => 'Mark as Complete';
+
+  @override
+  String get reject => 'Reject';
+
+  @override
+  String get approve => 'Approve';
+
+  @override
+  String get rejectTaskTitle => 'Reject Task';
+
+  @override
+  String get rejectionReasonHint => 'Enter reason for rejection';
+
+  @override
+  String get errorLoadingTask => 'Error loading task';
+
+  @override
+  String get createTask => 'Create Task';
+
+  @override
+  String get updateTask => 'Update Task';
+
+  @override
+  String get taskTitle => 'Task Title';
+
+  @override
+  String get enterTaskTitle => 'Enter task title';
+
+  @override
+  String get enterTitleValidation => 'Please enter a task title';
+
+  @override
+  String get descriptionOptional => 'Description (Optional)';
+
+  @override
+  String get enterTaskDescription => 'Enter task description';
+
+  @override
+  String get tapToSelectDeadline => 'Tap to select deadline';
+
+  @override
+  String get priority => 'Priority';
+
+  @override
+  String get enterPointValue => 'Enter point value';
+
+  @override
+  String get enterPointValueValidation => 'Please enter point value';
+
+  @override
+  String get pointsRangeValidation => 'Points must be between 1 and 1000';
+
+  @override
+  String get requiresApprovalTitle => 'Requires Approval';
+
+  @override
+  String get requiresApprovalSubtitle =>
+      'Task must be approved by admin after completion';
+
+  @override
+  String get taskCreatedSuccessfully => 'Task created successfully';
+
+  @override
+  String get groupTasksTab => 'Group Tasks';
+
+  @override
+  String get upForGrabsTab => 'Up-for-Grabs';
+
+  @override
+  String get pendingApprovalTab => 'Pending Approval';
+
+  @override
+  String get noTasksAssigned => 'No tasks assigned to you';
+
+  @override
+  String get tasksWillAppearHere => 'Tasks will appear here';
+
+  @override
+  String get selectGroup => 'Select a group';
+
+  @override
+  String get viewGroupTasksFromGroupsTab =>
+      'View group tasks from the Groups tab';
+
+  @override
+  String get noTasksAvailable => 'No tasks available';
+
+  @override
+  String get noTasksPendingApproval => 'No tasks pending approval';
+
+  @override
+  String get errorLoadingTasks => 'Error loading tasks';
+
+  @override
+  String get priorityHigh => 'High';
+
+  @override
+  String get priorityMedium => 'Medium';
+
+  @override
+  String get priorityLow => 'Low';
+
+  @override
+  String get statusActive => 'Active';
+
+  @override
+  String get statusPendingReview => 'Pending Review';
+
+  @override
+  String daysLeft(Object count) {
+    return '${count}d left';
+  }
+
+  @override
+  String hoursLeft(Object count) {
+    return '${count}h left';
+  }
+
+  @override
+  String minutesLeft(Object count) {
+    return '${count}m left';
+  }
+
+  @override
+  String daysOverdue(Object count) {
+    return '${count}d overdue';
+  }
+
+  @override
+  String hoursOverdue(Object count) {
+    return '${count}h overdue';
+  }
+
+  @override
+  String minutesOverdue(Object count) {
+    return '${count}m overdue';
+  }
+
+  @override
+  String get tasksAssigned => 'Tasks Assigned';
+
+  @override
+  String get tasksCompletedLabel => 'Tasks Completed';
+
+  @override
+  String get pointsBalance => 'Points Balance';
+
+  @override
+  String get completionRateLabel => 'Completion Rate';
+
+  @override
+  String get upcomingTasks => 'Upcoming Tasks';
+
+  @override
+  String get dueTasks => 'Due Tasks';
+
+  @override
+  String get overdueTasks => 'Overdue Tasks';
+
+  @override
+  String get pendingApprovalTasks => 'Pending Approval';
+
+  @override
+  String get quickStats => 'Quick Stats';
+
+  @override
+  String get allGroups => 'All Groups';
+
+  @override
+  String get filterByGroup => 'Filter by Group';
+
+  @override
+  String get tasksDueToday => 'Tasks Due Today';
+
+  @override
+  String get noTasksDueToday => 'No tasks due today';
+
+  @override
+  String get monday => 'Monday';
+
+  @override
+  String get tuesday => 'Tuesday';
+
+  @override
+  String get wednesday => 'Wednesday';
+
+  @override
+  String get thursday => 'Thursday';
+
+  @override
+  String get friday => 'Friday';
+
+  @override
+  String get saturday => 'Saturday';
+
+  @override
+  String get sunday => 'Sunday';
+
+  @override
+  String get previousWeek => 'Previous Week';
+
+  @override
+  String get nextWeek => 'Next Week';
+
+  @override
+  String get selectDate => 'Select Date';
+
+  @override
+  String tasksForDate(Object date) {
+    return 'Tasks for $date';
+  }
 }

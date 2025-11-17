@@ -130,22 +130,6 @@ class TaskRepositoryImpl implements TaskRepository {
   }
 
   @override
-  Future<Either<Failure, Task>> unclaimTask(String taskId) async {
-    try {
-      final task = await remoteDataSource.unclaimTask(taskId);
-      return Right(task);
-    } on NetworkException catch (e) {
-      return Left(NetworkFailure(message: e.message));
-    } on ServerException catch (e) {
-      return Left(ServerFailure(message: e.message));
-    } on AuthException catch (e) {
-      return Left(AuthFailure(message: e.message));
-    } catch (e) {
-      return Left(UnknownFailure(message: e.toString()));
-    }
-  }
-
-  @override
   Future<Either<Failure, Task>> completeTask(String taskId) async {
     try {
       final task = await remoteDataSource.completeTask(taskId);
@@ -162,25 +146,9 @@ class TaskRepositoryImpl implements TaskRepository {
   }
 
   @override
-  Future<Either<Failure, Task>> approveTask(String taskId) async {
+  Future<Either<Failure, Task>> approveTask(String taskId, bool approved, {String? rejectionReason}) async {
     try {
-      final task = await remoteDataSource.approveTask(taskId);
-      return Right(task);
-    } on NetworkException catch (e) {
-      return Left(NetworkFailure(message: e.message));
-    } on ServerException catch (e) {
-      return Left(ServerFailure(message: e.message));
-    } on AuthException catch (e) {
-      return Left(AuthFailure(message: e.message));
-    } catch (e) {
-      return Left(UnknownFailure(message: e.toString()));
-    }
-  }
-
-  @override
-  Future<Either<Failure, Task>> rejectTask(String taskId, String reason) async {
-    try {
-      final task = await remoteDataSource.rejectTask(taskId, reason);
+      final task = await remoteDataSource.approveTask(taskId, approved, rejectionReason: rejectionReason);
       return Right(task);
     } on NetworkException catch (e) {
       return Left(NetworkFailure(message: e.message));
