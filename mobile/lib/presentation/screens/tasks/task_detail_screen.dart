@@ -65,7 +65,9 @@ class TaskDetailScreen extends ConsumerWidget {
                 if (confirm == true && context.mounted) {
                   // Read the task object from the provider to get groupId
                   final t = await ref.read(taskDetailsProvider(taskId).future);
-                  await ref.read(taskActionsProvider.notifier).deleteTask(taskId, groupId: t.groupId);
+                  await ref
+                      .read(taskActionsProvider.notifier)
+                      .deleteTask(taskId, groupId: t.groupId);
                   if (context.mounted) context.pop();
                 }
               }
@@ -86,9 +88,9 @@ class TaskDetailScreen extends ConsumerWidget {
                 // Title
                 Text(
                   task.title,
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
                 ),
 
                 const SizedBox(height: 16),
@@ -139,18 +141,12 @@ class TaskDetailScreen extends ConsumerWidget {
                           children: [
                             Text(
                               task.assignee?.username ?? 'Up-for-Grabs',
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                              ),
+                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                             ),
                             if (task.assignee?.isAway == true)
                               Text(
                                 'Away',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.orange.shade700,
-                                ),
+                                style: TextStyle(fontSize: 12, color: Colors.orange.shade700),
                               ),
                           ],
                         ),
@@ -158,7 +154,9 @@ class TaskDetailScreen extends ConsumerWidget {
                       if (task.assignee == null)
                         ElevatedButton.icon(
                           onPressed: () async {
-                            await ref.read(taskActionsProvider.notifier).claimTask(taskId, groupId: task.groupId);
+                            await ref
+                                .read(taskActionsProvider.notifier)
+                                .claimTask(taskId, groupId: task.groupId);
                           },
                           icon: const Icon(Icons.volunteer_activism, size: 18),
                           label: const Text('Claim Task'),
@@ -188,10 +186,7 @@ class TaskDetailScreen extends ConsumerWidget {
                         task.wasClaimedFromPool
                             ? '${(task.points * 1.5).round()} points (+50% bonus)'
                             : '${task.points} points',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
+                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                       ),
                     ],
                   ),
@@ -201,10 +196,7 @@ class TaskDetailScreen extends ConsumerWidget {
                   const SizedBox(height: 16),
                   _InfoCard(
                     title: 'Description',
-                    child: Text(
-                      task.description!,
-                      style: const TextStyle(fontSize: 14),
-                    ),
+                    child: Text(task.description!, style: const TextStyle(fontSize: 14)),
                   ),
                 ],
 
@@ -315,13 +307,13 @@ class TaskDetailScreen extends ConsumerWidget {
             width: double.infinity,
             child: ElevatedButton.icon(
               onPressed: () async {
-                await ref.read(taskActionsProvider.notifier).completeTask(taskId, groupId: task.groupId);
+                await ref
+                    .read(taskActionsProvider.notifier)
+                    .completeTask(taskId, groupId: task.groupId);
               },
               icon: const Icon(Icons.check_circle),
               label: const Text('Mark as Complete'),
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.all(16),
-              ),
+              style: ElevatedButton.styleFrom(padding: const EdgeInsets.all(16)),
             ),
           );
         }
@@ -335,13 +327,10 @@ class TaskDetailScreen extends ConsumerWidget {
               child: OutlinedButton.icon(
                 onPressed: () async {
                   final reason = await _showRejectDialog(context);
-                    if (reason != null) {
-                    await ref.read(taskActionsProvider.notifier).approveTask(
-                      taskId,
-                      false,
-                      rejectionReason: reason,
-                      groupId: task.groupId,
-                    );
+                  if (reason != null) {
+                    await ref
+                        .read(taskActionsProvider.notifier)
+                        .approveTask(taskId, false, rejectionReason: reason, groupId: task.groupId);
                   }
                 },
                 icon: const Icon(Icons.close),
@@ -356,13 +345,13 @@ class TaskDetailScreen extends ConsumerWidget {
             Expanded(
               child: ElevatedButton.icon(
                 onPressed: () async {
-                  await ref.read(taskActionsProvider.notifier).approveTask(taskId, true, groupId: task.groupId);
+                  await ref
+                      .read(taskActionsProvider.notifier)
+                      .approveTask(taskId, true, groupId: task.groupId);
                 },
                 icon: const Icon(Icons.check),
                 label: const Text('Approve'),
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.all(16),
-                ),
+                style: ElevatedButton.styleFrom(padding: const EdgeInsets.all(16)),
               ),
             ),
           ],
@@ -388,10 +377,7 @@ class TaskDetailScreen extends ConsumerWidget {
           maxLines: 3,
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
           TextButton(
             onPressed: () => Navigator.pop(context, controller.text),
             child: const Text('Reject'),
