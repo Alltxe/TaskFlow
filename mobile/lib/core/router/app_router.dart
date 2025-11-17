@@ -1,22 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mobile/presentation/providers/auth/auth_notifier.dart';
-import 'package:mobile/presentation/providers/auth/auth_state.dart';
+import 'package:mobile/data/providers/auth_providers.dart';
+import 'package:mobile/l10n/app_localizations.dart';
 import 'package:mobile/presentation/screens/auth/login_screen.dart';
 import 'package:mobile/presentation/screens/auth/register_screen.dart';
 import 'package:mobile/presentation/screens/auth/splash_screen.dart';
-import 'package:mobile/presentation/screens/home/home_screen.dart';
+import 'package:mobile/presentation/screens/dashboard/dashboard_screen.dart';
+import 'package:mobile/presentation/screens/groups/create_group_screen.dart';
+import 'package:mobile/presentation/screens/groups/group_layout_screen.dart';
+import 'package:mobile/presentation/screens/groups/group_settings_screen.dart';
+import 'package:mobile/presentation/screens/groups/groups_screen.dart';
+import 'package:mobile/presentation/screens/groups/invite_screen.dart';
+import 'package:mobile/presentation/screens/groups/join_group_screen.dart';
+import 'package:mobile/presentation/screens/main_navigation_screen.dart';
+import 'package:mobile/presentation/screens/profile/profile_screen.dart';
+import 'package:mobile/presentation/screens/rewards/rewards_screen.dart';
+import 'package:mobile/presentation/screens/settings/settings_screen.dart';
+import 'package:mobile/presentation/screens/tasks/tasks_screen.dart';
 
 /// Router configuration for the app
 final routerProvider = Provider<GoRouter>((ref) {
-  final authState = ref.watch(authNotifierProvider);
+  final authState = ref.watch(authStateProvider);
 
   return GoRouter(
     initialLocation: '/',
     redirect: (context, state) {
-      final isAuthenticated = authState is AuthStateAuthenticated;
-      final isLoading = authState is AuthStateInitial || authState is AuthStateLoading;
+      final isAuthenticated = authState.status == AuthStatus.authenticated;
+      final isLoading = authState.status == AuthStatus.loading;
       final isOnSplash = state.matchedLocation == '/';
       final isOnAuth = state.matchedLocation == '/login' || state.matchedLocation == '/register';
 
@@ -46,9 +57,75 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/', builder: (context, state) => const SplashScreen()),
       GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
       GoRoute(path: '/register', builder: (context, state) => const RegisterScreen()),
-      GoRoute(path: '/home', builder: (context, state) => const HomeScreen()),
+
+      // Main navigation with bottom tabs
+      StatefulShellRoute.indexedStack(
+        builder: (context, state, navigationShell) {
+          return MainNavigationScreen(navigationShell: navigationShell);
+        },
+        branches: [
+          StatefulShellBranch(
+            routes: [GoRoute(path: '/home', builder: (context, state) => const DashboardScreen())],
+          ),
+          StatefulShellBranch(
+            routes: [GoRoute(path: '/tasks', builder: (context, state) => const TasksScreen())],
+          ),
+          StatefulShellBranch(
+            routes: [GoRoute(path: '/groups', builder: (context, state) => const GroupsScreen())],
+          ),
+          StatefulShellBranch(
+            routes: [GoRoute(path: '/rewards', builder: (context, state) => const RewardsScreen())],
+          ),
+          StatefulShellBranch(
+            routes: [GoRoute(path: '/profile', builder: (context, state) => const ProfileScreen())],
+          ),
+        ],
+      ),
+
+      // Standalone routes (not in bottom navigation)
+      GoRoute(path: '/settings', builder: (context, state) => const SettingsScreen()),
+      GoRoute(
+        path: '/edit-profile',
+        builder: (context, state) => Scaffold(
+          body: Center(child: Text(AppLocalizations.of(context)!.editProfileComingSoon)),
+        ),
+      ),
+
+      // Group routes (nested)
+      GoRoute(path: '/groups/create', builder: (context, state) => const CreateGroupScreen()),
+      GoRoute(
+        path: '/groups/:groupId',
+        builder: (context, state) {
+          final groupId = state.pathParameters['groupId']!;
+          return GroupLayoutScreen(groupId: groupId, child: const SizedBox.shrink());
+        },
+      ),
+      GoRoute(
+        path: '/groups/:groupId/settings',
+        builder: (context, state) {
+          final groupId = state.pathParameters['groupId']!;
+          return GroupSettingsScreen(groupId: groupId);
+        },
+      ),
+      GoRoute(
+        path: '/groups/:groupId/invite',
+        builder: (context, state) {
+          final groupId = state.pathParameters['groupId']!;
+          return InviteScreen(groupId: groupId);
+        },
+      ),
+
+      // Join group via invite token
+      GoRoute(
+        path: '/join/:inviteToken',
+        builder: (context, state) {
+          final inviteToken = state.pathParameters['inviteToken']!;
+          return JoinGroupScreen(inviteToken: inviteToken);
+        },
+      ),
     ],
-    errorBuilder: (context, state) =>
-        Scaffold(body: Center(child: Text('Page not found: ${state.uri}'))),
+    errorBuilder: (context, state) => Scaffold(
+      body: Center(child: Text(AppLocalizations.of(context)!.pageNotFound(state.uri.toString()))),
+    ),
   );
 });

@@ -84,11 +84,11 @@ export class PointBalanceType {
 
 @ObjectType()
 export class LeaderboardEntryType {
-  @Field(() => ID)
-  userId: string;
+  @Field(() => UserType)
+  user: UserType;
 
   @Field(() => Int)
-  points: number;
+  pointsEarned: number;
 
   @Field(() => Int)
   rank: number;

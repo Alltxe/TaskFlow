@@ -212,6 +212,8 @@ export type Mutation = {
   /** Delete reward (PRD 3.5.3) - admin only */
   deleteReward: Scalars['Boolean']['output'];
   deleteTask: Scalars['Boolean']['output'];
+  /** Manually generate next task from recurring template (admin only) */
+  generateNextRecurringTask: TaskType;
   joinGroup: GroupType;
   leaveGroup: Scalars['Boolean']['output'];
   /** Вход пользователя */
@@ -304,6 +306,11 @@ export type MutationDeleteRewardArgs = {
 
 
 export type MutationDeleteTaskArgs = {
+  taskId: Scalars['String']['input'];
+};
+
+
+export type MutationGenerateNextRecurringTaskArgs = {
   taskId: Scalars['String']['input'];
 };
 
@@ -791,6 +798,7 @@ export type TaskType = {
   approvedById?: Maybe<Scalars['String']['output']>;
   assignee?: Maybe<GroupMemberUserType>;
   assigneeId?: Maybe<Scalars['String']['output']>;
+  childTasks?: Maybe<Array<TaskType>>;
   completedAt?: Maybe<Scalars['DateTime']['output']>;
   createdAt: Scalars['DateTime']['output'];
   createdBy: GroupMemberUserType;
@@ -800,6 +808,7 @@ export type TaskType = {
   groupId: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   isRecurring: Scalars['Boolean']['output'];
+  parentTask?: Maybe<TaskType>;
   parentTaskId?: Maybe<Scalars['String']['output']>;
   points: Scalars['Int']['output'];
   priority: Scalars['String']['output'];
@@ -1139,6 +1148,86 @@ export type GetRotationPatternQueryVariables = Exact<{
 
 
 export type GetRotationPatternQuery = { __typename?: 'Query', getRotationPattern: { __typename?: 'RotationPatternType', rotationType: string, currentCycle: Array<string>, currentCycleIndex?: number | null, lastRotationAt?: any | null, nextRotationAt?: any | null, activeMembers: Array<{ __typename?: 'GroupMemberUserType', id: string, username: string, avatarUrl?: string | null, isAway: boolean, awayUntil?: any | null }>, awayMembers: Array<{ __typename?: 'GroupMemberUserType', id: string, username: string, avatarUrl?: string | null, isAway: boolean, awayUntil?: any | null }> } };
+
+export type GetGroupRewardsQueryVariables = Exact<{
+  groupId: Scalars['String']['input'];
+}>;
+
+
+export type GetGroupRewardsQuery = { __typename?: 'Query', getGroupRewards: Array<{ __typename?: 'RewardType', id: string, name: string, description?: string | null, cost: number, isActive: boolean, imageUrl?: string | null, createdAt: any, groupId: string, createdById: string }> };
+
+export type GetMyRewardRequestsQueryVariables = Exact<{
+  groupId?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type GetMyRewardRequestsQuery = { __typename?: 'Query', getMyRewardRequests: Array<{ __typename?: 'RewardTransactionType', id: string, userId: string, rewardId: string, status: string, pointsSpent: number, requestedAt: any, approvedAt?: any | null, rejectedAt?: any | null, rejectionReason?: string | null, approvedById?: string | null }> };
+
+export type GetGroupRewardRequestsQueryVariables = Exact<{
+  groupId: Scalars['String']['input'];
+}>;
+
+
+export type GetGroupRewardRequestsQuery = { __typename?: 'Query', getGroupRewardRequests: Array<{ __typename?: 'RewardTransactionType', id: string, userId: string, rewardId: string, status: string, pointsSpent: number, requestedAt: any, approvedAt?: any | null, rejectedAt?: any | null, rejectionReason?: string | null, approvedById?: string | null }> };
+
+export type CreateRewardMutationVariables = Exact<{
+  input: CreateRewardInput;
+}>;
+
+
+export type CreateRewardMutation = { __typename?: 'Mutation', createReward: { __typename?: 'RewardType', id: string, name: string, description?: string | null, cost: number, isActive: boolean, imageUrl?: string | null, createdAt: any, groupId: string, createdById: string } };
+
+export type UpdateRewardMutationVariables = Exact<{
+  input: UpdateRewardInput;
+}>;
+
+
+export type UpdateRewardMutation = { __typename?: 'Mutation', updateReward: { __typename?: 'RewardType', id: string, name: string, description?: string | null, cost: number, isActive: boolean, imageUrl?: string | null, groupId: string } };
+
+export type DeleteRewardMutationVariables = Exact<{
+  rewardId: Scalars['String']['input'];
+  groupId: Scalars['String']['input'];
+}>;
+
+
+export type DeleteRewardMutation = { __typename?: 'Mutation', deleteReward: boolean };
+
+export type RequestRewardMutationVariables = Exact<{
+  input: RequestRewardInput;
+}>;
+
+
+export type RequestRewardMutation = { __typename?: 'Mutation', requestReward: { __typename?: 'RewardTransactionType', id: string, userId: string, rewardId: string, status: string, pointsSpent: number, requestedAt: any } };
+
+export type ApproveRewardRequestMutationVariables = Exact<{
+  input: ApproveRewardRequestInput;
+}>;
+
+
+export type ApproveRewardRequestMutation = { __typename?: 'Mutation', approveRewardRequest: { __typename?: 'RewardTransactionType', id: string, status: string, approvedAt?: any | null, rejectedAt?: any | null, rejectionReason?: string | null, approvedById?: string | null } };
+
+export type GetPointBalanceQueryVariables = Exact<{
+  groupId?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type GetPointBalanceQuery = { __typename?: 'Query', getPointBalance: { __typename?: 'PointBalanceType', totalEarned: number, totalSpentApproved: number, totalReservedPending: number, currentBalance: number, availableBalance: number } };
+
+export type GetPointTransactionHistoryQueryVariables = Exact<{
+  groupId?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type GetPointTransactionHistoryQuery = { __typename?: 'Query', getPointTransactionHistory: { __typename?: 'PointTransactionHistoryResult', total: number, items: Array<{ __typename?: 'PointTransactionType', id: string, type: PointTransactionTypeEnum, amount: number, description: string, relatedTaskId?: string | null, relatedTaskTitle?: string | null, relatedRewardId?: string | null, relatedRewardName?: string | null, createdAt: any }> } };
+
+export type GetGroupLeaderboardQueryVariables = Exact<{
+  groupId: Scalars['String']['input'];
+}>;
+
+
+export type GetGroupLeaderboardQuery = { __typename?: 'Query', getGroupLeaderboard: Array<{ __typename?: 'LeaderboardEntryType', userId: string, points: number, rank: number }> };
 
 
 export const LoginDocument = gql`
@@ -1748,4 +1837,190 @@ export const GetRotationPatternDocument = gql`
 
 export function useGetRotationPatternQuery(options: Omit<Urql.UseQueryArgs<GetRotationPatternQueryVariables>, 'query'>) {
   return Urql.useQuery<GetRotationPatternQuery, GetRotationPatternQueryVariables>({ query: GetRotationPatternDocument, ...options });
+};
+export const GetGroupRewardsDocument = gql`
+    query GetGroupRewards($groupId: String!) {
+  getGroupRewards(groupId: $groupId) {
+    id
+    name
+    description
+    cost
+    isActive
+    imageUrl
+    createdAt
+    groupId
+    createdById
+  }
+}
+    `;
+
+export function useGetGroupRewardsQuery(options: Omit<Urql.UseQueryArgs<GetGroupRewardsQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetGroupRewardsQuery, GetGroupRewardsQueryVariables>({ query: GetGroupRewardsDocument, ...options });
+};
+export const GetMyRewardRequestsDocument = gql`
+    query GetMyRewardRequests($groupId: String) {
+  getMyRewardRequests(groupId: $groupId) {
+    id
+    userId
+    rewardId
+    status
+    pointsSpent
+    requestedAt
+    approvedAt
+    rejectedAt
+    rejectionReason
+    approvedById
+  }
+}
+    `;
+
+export function useGetMyRewardRequestsQuery(options?: Omit<Urql.UseQueryArgs<GetMyRewardRequestsQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetMyRewardRequestsQuery, GetMyRewardRequestsQueryVariables>({ query: GetMyRewardRequestsDocument, ...options });
+};
+export const GetGroupRewardRequestsDocument = gql`
+    query GetGroupRewardRequests($groupId: String!) {
+  getGroupRewardRequests(groupId: $groupId) {
+    id
+    userId
+    rewardId
+    status
+    pointsSpent
+    requestedAt
+    approvedAt
+    rejectedAt
+    rejectionReason
+    approvedById
+  }
+}
+    `;
+
+export function useGetGroupRewardRequestsQuery(options: Omit<Urql.UseQueryArgs<GetGroupRewardRequestsQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetGroupRewardRequestsQuery, GetGroupRewardRequestsQueryVariables>({ query: GetGroupRewardRequestsDocument, ...options });
+};
+export const CreateRewardDocument = gql`
+    mutation CreateReward($input: CreateRewardInput!) {
+  createReward(input: $input) {
+    id
+    name
+    description
+    cost
+    isActive
+    imageUrl
+    createdAt
+    groupId
+    createdById
+  }
+}
+    `;
+
+export function useCreateRewardMutation() {
+  return Urql.useMutation<CreateRewardMutation, CreateRewardMutationVariables>(CreateRewardDocument);
+};
+export const UpdateRewardDocument = gql`
+    mutation UpdateReward($input: UpdateRewardInput!) {
+  updateReward(input: $input) {
+    id
+    name
+    description
+    cost
+    isActive
+    imageUrl
+    groupId
+  }
+}
+    `;
+
+export function useUpdateRewardMutation() {
+  return Urql.useMutation<UpdateRewardMutation, UpdateRewardMutationVariables>(UpdateRewardDocument);
+};
+export const DeleteRewardDocument = gql`
+    mutation DeleteReward($rewardId: String!, $groupId: String!) {
+  deleteReward(rewardId: $rewardId, groupId: $groupId)
+}
+    `;
+
+export function useDeleteRewardMutation() {
+  return Urql.useMutation<DeleteRewardMutation, DeleteRewardMutationVariables>(DeleteRewardDocument);
+};
+export const RequestRewardDocument = gql`
+    mutation RequestReward($input: RequestRewardInput!) {
+  requestReward(input: $input) {
+    id
+    userId
+    rewardId
+    status
+    pointsSpent
+    requestedAt
+  }
+}
+    `;
+
+export function useRequestRewardMutation() {
+  return Urql.useMutation<RequestRewardMutation, RequestRewardMutationVariables>(RequestRewardDocument);
+};
+export const ApproveRewardRequestDocument = gql`
+    mutation ApproveRewardRequest($input: ApproveRewardRequestInput!) {
+  approveRewardRequest(input: $input) {
+    id
+    status
+    approvedAt
+    rejectedAt
+    rejectionReason
+    approvedById
+  }
+}
+    `;
+
+export function useApproveRewardRequestMutation() {
+  return Urql.useMutation<ApproveRewardRequestMutation, ApproveRewardRequestMutationVariables>(ApproveRewardRequestDocument);
+};
+export const GetPointBalanceDocument = gql`
+    query GetPointBalance($groupId: String) {
+  getPointBalance(groupId: $groupId) {
+    totalEarned
+    totalSpentApproved
+    totalReservedPending
+    currentBalance
+    availableBalance
+  }
+}
+    `;
+
+export function useGetPointBalanceQuery(options?: Omit<Urql.UseQueryArgs<GetPointBalanceQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetPointBalanceQuery, GetPointBalanceQueryVariables>({ query: GetPointBalanceDocument, ...options });
+};
+export const GetPointTransactionHistoryDocument = gql`
+    query GetPointTransactionHistory($groupId: String, $limit: Int, $offset: Int) {
+  getPointTransactionHistory(groupId: $groupId, limit: $limit, offset: $offset) {
+    items {
+      id
+      type
+      amount
+      description
+      relatedTaskId
+      relatedTaskTitle
+      relatedRewardId
+      relatedRewardName
+      createdAt
+    }
+    total
+  }
+}
+    `;
+
+export function useGetPointTransactionHistoryQuery(options?: Omit<Urql.UseQueryArgs<GetPointTransactionHistoryQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetPointTransactionHistoryQuery, GetPointTransactionHistoryQueryVariables>({ query: GetPointTransactionHistoryDocument, ...options });
+};
+export const GetGroupLeaderboardDocument = gql`
+    query GetGroupLeaderboard($groupId: String!) {
+  getGroupLeaderboard(groupId: $groupId) {
+    userId
+    points
+    rank
+  }
+}
+    `;
+
+export function useGetGroupLeaderboardQuery(options: Omit<Urql.UseQueryArgs<GetGroupLeaderboardQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetGroupLeaderboardQuery, GetGroupLeaderboardQueryVariables>({ query: GetGroupLeaderboardDocument, ...options });
 };

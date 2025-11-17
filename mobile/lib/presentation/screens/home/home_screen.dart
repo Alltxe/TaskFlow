@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mobile/presentation/providers/auth/auth_notifier.dart';
+import 'package:mobile/data/providers/auth_providers.dart';
+import 'package:mobile/l10n/app_localizations.dart';
 
 /// Home screen placeholder
 class HomeScreen extends ConsumerWidget {
@@ -8,16 +9,17 @@ class HomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final user = ref.watch(currentUserProvider);
+    final authState = ref.watch(authStateProvider);
+    final user = authState.user;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Home'),
+        title: Text(AppLocalizations.of(context)!.home),
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () {
-              ref.read(authNotifierProvider.notifier).logout();
+              ref.read(authStateProvider.notifier).logout();
             },
           ),
         ],
@@ -33,7 +35,9 @@ class HomeScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 24),
             Text(
-              'Welcome, ${user?.username ?? "User"}!',
+              AppLocalizations.of(
+                context,
+              )!.welcomeUser(user?.username ?? AppLocalizations.of(context)!.noDescription),
               style: Theme.of(context).textTheme.headlineMedium,
             ),
             const SizedBox(height: 8),
@@ -45,7 +49,7 @@ class HomeScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 48),
             Text(
-              'Home Screen Placeholder',
+              AppLocalizations.of(context)!.homePlaceholder,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),

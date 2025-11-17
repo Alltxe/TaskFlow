@@ -72,7 +72,11 @@ export const GroupLayout: FC = () => {
     return `/group/${groupId}/tasks` // Default
   }
 
+  const currentTab = getCurrentTab()
+  console.log('Current path:', currentPath, 'Current tab:', currentTab, 'Gamification enabled:', gamificationEnabled)
+
   const handleTabChange = (_event: React.SyntheticEvent, newValue: string) => {
+    console.log('Tab clicked, navigating to:', newValue)
     navigate(newValue)
   }
 
@@ -122,7 +126,7 @@ export const GroupLayout: FC = () => {
       <Box sx={{ bgcolor: 'background.paper', borderBottom: 1, borderColor: 'divider' }}>
         <Container maxWidth="lg">
           <Tabs
-            value={getCurrentTab()}
+            value={currentTab}
             onChange={handleTabChange}
             variant="scrollable"
             scrollButtons="auto"
@@ -134,42 +138,44 @@ export const GroupLayout: FC = () => {
               iconPosition="start"
             />
             {gamificationEnabled && (
-              <>
-                <Tab
-                  label="Награды"
-                  value={`/group/${groupId}/rewards`}
-                  icon={<RewardsIcon />}
-                  iconPosition="start"
-                />
-                <Tab
-                  label="Рейтинг"
-                  value={`/group/${groupId}/leaderboard`}
-                  icon={<LeaderboardIcon />}
-                  iconPosition="start"
-                />
-              </>
+              <Tab
+                label="Награды"
+                value={`/group/${groupId}/rewards`}
+                icon={<RewardsIcon />}
+                iconPosition="start"
+              />
+            )}
+            {gamificationEnabled && (
+              <Tab
+                label="Рейтинг"
+                value={`/group/${groupId}/leaderboard`}
+                icon={<LeaderboardIcon />}
+                iconPosition="start"
+              />
             )}
             {isAdmin && (
-              <>
-                <Tab
-                  label="Проверка"
-                  value={`/group/${groupId}/review`}
-                  icon={<ReviewIcon />}
-                  iconPosition="start"
-                />
-                <Tab
-                  label="Участники"
-                  value={`/group/${groupId}/members`}
-                  icon={<GroupIcon />}
-                  iconPosition="start"
-                />
-                <Tab
-                  label="Настройки"
-                  value={`/group/${groupId}/settings`}
-                  icon={<SettingsIcon />}
-                  iconPosition="start"
-                />
-              </>
+              <Tab
+                label="Проверка"
+                value={`/group/${groupId}/review`}
+                icon={<ReviewIcon />}
+                iconPosition="start"
+              />
+            )}
+            {isAdmin && (
+              <Tab
+                label="Участники"
+                value={`/group/${groupId}/members`}
+                icon={<GroupIcon />}
+                iconPosition="start"
+              />
+            )}
+            {isAdmin && (
+              <Tab
+                label="Настройки"
+                value={`/group/${groupId}/settings`}
+                icon={<SettingsIcon />}
+                iconPosition="start"
+              />
             )}
           </Tabs>
         </Container>

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mobile/presentation/providers/auth/auth_notifier.dart';
-import 'package:mobile/presentation/providers/auth/auth_state.dart';
+import 'package:mobile/data/providers/auth_providers.dart';
+import 'package:mobile/l10n/app_localizations.dart';
 
 /// Login screen
 class LoginScreen extends ConsumerStatefulWidget {
@@ -25,47 +25,34 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     super.dispose();
   }
 
-  void _handleLogin() {
+  void _handleLogin() async {
     if (_formKey.currentState!.validate()) {
       final email = _emailController.text.trim();
       final password = _passwordController.text;
 
-      ref.read(authNotifierProvider.notifier).login(email, password);
+      try {
+        await ref.read(authStateProvider.notifier).login(email, password);
+        // Navigation will be handled by router redirect
+      } catch (e) {
+        // Error is already set in state, just show snackbar
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(e.toString()),
+              backgroundColor: Theme.of(context).colorScheme.error,
+              duration: const Duration(seconds: 3),
+            ),
+          );
+        }
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final authState = ref.watch(authNotifierProvider);
+    final authState = ref.watch(authStateProvider);
 
-    // Listen to auth state changes for navigation
-    ref.listen<AuthState>(authNotifierProvider, (previous, next) {
-      next.when(
-        initial: () {},
-        authenticated: (user) {
-          // Navigate to home screen
-          context.go('/home');
-        },
-        unauthenticated: () {},
-        loading: () {},
-        error: (message) {
-          // Show error snackbar
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(message),
-              backgroundColor: Theme.of(context).colorScheme.error,
-              duration: const Duration(seconds: 3),
-            ),
-          );
-          // Clear error state after showing snackbar
-          Future.delayed(const Duration(milliseconds: 100), () {
-            ref.read(authNotifierProvider.notifier).clearError();
-          });
-        },
-      );
-    });
-
-    final isLoading = authState is AuthStateLoading;
+    final isLoading = authState.status == AuthStatus.loading;
 
     return Scaffold(
       body: SafeArea(
@@ -84,7 +71,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
                 // Title
                 Text(
-                  'Welcome Back',
+                  AppLocalizations.of(context)!.welcomeBack,
                   style: Theme.of(
                     context,
                   ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
@@ -94,7 +81,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
                 // Subtitle
                 Text(
-                  'Sign in to continue',
+                  AppLocalizations.of(context)!.signInToContinue,
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
@@ -106,8 +93,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 TextFormField(
                   controller: _emailController,
                   decoration: InputDecoration(
-                    labelText: 'Email',
-                    hintText: 'Enter your email',
+                    labelText: AppLocalizations.of(context)!.emailLabel,
+                    hintText: AppLocalizations.of(context)!.enterYourEmail,
                     prefixIcon: const Icon(Icons.email_outlined),
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                   ),
@@ -116,10 +103,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   enabled: !isLoading,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Email is required';
+                      return AppLocalizations.of(context)!.emailRequired;
                     }
                     if (!value.contains('@')) {
-                      return 'Invalid email format';
+                      return AppLocalizations.of(context)!.invalidEmailFormat;
                     }
                     return null;
                   },
@@ -130,8 +117,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 TextFormField(
                   controller: _passwordController,
                   decoration: InputDecoration(
-                    labelText: 'Password',
-                    hintText: 'Enter your password',
+                    labelText: AppLocalizations.of(context)!.password,
+                    hintText: AppLocalizations.of(context)!.enterYourPassword,
                     prefixIcon: const Icon(Icons.lock_outlined),
                     suffixIcon: IconButton(
                       icon: Icon(
@@ -153,10 +140,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   onFieldSubmitted: (_) => _handleLogin(),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Password is required';
+                      return AppLocalizations.of(context)!.passwordRequired;
                     }
                     if (value.length < 8) {
-                      return 'Password must be at least 8 characters';
+                      return AppLocalizations.of(context)!.passwordMinLength;
                     }
                     return null;
                   },
@@ -176,7 +163,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           width: 20,
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
-                      : const Text('Login'),
+                      : Text(AppLocalizations.of(context)!.login),
                 ),
                 const SizedBox(height: 16),
 
@@ -184,10 +171,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text('Don\'t have an account? ', style: Theme.of(context).textTheme.bodyMedium),
+                    Text(
+                      AppLocalizations.of(context)!.dontHaveAccount,
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
                     TextButton(
                       onPressed: isLoading ? null : () => context.go('/register'),
-                      child: const Text('Register'),
+                      child: Text(AppLocalizations.of(context)!.register),
                     ),
                   ],
                 ),

@@ -74,3 +74,18 @@ export const toast = {
     })
   },
 }
+
+/**
+ * Generic toast notification helper function
+ * @param message - The message to display
+ * @param type - The type of notification (success, error, info, warning)
+ */
+export function showToast(
+  message: string,
+  type: 'success' | 'error' | 'info' | 'warning' = 'info'
+): void {
+  useNotificationStore.getState().addNotification({
+    type,
+    message,
+  })
+}

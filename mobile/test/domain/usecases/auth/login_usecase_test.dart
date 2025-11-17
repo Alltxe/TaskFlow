@@ -28,7 +28,7 @@ void main() {
       email: 'test@example.com',
       username: 'testuser',
       avatarUrl: null,
-      isActive: true,
+      isAway: false,
       createdAt: DateTime(2024, 1, 1),
       updatedAt: DateTime(2024, 1, 1),
     );

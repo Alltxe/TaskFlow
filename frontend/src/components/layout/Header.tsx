@@ -11,6 +11,9 @@ import {
   useMediaQuery,
   useTheme,
   Button,
+  Chip,
+  Tooltip,
+  CircularProgress,
 } from '@mui/material'
 import {
   Menu as MenuIcon,
@@ -21,24 +24,34 @@ import {
   Assignment as TaskIcon,
   EmojiEvents as RewardsIcon,
   Leaderboard as LeaderboardIcon,
+  Stars as StarsIcon,
 } from '@mui/icons-material'
 import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
+import { useQuery } from 'urql'
 import { useAuthStore } from '../../store/authStore'
 import { useUIStore } from '../../store/uiStore'
+import { MY_STATISTICS_QUERY } from '@api/queries'
+import { formatPointsCompact } from '@lib/formatPoints'
 
 export function Header() {
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
   const navigate = useNavigate()
   const location = useLocation()
-  
+
   const user = useAuthStore((state) => state.user)
   const logout = useAuthStore((state) => state.logout)
   const toggleSidebar = useUIStore((state) => state.toggleSidebar)
-  
+
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const [notificationAnchor, setNotificationAnchor] = useState<null | HTMLElement>(null)
+
+  // Fetch user statistics for points display
+  const [statisticsResult] = useQuery({
+    query: MY_STATISTICS_QUERY,
+    variables: { groupId: null }, // null for overall stats
+  })
 
   const menuItems = [
     { text: 'Дашборд', icon: <DashboardIcon />, path: '/dashboard' },
@@ -151,6 +164,28 @@ export function Header() {
               <Typography variant="body2">Приближается дедлайн</Typography>
             </MenuItem>
           </Menu>
+
+          {/* Points Badge */}
+          {statisticsResult.fetching ? (
+            <CircularProgress size={20} sx={{ mx: 1 }} />
+          ) : statisticsResult.data?.myStatistics ? (
+            <Tooltip title="История транзакций баллов">
+              <Chip
+                icon={<StarsIcon />}
+                label={formatPointsCompact(statisticsResult.data.myStatistics.currentPointBalance)}
+                color="primary"
+                variant="outlined"
+                onClick={() => navigate('/profile')}
+                sx={{
+                  cursor: 'pointer',
+                  fontWeight: 600,
+                  '&:hover': {
+                    bgcolor: 'primary.50',
+                  },
+                }}
+              />
+            </Tooltip>
+          ) : null}
 
           {/* Profile Menu */}
           <IconButton onClick={handleProfileMenuOpen} size="large">

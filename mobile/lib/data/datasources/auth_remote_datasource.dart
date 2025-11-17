@@ -136,19 +136,27 @@ class AuthRemoteDataSource {
   /// Refresh access token using refresh token
   Future<AuthTokens> refreshToken(String refreshToken) async {
     const mutation = r'''
-      mutation RefreshToken($refreshToken: String!) {
-        refreshToken(refreshToken: $refreshToken) {
+      mutation RefreshToken($input: RefreshTokenInput!) {
+        refreshToken(input: $input) {
           accessToken
           refreshToken
-          accessTokenExpiresAt
-          refreshTokenExpiresAt
+          user {
+            id
+            email
+            username
+          }
         }
       }
     ''';
 
     try {
       final result = await client.mutate(
-        MutationOptions(document: gql(mutation), variables: {'refreshToken': refreshToken}),
+        MutationOptions(
+          document: gql(mutation),
+          variables: {
+            'input': {'refreshToken': refreshToken},
+          },
+        ),
       );
 
       if (result.hasException) {
@@ -160,7 +168,17 @@ class AuthRemoteDataSource {
         throw const ServerException(message: 'Token refresh failed: No data returned');
       }
 
-      return AuthTokens.fromJson(data);
+      final accessToken = data['accessToken'];
+      final newRefreshToken = data['refreshToken'];
+
+      return AuthTokens(
+        accessToken: accessToken,
+        refreshToken: newRefreshToken,
+        // Access token expires in 15 minutes (backend default)
+        accessTokenExpiresAt: DateTime.now().add(const Duration(minutes: 15)),
+        // Refresh token expires in 7 days (backend default)
+        refreshTokenExpiresAt: DateTime.now().add(const Duration(days: 7)),
+      );
     } catch (e) {
       if (e is AppException) rethrow;
       throw ServerException(message: e.toString());

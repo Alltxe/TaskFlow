@@ -286,13 +286,39 @@ export class RewardService {
 
   async getLeaderboard(groupId: string) {
     // Aggregate earned points for group via point transactions (EARNED only) minus spent
-  const earned = await (this.prisma as any).pointTransaction.groupBy({
+    const earned = await (this.prisma as any).pointTransaction.groupBy({
       by: ['userId'],
       where: { groupId, type: 'EARNED' },
       _sum: { amount: true },
       orderBy: { _sum: { amount: 'desc' } },
     });
-    return earned.map((e, idx) => ({ userId: e.userId, points: e._sum.amount || 0, rank: idx + 1 }));
+
+    // Get user data for each entry
+    const leaderboardEntries = await Promise.all(
+      earned.map(async (e, idx) => {
+        const user = await this.prisma.user.findUnique({
+          where: { id: e.userId },
+          select: {
+            id: true,
+            username: true,
+            email: true,
+            avatarUrl: true,
+            isAway: true,
+            awayUntil: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        });
+
+        return {
+          user,
+          pointsEarned: e._sum.amount || 0,
+          rank: idx + 1,
+        };
+      })
+    );
+
+    return leaderboardEntries;
   }
 
   /**

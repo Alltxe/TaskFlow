@@ -10,6 +10,8 @@ import { GroupTasks as GroupTasksPage } from '@pages/GroupTasks'
 import { JoinGroup as JoinGroupPage } from '@pages/JoinGroup'
 import { Profile as ProfilePage } from '@pages/Profile'
 import { RotationSchedule as RotationSchedulePage } from '@pages/RotationSchedule'
+import { GroupRewards as GroupRewardsPage } from '@pages/GroupRewards'
+import { Leaderboard as LeaderboardPage } from '@pages/Leaderboard'
 import { NotFoundPage } from '@pages/NotFound'
 import { ProtectedRoute } from '@lib/ProtectedRoute'
 import { AppShell, GroupLayout } from '../components/layout'
@@ -74,10 +76,14 @@ export const router = createBrowserRouter([
         path: 'rotation',
         element: <RotationSchedulePage />,
       },
-      // More routes will be added in Phase 6
-      // { path: 'rewards', element: <RewardsPage /> },
-      // { path: 'leaderboard', element: <LeaderboardPage /> },
-      // { path: 'review', element: <ReviewQueuePage /> },
+      {
+        path: 'rewards',
+        element: <GroupRewardsPage />,
+      },
+      {
+        path: 'leaderboard',
+        element: <LeaderboardPage />,
+      },
     ],
   },
   {

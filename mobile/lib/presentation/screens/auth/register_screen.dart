@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mobile/presentation/providers/auth/auth_notifier.dart';
-import 'package:mobile/presentation/providers/auth/auth_state.dart';
+import 'package:mobile/data/providers/auth_providers.dart';
+import 'package:mobile/l10n/app_localizations.dart';
 
 /// Register screen
 class RegisterScreen extends ConsumerStatefulWidget {
@@ -30,48 +30,35 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     super.dispose();
   }
 
-  void _handleRegister() {
+  void _handleRegister() async {
     if (_formKey.currentState!.validate()) {
       final email = _emailController.text.trim();
       final username = _usernameController.text.trim();
       final password = _passwordController.text;
 
-      ref.read(authNotifierProvider.notifier).register(email, username, password);
+      try {
+        await ref.read(authStateProvider.notifier).register(email, username, password);
+        // Navigation will be handled by router redirect
+      } catch (e) {
+        // Error is already set in state, just show snackbar
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(e.toString()),
+              backgroundColor: Theme.of(context).colorScheme.error,
+              duration: const Duration(seconds: 3),
+            ),
+          );
+        }
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final authState = ref.watch(authNotifierProvider);
+    final authState = ref.watch(authStateProvider);
 
-    // Listen to auth state changes for navigation
-    ref.listen<AuthState>(authNotifierProvider, (previous, next) {
-      next.when(
-        initial: () {},
-        authenticated: (user) {
-          // Navigate to home screen
-          context.go('/home');
-        },
-        unauthenticated: () {},
-        loading: () {},
-        error: (message) {
-          // Show error snackbar
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(message),
-              backgroundColor: Theme.of(context).colorScheme.error,
-              duration: const Duration(seconds: 3),
-            ),
-          );
-          // Clear error state after showing snackbar
-          Future.delayed(const Duration(milliseconds: 100), () {
-            ref.read(authNotifierProvider.notifier).clearError();
-          });
-        },
-      );
-    });
-
-    final isLoading = authState is AuthStateLoading;
+    final isLoading = authState.status == AuthStatus.loading;
 
     return Scaffold(
       appBar: AppBar(
@@ -90,7 +77,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               children: [
                 // Title
                 Text(
-                  'Create Account',
+                  AppLocalizations.of(context)!.createAccountTitle,
                   style: Theme.of(
                     context,
                   ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
@@ -100,7 +87,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
                 // Subtitle
                 Text(
-                  'Fill in the details below to get started',
+                  AppLocalizations.of(context)!.fillDetails,
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
@@ -112,8 +99,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 TextFormField(
                   controller: _emailController,
                   decoration: InputDecoration(
-                    labelText: 'Email',
-                    hintText: 'Enter your email',
+                    labelText: AppLocalizations.of(context)!.emailLabel,
+                    hintText: AppLocalizations.of(context)!.enterYourEmail,
                     prefixIcon: const Icon(Icons.email_outlined),
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                   ),
@@ -136,8 +123,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 TextFormField(
                   controller: _usernameController,
                   decoration: InputDecoration(
-                    labelText: 'Username',
-                    hintText: 'Choose a username',
+                    labelText: AppLocalizations.of(context)!.username,
+                    hintText: AppLocalizations.of(context)!.chooseUsername,
                     prefixIcon: const Icon(Icons.person_outlined),
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                   ),
@@ -145,10 +132,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   enabled: !isLoading,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Username is required';
+                      return AppLocalizations.of(context)!.usernameRequired;
                     }
                     if (value.length < 3) {
-                      return 'Username must be at least 3 characters';
+                      return AppLocalizations.of(context)!.usernameMinLength;
                     }
                     return null;
                   },
@@ -159,8 +146,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 TextFormField(
                   controller: _passwordController,
                   decoration: InputDecoration(
-                    labelText: 'Password',
-                    hintText: 'Create a password',
+                    labelText: AppLocalizations.of(context)!.password,
+                    hintText: AppLocalizations.of(context)!.createPassword,
                     prefixIcon: const Icon(Icons.lock_outlined),
                     suffixIcon: IconButton(
                       icon: Icon(
@@ -181,10 +168,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   enabled: !isLoading,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Password is required';
+                      return AppLocalizations.of(context)!.passwordRequired;
                     }
                     if (value.length < 8) {
-                      return 'Password must be at least 8 characters';
+                      return AppLocalizations.of(context)!.passwordMinLength;
                     }
                     return null;
                   },
@@ -195,8 +182,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 TextFormField(
                   controller: _confirmPasswordController,
                   decoration: InputDecoration(
-                    labelText: 'Confirm Password',
-                    hintText: 'Re-enter your password',
+                    labelText: AppLocalizations.of(context)!.confirmPassword,
+                    hintText: AppLocalizations.of(context)!.enterYourPassword,
                     prefixIcon: const Icon(Icons.lock_outlined),
                     suffixIcon: IconButton(
                       icon: Icon(
@@ -218,10 +205,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   onFieldSubmitted: (_) => _handleRegister(),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please confirm your password';
+                      return AppLocalizations.of(context)!.confirmPasswordRequired;
                     }
                     if (value != _passwordController.text) {
-                      return 'Passwords do not match';
+                      return AppLocalizations.of(context)!.passwordsDoNotMatch;
                     }
                     return null;
                   },
@@ -241,7 +228,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                           width: 20,
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
-                      : const Text('Register'),
+                      : Text(AppLocalizations.of(context)!.register),
                 ),
                 const SizedBox(height: 16),
 
@@ -250,12 +237,12 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'Already have an account? ',
+                      AppLocalizations.of(context)!.alreadyHaveAccount,
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                     TextButton(
                       onPressed: isLoading ? null : () => context.go('/login'),
-                      child: const Text('Login'),
+                      child: Text(AppLocalizations.of(context)!.login),
                     ),
                   ],
                 ),

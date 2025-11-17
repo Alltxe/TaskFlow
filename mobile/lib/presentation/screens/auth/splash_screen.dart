@@ -1,34 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
-import 'package:mobile/presentation/providers/auth/auth_notifier.dart';
-import 'package:mobile/presentation/providers/auth/auth_state.dart';
 
 /// Splash screen for checking authentication status
+/// Note: Navigation is handled by GoRouter redirect logic in app_router.dart
 class SplashScreen extends ConsumerWidget {
   const SplashScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Listen to auth state changes
-    ref.listen<AuthState>(authNotifierProvider, (previous, next) {
-      next.when(
-        initial: () {}, // Still checking
-        authenticated: (user) {
-          // Navigate to home screen
-          context.go('/home');
-        },
-        unauthenticated: () {
-          // Navigate to login screen
-          context.go('/login');
-        },
-        loading: () {}, // Should not happen in splash
-        error: (message) {
-          // Show error and navigate to login
-          context.go('/login');
-        },
-      );
-    });
+    // Router handles navigation based on authStateProvider
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.primary,

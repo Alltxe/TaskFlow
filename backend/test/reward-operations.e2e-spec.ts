@@ -227,7 +227,7 @@ describe('Reward Operations (e2e)', () => {
     const lb = await request(app.getHttpServer())
       .post('/graphql')
       .set('Authorization', `Bearer ${adminToken}`)
-      .send({ query: `query { getGroupLeaderboard(groupId: "${groupId}") { userId points rank } }` });
+      .send({ query: `query { getGroupLeaderboard(groupId: "${groupId}") { user { id username } pointsEarned rank } }` });
     expect(lb.body.errors).toBeUndefined();
     expect(lb.body.data.getGroupLeaderboard.length).toBeGreaterThan(0);
   });
