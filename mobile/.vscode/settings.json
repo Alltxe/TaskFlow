@@ -1,0 +1,48 @@
+{
+    // Dart & Flutter Settings
+    "dart.flutterSdkPath": null,
+    "dart.lineLength": 100,
+    "dart.previewFlutterUiGuides": true,
+    "dart.previewFlutterUiGuidesCustomTracking": true,
+    "dart.debugExternalPackageLibraries": true,
+    "dart.debugSdkLibraries": false,
+    // Editor Settings
+    "editor.formatOnSave": true,
+    "editor.formatOnPaste": true,
+    "editor.rulers": [
+        100
+    ],
+    "editor.codeActionsOnSave": {
+        "source.fixAll": "explicit",
+        "source.organizeImports": "explicit"
+    },
+    // File Associations
+    "files.associations": {
+        "*.dart": "dart"
+    },
+    // File Exclusions
+    "files.exclude": {
+        "**/.dart_tool": true,
+        "**/.flutter-plugins": true,
+        "**/.flutter-plugins-dependencies": true,
+        "**/.packages": true,
+        "**/build/": true
+    },
+    // Search Exclusions
+    "search.exclude": {
+        "**/.dart_tool": true,
+        "**/build": true,
+        "**/.flutter-plugins": true,
+        "**/.flutter-plugins-dependencies": true,
+        "**/*.freezed.dart": true,
+        "**/*.g.dart": true
+    },
+    // Emmet
+    "emmet.includeLanguages": {
+        "dart": "html"
+    },
+    // Terminal
+    "terminal.integrated.env.windows": {
+        "FLUTTER_ROOT": null
+    }
+}

@@ -1,39 +1,46 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, waitFor } from '@testing-library/react'
+import { screen, waitFor } from '@testing-library/react'
+import { render } from '../test/utils'
 import userEvent from '@testing-library/user-event'
-import { BrowserRouter } from 'react-router-dom'
 import { RegisterPage } from './Register'
-import { useAuthStore } from '../store/authStore'
 
-// Mock useNavigate
-const mockNavigate = vi.fn()
-vi.mock('react-router-dom', async () => {
-  const actual = await vi.importActual('react-router-dom')
-  return {
-    ...actual,
-    useNavigate: () => mockNavigate,
-  }
+// Create mock functions using vi.hoisted to ensure they're available during hoisting
+const { mockRegister, mockLogin, mockAuthStore } = vi.hoisted(() => {
+  const mockRegister = vi.fn()
+  const mockLogin = vi.fn()
+  
+  const mockAuthStore = vi.fn((selector) => {
+    const store = {
+      login: mockLogin,
+      logout: vi.fn(),
+      register: mockRegister,
+      user: null,
+      accessToken: null,
+      refreshToken: null,
+      isAuthenticated: false,
+      updateUser: vi.fn(),
+      setTokens: vi.fn(),
+      initialize: vi.fn(),
+    }
+    return selector ? selector(store) : store
+  })
+  
+  return { mockRegister, mockLogin, mockAuthStore }
 })
 
 // Mock authStore
 vi.mock('../store/authStore', () => ({
-  useAuthStore: vi.fn(),
+  useAuthStore: mockAuthStore,
 }))
 
 describe('RegisterPage', () => {
-  const mockRegister = vi.fn()
-
   beforeEach(() => {
-    vi.clearAllMocks()
-    vi.mocked(useAuthStore).mockReturnValue(mockRegister)
+    mockRegister.mockReset()
+    mockLogin.mockReset()
   })
 
   const renderRegister = () => {
-    return render(
-      <BrowserRouter>
-        <RegisterPage />
-      </BrowserRouter>
-    )
+    return render(<RegisterPage />)
   }
 
   it('should render registration form', () => {
@@ -144,7 +151,7 @@ describe('RegisterPage', () => {
     await user.click(submitButton)
 
     await waitFor(() => {
-      expect(mockNavigate).toHaveBeenCalledWith('/dashboard')
+      expect(mockRegister).toHaveBeenCalledWith('newuser@example.com', 'newuser', 'password123')
     })
   })
 

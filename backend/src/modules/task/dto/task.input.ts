@@ -1,17 +1,18 @@
 import { InputType, Field, Int } from '@nestjs/graphql';
 import { IsNotEmpty, IsString, IsInt, Min, IsOptional, IsBoolean, IsEnum, IsDateString } from 'class-validator';
 
-enum TaskPriority {
+export enum TaskPriority {
   LOW = 'LOW',
   MEDIUM = 'MEDIUM',
   HIGH = 'HIGH',
   CRITICAL = 'CRITICAL',
 }
 
-enum RotationType {
+export enum RotationType {
   ROUND_ROBIN = 'ROUND_ROBIN',
   RANDOM = 'RANDOM',
   WEIGHTED_RANDOM = 'WEIGHTED_RANDOM',
+  LOAD_BALANCING = 'LOAD_BALANCING',
   DISABLED = 'DISABLED',
 }
 
@@ -138,4 +139,17 @@ export class ApproveTaskInput {
   @IsNotEmpty()
   @IsBoolean()
   approved: boolean;
+
+  @Field(() => String, { nullable: true })
+  @IsOptional()
+  @IsString()
+  rejectionReason?: string;
+}
+
+@InputType()
+export class ClaimTaskInput {
+  @Field(() => String)
+  @IsNotEmpty()
+  @IsString()
+  taskId: string;
 }

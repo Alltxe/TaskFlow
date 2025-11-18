@@ -1,0 +1,537 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type UserStatistics {
+  """User ID"""
+  userId: ID!
+
+  """Current point balance (total earned - total spent)"""
+  currentPointBalance: Int!
+
+  """Total points earned from completed tasks"""
+  totalPointsEarned: Int!
+
+  """Total points spent on rewards"""
+  totalPointsSpent: Int!
+
+  """Total number of tasks completed"""
+  tasksCompleted: Int!
+
+  """Total number of tasks assigned to user"""
+  tasksAssigned: Int!
+
+  """Task completion rate (completed / assigned) as percentage"""
+  completionRate: Float!
+
+  """Number of tasks completed on time"""
+  tasksCompletedOnTime: Int!
+
+  """On-time completion percentage"""
+  onTimePercentage: Float!
+
+  """Leaderboard position (1-based, null if no completions)"""
+  leaderboardPosition: Int
+
+  """Group ID for group-specific statistics (null for overall stats)"""
+  groupId: ID
+}
+
+type UserType {
+  id: ID!
+  email: String!
+  username: String!
+  avatarUrl: String
+  isAway: Boolean!
+  awayUntil: DateTime
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type AuthResponseType {
+  accessToken: String!
+  refreshToken: String!
+  user: UserType!
+}
+
+type GroupMemberUserType {
+  id: ID!
+  username: String!
+  avatarUrl: String
+  isAway: Boolean!
+  awayUntil: DateTime
+}
+
+type GroupType {
+  id: ID!
+  name: String!
+  description: String
+  inviteToken: String
+  requiresApproval: Boolean!
+  rotationType: String!
+  gamificationEnabled: Boolean!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  createdById: String!
+}
+
+type GroupMemberType {
+  id: ID!
+  userId: String!
+  groupId: String!
+  role: String!
+  joinedAt: DateTime!
+  roleChangedAt: DateTime!
+  user: GroupMemberUserType!
+}
+
+type AuditLogUserType {
+  id: ID!
+  username: String!
+  email: String!
+}
+
+type AuditLogType {
+  id: ID!
+  action: String!
+  entityType: String!
+  entityId: String
+  oldValues: JSON
+  newValues: JSON
+  performedAt: DateTime!
+  ipAddress: String
+  userId: String
+  user: AuditLogUserType
+  performedBy: AuditLogUserType
+}
+
+"""
+The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+"""
+scalar JSON
+
+type AuditLogListType {
+  logs: [AuditLogType!]!
+  total: Int!
+  limit: Int!
+  offset: Int!
+}
+
+type TaskType {
+  id: ID!
+  title: String!
+  description: String
+  deadline: DateTime!
+  priority: String!
+  status: String!
+  points: Int!
+  requiresApproval: Boolean!
+  isRecurring: Boolean!
+  recurrenceRule: String
+  rotationType: String
+  weight: Int!
+  wasClaimedFromPool: Boolean!
+  rejectionReason: String
+  createdAt: DateTime!
+  completedAt: DateTime
+  groupId: String!
+  createdById: String!
+  assigneeId: String
+  approvedById: String
+  parentTaskId: String
+  assignee: GroupMemberUserType
+  createdBy: GroupMemberUserType!
+}
+
+type NotificationType {
+  id: ID!
+  title: String!
+  message: String!
+  type: NotificationTypeEnum!
+  isRead: Boolean!
+  relatedEntityType: String
+  relatedEntityId: String
+  createdAt: DateTime!
+}
+
+enum NotificationTypeEnum {
+  TASK_ASSIGNED
+  TASK_COMPLETED
+  TASK_APPROVED
+  TASK_REJECTED
+  REWARD_REQUESTED
+  REWARD_APPROVED
+  REWARD_REJECTED
+  POINT_AWARDED
+  INVITATION
+  SYSTEM
+}
+
+type NotificationListResult {
+  items: [NotificationType!]!
+  total: Float!
+}
+
+"""Result of a push notification send attempt (Phase 8)"""
+type PushNotificationResultType {
+  success: Boolean!
+  messageId: String
+  error: String
+}
+
+type NotificationPreferenceType {
+  id: ID!
+  enablePush: Boolean!
+  quietHoursStart: String
+  quietHoursEnd: String
+  mutedTypes: [String!]
+  batchingEnabled: Boolean!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type DeviceTokenType {
+  id: ID!
+  token: String!
+  provider: String
+  platform: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type RewardType {
+  id: ID!
+  name: String!
+  description: String
+  cost: Int!
+  isActive: Boolean!
+  imageUrl: String
+  createdAt: DateTime!
+  groupId: ID!
+  createdById: ID!
+}
+
+type RewardTransactionType {
+  id: ID!
+  pointsSpent: Int!
+  status: String!
+  requestedAt: DateTime!
+  approvedAt: DateTime
+  rejectedAt: DateTime
+  rejectionReason: String
+  userId: ID!
+  rewardId: ID!
+  approvedById: ID
+}
+
+type PointBalanceType {
+  totalEarned: Int!
+  totalSpentApproved: Int!
+  totalReservedPending: Int!
+  currentBalance: Int!
+  availableBalance: Int!
+}
+
+type LeaderboardEntryType {
+  userId: ID!
+  points: Int!
+  rank: Int!
+}
+
+type Query {
+  hello: String!
+
+  """Get statistics for the current authenticated user"""
+  myStatistics(
+    """Optional group ID for group-specific statistics"""
+    groupId: String
+  ): UserStatistics!
+
+  """Get statistics for a specific user by ID"""
+  userStatistics(
+    """User ID to get statistics for"""
+    userId: String!
+
+    """Optional group ID for group-specific statistics"""
+    groupId: String
+  ): UserStatistics!
+
+  """Получить информацию о текущем пользователе"""
+  me: UserType!
+  getGroup(groupId: String!): GroupType!
+  getUserGroups: [GroupType!]!
+  getGroupMembers(groupId: String!): [GroupMemberType!]!
+
+  """Get audit logs with filtering and pagination (admin only)"""
+  getAuditLogs(input: GetAuditLogsInput): AuditLogListType!
+
+  """Get audit logs for a specific task"""
+  getTaskAuditLog(taskId: String!): [AuditLogType!]!
+
+  """Get audit logs for a specific group"""
+  getGroupAuditLog(groupId: String!): [AuditLogType!]!
+
+  """Get audit logs for current user actions"""
+  getMyAuditLogs(limit: Float = 100): [AuditLogType!]!
+  getTask(taskId: String!): TaskType!
+  getGroupTasks(groupId: String!, status: String): [TaskType!]!
+  getUserTasks(status: String): [TaskType!]!
+
+  """List my notifications (PRD 3.6.3)"""
+  myNotifications(input: ListNotificationsInput): NotificationListResult!
+
+  """Get my notification preferences"""
+  myNotificationPreference: NotificationPreferenceType!
+
+  """List my registered device tokens"""
+  myDeviceTokens: [DeviceTokenType!]!
+
+  """List active rewards for group (PRD 3.5.3)"""
+  getGroupRewards(groupId: String!): [RewardType!]!
+
+  """List my reward requests (PRD 3.5.4)"""
+  getMyRewardRequests(groupId: String): [RewardTransactionType!]!
+
+  """List all group reward requests (admin only) (PRD 3.5.4)"""
+  getGroupRewardRequests(groupId: String!): [RewardTransactionType!]!
+
+  """Get point balance summary (PRD 3.5.1-3.5.4)"""
+  getPointBalance(groupId: String): PointBalanceType!
+
+  """Group leaderboard by earned points (PRD 3.5.5)"""
+  getGroupLeaderboard(groupId: String!): [LeaderboardEntryType!]!
+}
+
+input GetAuditLogsInput {
+  entityType: String
+  action: String
+  userId: String
+  startDate: String
+  endDate: String
+  limit: Int = 50
+  offset: Int = 0
+}
+
+input ListNotificationsInput {
+  isRead: Boolean
+  type: NotificationTypeEnum
+  offset: Float
+  limit: Float
+}
+
+type Mutation {
+  """Регистрация нового пользователя"""
+  register(input: RegisterInput!): AuthResponseType!
+
+  """Вход пользователя"""
+  login(input: LoginInput!): AuthResponseType!
+
+  """Сменить пароль текущего пользователя"""
+  changePassword(input: ChangePasswordInput!): Boolean!
+
+  """Обновить access token с помощью refresh token"""
+  refreshToken(input: RefreshTokenInput!): AuthResponseType!
+
+  """Выход из системы (отзыв refresh token)"""
+  logout(refreshToken: String!): Boolean!
+
+  """Выход из всех устройств"""
+  logoutAll: Float!
+  createGroup(input: CreateGroupInput!): GroupType!
+  updateGroup(groupId: String!, input: UpdateGroupInput!): GroupType!
+  deleteGroup(groupId: String!): Boolean!
+  joinGroup(input: JoinGroupInput!): GroupType!
+  leaveGroup(groupId: String!): Boolean!
+  removeMember(groupId: String!, userId: String!): Boolean!
+  updateMemberRole(groupId: String!, input: UpdateMemberRoleInput!): GroupMemberType!
+  regenerateInviteToken(groupId: String!): String!
+  createTask(input: CreateTaskInput!): TaskType!
+  updateTask(taskId: String!, input: UpdateTaskInput!): TaskType!
+  deleteTask(taskId: String!): Boolean!
+  completeTask(input: CompleteTaskInput!): TaskType!
+  approveTask(input: ApproveTaskInput!): TaskType!
+
+  """
+  Claim an unassigned task from the Up-for-Grabs pool. User receives bonus points (1.5x multiplier).
+  """
+  claimTask(input: ClaimTaskInput!): TaskType!
+
+  """Mark notifications as read (PRD 3.6.3)"""
+  markNotificationsRead(input: MarkNotificationsReadInput!): Boolean!
+
+  """Mark all my notifications as read (PRD 3.6.3)"""
+  markAllNotificationsRead: Boolean!
+
+  """Отправить тестовое push-уведомление на все мои устройства (Phase 8)"""
+  sendTestPush(input: TestPushInput!): [PushNotificationResultType!]!
+
+  """Upsert my notification preferences"""
+  upsertNotificationPreference(input: UpsertNotificationPreferenceInput!): NotificationPreferenceType!
+
+  """Register a device token for push notifications"""
+  registerDeviceToken(input: RegisterDeviceTokenInput!): DeviceTokenType!
+
+  """Remove a device token"""
+  removeDeviceToken(input: RemoveDeviceTokenInput!): Boolean!
+
+  """Create reward (PRD 3.5.3) - admin only"""
+  createReward(input: CreateRewardInput!): RewardType!
+
+  """Update reward (PRD 3.5.3) - admin only"""
+  updateReward(input: UpdateRewardInput!): RewardType!
+
+  """Delete reward (PRD 3.5.3) - admin only"""
+  deleteReward(rewardId: String!, groupId: String!): Boolean!
+
+  """Request reward (PRD 3.5.4)"""
+  requestReward(input: RequestRewardInput!): RewardTransactionType!
+
+  """Approve or reject reward request (PRD 3.5.4) - admin only"""
+  approveRewardRequest(input: ApproveRewardRequestInput!): RewardTransactionType!
+}
+
+input RegisterInput {
+  email: String!
+  username: String!
+  password: String!
+}
+
+input LoginInput {
+  email: String!
+  password: String!
+}
+
+input ChangePasswordInput {
+  oldPassword: String!
+  newPassword: String!
+}
+
+input RefreshTokenInput {
+  refreshToken: String!
+}
+
+input CreateGroupInput {
+  name: String!
+  description: String
+  requiresApproval: Boolean
+  rotationType: String
+  gamificationEnabled: Boolean
+}
+
+input UpdateGroupInput {
+  name: String
+  description: String
+  requiresApproval: Boolean
+  rotationType: String
+  gamificationEnabled: Boolean
+}
+
+input JoinGroupInput {
+  inviteToken: String!
+}
+
+input UpdateMemberRoleInput {
+  userId: String!
+  role: String!
+}
+
+input CreateTaskInput {
+  title: String!
+  description: String
+  deadline: String!
+  priority: String!
+  points: Int!
+  requiresApproval: Boolean = true
+  isRecurring: Boolean = false
+  recurrenceRule: String
+  rotationType: String
+  weight: Int = 1
+  groupId: String!
+  assigneeId: String
+}
+
+input UpdateTaskInput {
+  title: String
+  description: String
+  deadline: String
+  priority: String
+  points: Int
+  requiresApproval: Boolean
+  assigneeId: String
+}
+
+input CompleteTaskInput {
+  taskId: String!
+}
+
+input ApproveTaskInput {
+  taskId: String!
+  approved: Boolean!
+  rejectionReason: String
+}
+
+input ClaimTaskInput {
+  taskId: String!
+}
+
+input MarkNotificationsReadInput {
+  ids: [String!]!
+}
+
+input TestPushInput {
+  title: String!
+  body: String!
+  data: JSON
+}
+
+input UpsertNotificationPreferenceInput {
+  enablePush: Boolean
+  quietHoursStart: String
+  quietHoursEnd: String
+  mutedTypes: [String!]
+  batchingEnabled: Boolean
+}
+
+input RegisterDeviceTokenInput {
+  token: String!
+  provider: String
+  platform: String
+}
+
+input RemoveDeviceTokenInput {
+  token: String!
+}
+
+input CreateRewardInput {
+  groupId: ID!
+  name: String!
+  cost: Int!
+  description: String
+  imageUrl: String
+  isActive: Boolean
+}
+
+input UpdateRewardInput {
+  rewardId: ID!
+  groupId: ID!
+  name: String
+  cost: Int
+  description: String
+  imageUrl: String
+  isActive: Boolean
+}
+
+input RequestRewardInput {
+  rewardId: ID!
+}
+
+input ApproveRewardRequestInput {
+  requestId: ID!
+  approved: Boolean!
+  reason: String
+}

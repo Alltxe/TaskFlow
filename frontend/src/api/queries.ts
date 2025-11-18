@@ -242,6 +242,7 @@ export const GET_GROUP_TASKS_QUERY = gql`
       recurrenceRule
       rotationType
       weight
+      wasClaimedFromPool
       createdAt
       completedAt
       groupId
@@ -276,6 +277,7 @@ export const GET_USER_TASKS_QUERY = gql`
       requiresApproval
       isRecurring
       recurrenceRule
+      wasClaimedFromPool
       groupId
       createdAt
       completedAt
@@ -303,6 +305,7 @@ export const GET_TASK_QUERY = gql`
       recurrenceRule
       rotationType
       weight
+      wasClaimedFromPool
       createdAt
       completedAt
       groupId
@@ -385,6 +388,22 @@ export const APPROVE_TASK_MUTATION = gql`
   }
 `
 
+export const CLAIM_TASK_MUTATION = gql`
+  mutation ClaimTask($input: ClaimTaskInput!) {
+    claimTask(input: $input) {
+      id
+      status
+      assigneeId
+      wasClaimedFromPool
+      assignee {
+        id
+        username
+        avatarUrl
+      }
+    }
+  }
+`
+
 // ============================================
 // USER STATISTICS QUERIES
 // ============================================
@@ -392,9 +411,10 @@ export const APPROVE_TASK_MUTATION = gql`
 export const MY_STATISTICS_QUERY = gql`
   query MyStatistics($groupId: String) {
     myStatistics(groupId: $groupId) {
-      totalPoints
-      pointsEarned
-      pointsSpent
+      userId
+      currentPointBalance
+      totalPointsEarned
+      totalPointsSpent
       tasksCompleted
       tasksAssigned
       completionRate
@@ -409,9 +429,10 @@ export const MY_STATISTICS_QUERY = gql`
 export const USER_STATISTICS_QUERY = gql`
   query UserStatistics($userId: String!, $groupId: String) {
     userStatistics(userId: $userId, groupId: $groupId) {
-      totalPoints
-      pointsEarned
-      pointsSpent
+      userId
+      currentPointBalance
+      totalPointsEarned
+      totalPointsSpent
       tasksCompleted
       tasksAssigned
       completionRate
@@ -419,6 +440,260 @@ export const USER_STATISTICS_QUERY = gql`
       onTimePercentage
       leaderboardPosition
       groupId
+    }
+  }
+`
+
+// ============================================
+// USER PROFILE MUTATIONS
+// ============================================
+
+export const UPDATE_USER_MUTATION = gql`
+  mutation UpdateUser($input: UpdateUserInput!) {
+    updateUser(input: $input) {
+      id
+      username
+      avatarUrl
+      updatedAt
+    }
+  }
+`
+
+export const SET_AWAY_STATUS_MUTATION = gql`
+  mutation SetAwayStatus($input: SetAwayStatusInput!) {
+    setUserAwayStatus(input: $input) {
+      id
+      isAway
+      awayUntil
+      updatedAt
+    }
+  }
+`
+
+// ============================================
+// ROTATION QUERIES
+// ============================================
+
+export const GET_ROTATION_SCHEDULE_QUERY = gql`
+  query GetRotationSchedule($groupId: String!) {
+    getRotationSchedule(groupId: $groupId) {
+      taskId
+      taskTitle
+      userId
+      username
+      avatarUrl
+      scheduledDate
+      rotationType
+      priority
+      points
+    }
+  }
+`
+
+export const GET_ROTATION_HISTORY_QUERY = gql`
+  query GetRotationHistory($groupId: String!, $limit: Int, $offset: Int) {
+    getRotationHistory(groupId: $groupId, limit: $limit, offset: $offset) {
+      items {
+        taskId
+        taskTitle
+        userId
+        username
+        avatarUrl
+        assignedAt
+        completedAt
+        status
+        rotationType
+        pointsEarned
+      }
+      total
+    }
+  }
+`
+
+export const GET_ROTATION_PATTERN_QUERY = gql`
+  query GetRotationPattern($groupId: String!) {
+    getRotationPattern(groupId: $groupId) {
+      rotationType
+      currentCycle
+      currentCycleIndex
+      lastRotationAt
+      nextRotationAt
+      activeMembers {
+        id
+        username
+        avatarUrl
+        isAway
+        awayUntil
+      }
+      awayMembers {
+        id
+        username
+        avatarUrl
+        isAway
+        awayUntil
+      }
+    }
+  }
+`
+
+// ============================================
+// GAMIFICATION QUERIES & MUTATIONS
+// ============================================
+
+export const GET_GROUP_REWARDS_QUERY = gql`
+  query GetGroupRewards($groupId: String!) {
+    getGroupRewards(groupId: $groupId) {
+      id
+      name
+      description
+      cost
+      isActive
+      imageUrl
+      createdAt
+      groupId
+      createdById
+    }
+  }
+`
+
+export const GET_MY_REWARD_REQUESTS_QUERY = gql`
+  query GetMyRewardRequests($groupId: String) {
+    getMyRewardRequests(groupId: $groupId) {
+      id
+      userId
+      rewardId
+      status
+      pointsSpent
+      requestedAt
+      approvedAt
+      rejectedAt
+      rejectionReason
+      approvedById
+    }
+  }
+`
+
+export const GET_GROUP_REWARD_REQUESTS_QUERY = gql`
+  query GetGroupRewardRequests($groupId: String!) {
+    getGroupRewardRequests(groupId: $groupId) {
+      id
+      userId
+      rewardId
+      status
+      pointsSpent
+      requestedAt
+      approvedAt
+      rejectedAt
+      rejectionReason
+      approvedById
+    }
+  }
+`
+
+export const CREATE_REWARD_MUTATION = gql`
+  mutation CreateReward($input: CreateRewardInput!) {
+    createReward(input: $input) {
+      id
+      name
+      description
+      cost
+      isActive
+      imageUrl
+      createdAt
+      groupId
+      createdById
+    }
+  }
+`
+
+export const UPDATE_REWARD_MUTATION = gql`
+  mutation UpdateReward($input: UpdateRewardInput!) {
+    updateReward(input: $input) {
+      id
+      name
+      description
+      cost
+      isActive
+      imageUrl
+      groupId
+    }
+  }
+`
+
+export const DELETE_REWARD_MUTATION = gql`
+  mutation DeleteReward($rewardId: String!, $groupId: String!) {
+    deleteReward(rewardId: $rewardId, groupId: $groupId)
+  }
+`
+
+export const REQUEST_REWARD_MUTATION = gql`
+  mutation RequestReward($input: RequestRewardInput!) {
+    requestReward(input: $input) {
+      id
+      userId
+      rewardId
+      status
+      pointsSpent
+      requestedAt
+    }
+  }
+`
+
+export const APPROVE_REWARD_REQUEST_MUTATION = gql`
+  mutation ApproveRewardRequest($input: ApproveRewardRequestInput!) {
+    approveRewardRequest(input: $input) {
+      id
+      status
+      approvedAt
+      rejectedAt
+      rejectionReason
+      approvedById
+    }
+  }
+`
+
+export const GET_POINT_BALANCE_QUERY = gql`
+  query GetPointBalance($groupId: String) {
+    getPointBalance(groupId: $groupId) {
+      totalEarned
+      totalSpentApproved
+      totalReservedPending
+      currentBalance
+      availableBalance
+    }
+  }
+`
+
+export const GET_POINT_TRANSACTION_HISTORY_QUERY = gql`
+  query GetPointTransactionHistory($groupId: String, $limit: Int, $offset: Int) {
+    getPointTransactionHistory(groupId: $groupId, limit: $limit, offset: $offset) {
+      items {
+        id
+        type
+        amount
+        description
+        relatedTaskId
+        relatedTaskTitle
+        relatedRewardId
+        relatedRewardName
+        createdAt
+      }
+      total
+    }
+  }
+`
+
+export const GET_GROUP_LEADERBOARD_QUERY = gql`
+  query GetGroupLeaderboard($groupId: String!) {
+    getGroupLeaderboard(groupId: $groupId) {
+      user {
+        id
+        username
+        avatarUrl
+        email
+      }
+      pointsEarned
+      rank
     }
   }
 `

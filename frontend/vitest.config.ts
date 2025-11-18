@@ -9,6 +9,16 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: './src/test/setup.ts',
     exclude: ['**/node_modules/**', '**/e2e/**'],
+    // Reduce file system pressure on Windows - run tests sequentially
+    pool: 'forks',
+    // Limit concurrent test files to avoid EMFILE error
+    maxConcurrency: 1,
+    isolate: true,
+    fileParallelism: false,
+    sequence: {
+      shuffle: false,
+      concurrent: false,
+    },
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
@@ -33,6 +43,8 @@ export default defineConfig({
       '@store': path.resolve(__dirname, './src/store'),
       '@types': path.resolve(__dirname, './src/types'),
       '@locales': path.resolve(__dirname, './src/locales'),
+      // Mock MUI icons in tests to avoid EMFILE error on Windows
+      '@mui/icons-material': path.resolve(__dirname, './src/test/__mocks__/mui-icons.ts'),
     },
   },
 })

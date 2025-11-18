@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { GroupService } from './group.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { AuditLogService } from '../audit-log/audit-log.service';
 import {
   CreateGroupInput,
   UpdateGroupInput,
@@ -82,6 +83,13 @@ describe('GroupService', () => {
         {
           provide: PrismaService,
           useValue: mockPrismaService,
+        },
+        {
+          provide: AuditLogService,
+          useValue: {
+            logRoleChange: jest.fn(),
+            createLog: jest.fn(),
+          },
         },
       ],
     }).compile();

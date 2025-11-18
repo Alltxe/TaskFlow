@@ -47,19 +47,27 @@ The frontend must enforce role-based UI rendering and navigation:
 - **Password Reset**: Not required in MVP (per source docs), but UI must be extensible.
 
 ### 3.2 Group Management  
+- **Groups List Page**: Dedicated page (`/groups`) displaying:
+  - List of user's groups (cards with name, member count, last activity)
+  - "+ Create Group" floating action button
+  - "Leave Group" option (participants only)
+  - Empty state with call to action
+  - Navigation to group tasks on card click
 - **Create Group Flow**: Multi-step form (wizard) with:  
   - Group name input  
   - Toggle for **Control Mode** (task approval required)  
   - Toggle for **Rotation Mode** (cyclic / randomized / disabled)  
-  - Toggle for **Gamification** (points & rewards enabled)  
-- **Group Dashboard**:  
-  - List of user’s groups (cards with name, member count, last activity)  
-  - “+ Create Group” button (admin only)  
-  - “Leave Group” option (participants only)  
+  - Toggle for **Gamification** (points & rewards enabled)
+- **Dashboard Page**: Personal task overview with:
+  - Weekly calendar view with date selector
+  - List of upcoming tasks for selected date
+  - Statistics summary (tasks this week, completed, pending, points earned)
+  - Filter by group
+  - Quick task actions (complete, view details)
 - **Invite Participants**:  
   - Generate one-time join link or token  
   - Display list of current members with roles  
-  - Allow admin to remove members or change roles  
+  - Allow admin to remove members or change roles
 
 ### 3.3 Task Management  
 - **Task Creation Form**: Must support:  
@@ -203,7 +211,8 @@ User’s preferred view must be persisted per group.
 | `/` | Public | Welcome / login redirect |
 | `/login` | Public | Authentication |
 | `/register` | Public | User registration |
-| `/dashboard` | Authenticated | User’s group list |
+| `/dashboard` | Authenticated | Personal task calendar and upcoming tasks |
+| `/groups` | Authenticated | User's group list |
 | `/group/:id` | Group member | Main group view (default: task list) |
 | `/group/:id/tasks` | Group member | Task management |
 | `/group/:id/rewards` | Group member (if enabled) | Reward catalog |
@@ -233,4 +242,8 @@ User’s preferred view must be persisted per group.
 - 100% coverage of user stories from ТЗ and Модель использования ИС  
 - All role-based permissions correctly enforced in UI  
 - Zero critical accessibility violations  
-- Core user flows (create group, assign task, claim reward) completed in ≤ 3 clicks  
+- Core user flows completed in ≤ 3 clicks:
+  - Create group → 3 clicks (FAB → fill form → submit)
+  - Assign task → 3 clicks (New Task → fill form → submit)
+  - Claim reward → 2 clicks (Request button → confirm)
+  - View upcoming tasks → 1 click (Dashboard already shows them)  

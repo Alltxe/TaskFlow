@@ -39,6 +39,12 @@ export class TaskType {
   @Field(() => Int)
   weight: number;
 
+  @Field(() => Boolean)
+  wasClaimedFromPool: boolean;
+
+  @Field(() => String, { nullable: true })
+  rejectionReason?: string | null;
+
   @Field(() => Date)
   createdAt: Date;
 
@@ -65,4 +71,10 @@ export class TaskType {
 
   @Field(() => GroupMemberUserType)
   createdBy: GroupMemberUserType;
+
+  @Field(() => [TaskType], { nullable: true })
+  childTasks?: TaskType[];
+
+  @Field(() => TaskType, { nullable: true })
+  parentTask?: TaskType | null;
 }

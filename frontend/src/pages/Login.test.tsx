@@ -1,39 +1,46 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, waitFor } from '@testing-library/react'
+import { screen, waitFor } from '@testing-library/react'
+import { render } from '../test/utils'
 import userEvent from '@testing-library/user-event'
-import { BrowserRouter } from 'react-router-dom'
 import { LoginPage } from './Login'
-import { useAuthStore } from '../store/authStore'
 
-// Mock useNavigate
-const mockNavigate = vi.fn()
-vi.mock('react-router-dom', async () => {
-  const actual = await vi.importActual('react-router-dom')
-  return {
-    ...actual,
-    useNavigate: () => mockNavigate,
-  }
+// Create mock functions using vi.hoisted to ensure they're available during hoisting
+const { mockLogin, mockLogout, mockAuthStore } = vi.hoisted(() => {
+  const mockLogin = vi.fn()
+  const mockLogout = vi.fn()
+  
+  const mockAuthStore = vi.fn((selector) => {
+    const store = {
+      login: mockLogin,
+      logout: mockLogout,
+      register: vi.fn(),
+      user: null,
+      accessToken: null,
+      refreshToken: null,
+      isAuthenticated: false,
+      updateUser: vi.fn(),
+      setTokens: vi.fn(),
+      initialize: vi.fn(),
+    }
+    return selector ? selector(store) : store
+  })
+  
+  return { mockLogin, mockLogout, mockAuthStore }
 })
 
 // Mock authStore
 vi.mock('../store/authStore', () => ({
-  useAuthStore: vi.fn(),
+  useAuthStore: mockAuthStore,
 }))
 
 describe('LoginPage', () => {
-  const mockLogin = vi.fn()
-
   beforeEach(() => {
-    vi.clearAllMocks()
-    vi.mocked(useAuthStore).mockReturnValue(mockLogin)
+    mockLogin.mockReset()
+    mockLogout.mockReset()
   })
 
   const renderLogin = () => {
-    return render(
-      <BrowserRouter>
-        <LoginPage />
-      </BrowserRouter>
-    )
+    return render(<LoginPage />)
   }
 
   it('should render login form', () => {
@@ -118,7 +125,7 @@ describe('LoginPage', () => {
     await user.click(submitButton)
 
     await waitFor(() => {
-      expect(mockNavigate).toHaveBeenCalledWith('/dashboard')
+      expect(mockLogin).toHaveBeenCalledWith('test@example.com', 'password123')
     })
   })
 

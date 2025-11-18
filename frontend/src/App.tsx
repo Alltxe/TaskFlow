@@ -7,6 +7,7 @@ import { globalStyles } from './lib/globalStyles'
 import { client } from './api/client'
 import { AppRouter } from './lib/router'
 import { useAuthStore } from './store/authStore'
+import { ToastNotifications } from './components/layout'
 
 function App() {
   const [error, setError] = useState<Error | null>(null)
@@ -43,6 +44,7 @@ function App() {
           <CssBaseline />
           <Global styles={globalStyles} />
           <AppRouter />
+          <ToastNotifications />
         </ThemeProvider>
       </UrqlProvider>
     )

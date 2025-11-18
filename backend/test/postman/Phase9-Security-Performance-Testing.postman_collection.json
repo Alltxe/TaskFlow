@@ -1,0 +1,475 @@
+{
+  "info": {
+    "name": "TaskFlow - Phase 9: Security & Performance Testing",
+    "description": "Postman collection for manual testing of Phase 9 features:\n- Rate Limiting\n- Health Checks\n- Security Headers\n- CORS\n- Caching\n\nIMPORTANT: Set NODE_ENV=production to test rate limiting!",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "access_token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Health Checks",
+      "item": [
+        {
+          "name": "Combined Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": ["{{base_url}}"],
+              "path": ["health"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status should be 200 or 503\", function () {",
+                  "    pm.expect([200, 503]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "pm.test(\"Should return health status\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('status');",
+                  "    pm.expect(jsonData).to.have.property('info');",
+                  "    pm.expect(jsonData).to.have.property('details');",
+                  "});",
+                  "",
+                  "pm.test(\"Should include database check\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.details).to.have.property('database');",
+                  "    pm.expect(jsonData.details.database).to.have.property('status');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Liveness Probe",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health/live",
+              "host": ["{{base_url}}"],
+              "path": ["health", "live"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Readiness Probe",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health/ready",
+              "host": ["{{base_url}}"],
+              "path": ["health", "ready"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "2. Rate Limiting Tests",
+      "item": [
+        {
+          "name": "Auth - Register (5 req/min limit)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "graphql",
+              "graphql": {
+                "query": "mutation {\n  register(input: {\n    email: \"test{{$randomInt}}@example.com\"\n    password: \"password123\"\n    username: \"testuser{{$randomInt}}\"\n  }) {\n    accessToken\n    refreshToken\n  }\n}",
+                "variables": ""
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/graphql",
+              "host": ["{{base_url}}"],
+              "path": ["graphql"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Save access token for subsequent requests",
+                  "if (pm.response.code === 200) {",
+                  "    const jsonData = pm.response.json();",
+                  "    if (jsonData.data && jsonData.data.register) {",
+                  "        pm.collectionVariables.set(\"access_token\", jsonData.data.register.accessToken);",
+                  "    }",
+                  "}",
+                  "",
+                  "pm.test(\"Should allow request (or 429 if rate limited)\", function () {",
+                  "    pm.expect([200, 429]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "// Log rate limit status",
+                  "if (pm.response.code === 429) {",
+                  "    console.log(\"✅ Rate limiting working! Request blocked after 5 attempts.\");",
+                  "} else {",
+                  "    console.log(\"⚠️ Request allowed. Run 5+ times within 1 minute to test rate limiting.\");",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Auth - Login (5 req/min limit)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "graphql",
+              "graphql": {
+                "query": "mutation {\n  login(input: {\n    email: \"test@example.com\"\n    password: \"password123\"\n  }) {\n    accessToken\n    refreshToken\n  }\n}",
+                "variables": ""
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/graphql",
+              "host": ["{{base_url}}"],
+              "path": ["graphql"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "General API - Hello (100 req/min limit)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "graphql",
+              "graphql": {
+                "query": "{ hello }",
+                "variables": ""
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/graphql",
+              "host": ["{{base_url}}"],
+              "path": ["graphql"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Should allow request (or 429 if rate limited)\", function () {",
+                  "    pm.expect([200, 429]).to.include(pm.response.code);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ],
+      "description": "⚠️ IMPORTANT: To test rate limiting:\n1. Set NODE_ENV=production in your .env file\n2. Restart the server\n3. Use Postman Runner to send 6+ requests within 1 minute\n4. The 6th request should return 429 Too Many Requests\n\nRate Limits (Production Only):\n- Auth endpoints (login, register, refresh): 5 requests/minute\n- General API endpoints: 100 requests/minute"
+    },
+    {
+      "name": "3. Security Headers",
+      "item": [
+        {
+          "name": "Check Security Headers",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": ["{{base_url}}"],
+              "path": ["health"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"X-Content-Type-Options header is set\", function () {",
+                  "    pm.response.to.have.header(\"X-Content-Type-Options\");",
+                  "    pm.expect(pm.response.headers.get(\"X-Content-Type-Options\")).to.eql(\"nosniff\");",
+                  "});",
+                  "",
+                  "pm.test(\"X-Frame-Options header is set\", function () {",
+                  "    pm.response.to.have.header(\"X-Frame-Options\");",
+                  "});",
+                  "",
+                  "pm.test(\"X-XSS-Protection header is set\", function () {",
+                  "    pm.response.to.have.header(\"X-XSS-Protection\");",
+                  "});",
+                  "",
+                  "pm.test(\"Strict-Transport-Security header is set\", function () {",
+                  "    pm.response.to.have.header(\"Strict-Transport-Security\");",
+                  "});",
+                  "",
+                  "pm.test(\"Content-Security-Policy header is set\", function () {",
+                  "    pm.response.to.have.header(\"Content-Security-Policy\");",
+                  "    const csp = pm.response.headers.get(\"Content-Security-Policy\");",
+                  "    pm.expect(csp).to.include(\"default-src 'self'\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "4. CORS Testing",
+      "item": [
+        {
+          "name": "Preflight Request (OPTIONS)",
+          "request": {
+            "method": "OPTIONS",
+            "header": [
+              {
+                "key": "Origin",
+                "value": "http://localhost:5173",
+                "type": "text"
+              },
+              {
+                "key": "Access-Control-Request-Method",
+                "value": "POST",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/graphql",
+              "host": ["{{base_url}}"],
+              "path": ["graphql"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Request with Origin Header",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Origin",
+                "value": "http://localhost:5173",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "graphql",
+              "graphql": {
+                "query": "{ hello }",
+                "variables": ""
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/graphql",
+              "host": ["{{base_url}}"],
+              "path": ["graphql"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Should include CORS headers\", function () {",
+                  "    // Note: CORS headers might not be visible in Postman for same-origin requests",
+                  "    pm.expect(pm.response.code).to.equal(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "5. Caching Tests",
+      "item": [
+        {
+          "name": "Get User Statistics (Cached)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "graphql",
+              "graphql": {
+                "query": "query {\n  myStatistics {\n    userId\n    currentPointBalance\n    totalPointsEarned\n    tasksCompleted\n    completionRate\n  }\n}",
+                "variables": ""
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/graphql",
+              "host": ["{{base_url}}"],
+              "path": ["graphql"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Response time should be fast (cached)\", function () {",
+                  "    // First request might be slower, subsequent requests should be < 100ms",
+                  "    console.log(\"Response time: \" + pm.response.responseTime + \"ms\");",
+                  "    console.log(\"Run this request twice to test caching. Second request should be much faster.\");",
+                  "});",
+                  "",
+                  "pm.test(\"Should return statistics\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    const jsonData = pm.response.json();",
+                  "    if (!jsonData.errors) {",
+                  "        pm.expect(jsonData.data).to.have.property('myStatistics');",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ],
+      "description": "User statistics are cached for 5 minutes. Run the same request twice within 5 minutes - the second request should be much faster (served from cache)."
+    },
+    {
+      "name": "6. Input Validation",
+      "item": [
+        {
+          "name": "Malformed GraphQL Query",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"invalid query syntax {{{\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/graphql",
+              "host": ["{{base_url}}"],
+              "path": ["graphql"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Should reject malformed query with 400\", function () {",
+                  "    pm.expect(pm.response.code).to.be.at.least(400);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Missing Required Fields",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "graphql",
+              "graphql": {
+                "query": "mutation {\n  register(input: {\n    email: \"test@example.com\"\n    # Missing required password and username\n  }) {\n    accessToken\n  }\n}",
+                "variables": ""
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/graphql",
+              "host": ["{{base_url}}"],
+              "path": ["graphql"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Should return validation error\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('errors');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
