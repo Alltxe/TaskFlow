@@ -1,5 +1,7 @@
-﻿import 'package:flutter/material.dart';
-// `flutter_localizations` is included via `AppLocalizations.localizationsDelegates`.
+﻿import 'dart:async';
+
+import 'package:app_links/app_links.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:mobile/core/router/app_router.dart';
@@ -14,11 +16,68 @@ void main() async {
   runApp(const ProviderScope(child: TaskFlowApp()));
 }
 
-class TaskFlowApp extends ConsumerWidget {
+class TaskFlowApp extends ConsumerStatefulWidget {
   const TaskFlowApp({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<TaskFlowApp> createState() => _TaskFlowAppState();
+}
+
+class _TaskFlowAppState extends ConsumerState<TaskFlowApp> {
+  late AppLinks _appLinks;
+  StreamSubscription? _linkSubscription;
+
+  @override
+  void initState() {
+    super.initState();
+    _appLinks = AppLinks();
+    _initDeepLinks();
+  }
+
+  Future<void> _initDeepLinks() async {
+    // Handle initial deep link when app is opened from closed state
+    try {
+      final initialUri = await _appLinks.getInitialLink();
+      if (initialUri != null) {
+        _handleDeepLink(initialUri);
+      }
+    } catch (e) {
+      debugPrint('Error getting initial link: $e');
+    }
+
+    // Handle deep links when app is already running
+    _linkSubscription = _appLinks.uriLinkStream.listen(
+      (Uri? uri) {
+        if (uri != null) {
+          _handleDeepLink(uri);
+        }
+      },
+      onError: (err) {
+        debugPrint('Error listening to link stream: $err');
+      },
+    );
+  }
+
+  void _handleDeepLink(Uri uri) {
+    // Handle taskflow://invite/{token}
+    if (uri.scheme == 'taskflow' && uri.host == 'invite') {
+      final token = uri.pathSegments.isNotEmpty ? uri.pathSegments[0] : null;
+      if (token != null) {
+        // Navigate to join group screen
+        final router = ref.read(routerProvider);
+        router.go('/join/$token');
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _linkSubscription?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final graphqlClientNotifier = ref.watch(graphqlClientNotifierProvider);
     final router = ref.watch(routerProvider);
 

@@ -143,6 +143,8 @@
     "roleChangedTo": "Роль изменена на {newRole}",
     "joinedSuccessfully": "Успешно присоединились к \"{groupName}\"!",
     "joinGroupTitle": "Присоединиться к группе",
+    "loginRequired": "Требуется вход",
+    "pleaseLoginToJoinGroup": "Пожалуйста, войдите или зарегистрируйтесь, чтобы присоединиться к группе",
     "joiningGroup": "Присоединение к группе...",
     "pleaseWait": "Пожалуйста, подождите",
     "failedToJoinGroup": "Не удалось присоединиться к группе",
@@ -376,5 +378,11 @@
         "placeholders": {
             "date": {}
         }
-    }
+    },
+    "rotationTypeLabel": "Тип ротации",
+    "rotationTypeRoundRobin": "По очереди",
+    "rotationTypeRandom": "Случайно",
+    "rotationTypeLoadBalancing": "Балансировка нагрузки",
+    "rotationTypeDisabled": "Отключено (Вручную)",
+    "pleaseSelectDeadline": "Пожалуйста, выберите срок"
 }

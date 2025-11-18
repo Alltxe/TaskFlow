@@ -153,14 +153,14 @@ export const GroupLayout: FC = () => {
                 iconPosition="start"
               />
             )}
-            {isAdmin && (
+            {/* {isAdmin && (
               <Tab
                 label="Проверка"
                 value={`/group/${groupId}/review`}
                 icon={<ReviewIcon />}
                 iconPosition="start"
               />
-            )}
+            )} */}
             {isAdmin && (
               <Tab
                 label="Участники"

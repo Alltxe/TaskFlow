@@ -111,53 +111,108 @@ class _GroupRewardsScreenState extends ConsumerState<GroupRewardsScreen> {
 
     return RefreshIndicator(
       onRefresh: _loadRewards,
-      child: ListView.builder(
+      child: GridView.builder(
         padding: const EdgeInsets.all(16),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          childAspectRatio: 0.75,
+          crossAxisSpacing: 12,
+          mainAxisSpacing: 12,
+        ),
         itemCount: _rewards.length,
         itemBuilder: (context, index) {
           final reward = _rewards[index];
+
           return Card(
-            margin: const EdgeInsets.only(bottom: 12),
-            child: ListTile(
-              contentPadding: const EdgeInsets.all(16),
-              leading: CircleAvatar(
-                radius: 30,
-                backgroundColor: colorScheme.primaryContainer,
-                backgroundImage: reward.imageUrl != null ? NetworkImage(reward.imageUrl!) : null,
-                child: reward.imageUrl == null
-                    ? Icon(Icons.card_giftcard, color: colorScheme.onPrimaryContainer)
-                    : null,
-              ),
-              title: Text(reward.name, style: theme.textTheme.titleMedium),
-              subtitle: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+            elevation: 0,
+            clipBehavior: Clip.antiAlias,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+              side: BorderSide(color: colorScheme.outline.withValues(alpha: 0.2)),
+            ),
+            child: InkWell(
+              onTap: () {
+                // TODO: Implement request reward
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(AppLocalizations.of(context)!.rewardRequestComingSoon),
+                  ),
+                );
+              },
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  if (reward.description != null) ...[
-                    const SizedBox(height: 4),
-                    Text(reward.description!, maxLines: 2, overflow: TextOverflow.ellipsis),
-                  ],
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Icon(Icons.stars, size: 16, color: colorScheme.primary),
-                      const SizedBox(width: 4),
-                      Text(
-                        '${reward.cost} points',
-                        style: TextStyle(color: colorScheme.primary, fontWeight: FontWeight.bold),
-                      ),
-                    ],
+                  // Image or icon
+                  AspectRatio(
+                    aspectRatio: 16 / 9,
+                    child: reward.imageUrl != null
+                        ? Image.network(
+                            reward.imageUrl!,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Container(
+                                color: colorScheme.primaryContainer,
+                                child: Icon(
+                                  Icons.card_giftcard,
+                                  size: 40,
+                                  color: colorScheme.onPrimaryContainer,
+                                ),
+                              );
+                            },
+                          )
+                        : Container(
+                            color: colorScheme.primaryContainer,
+                            child: Icon(
+                              Icons.card_giftcard,
+                              size: 40,
+                              color: colorScheme.onPrimaryContainer,
+                            ),
+                          ),
+                  ),
+
+                  // Content
+                  Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          reward.name,
+                          style: theme.textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.stars,
+                              size: 16,
+                              color: colorScheme.primary,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              '${reward.cost}',
+                              style: theme.textTheme.labelLarge?.copyWith(
+                                color: colorScheme.primary,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const Spacer(),
+                            Icon(
+                              Icons.arrow_forward,
+                              size: 16,
+                              color: colorScheme.onSurfaceVariant,
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ],
-              ),
-              trailing: FilledButton.tonalIcon(
-                onPressed: () {
-                  // TODO: Implement request reward
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(AppLocalizations.of(context)!.rewardRequestComingSoon)),
-                  );
-                },
-                icon: const Icon(Icons.redeem),
-                label: Text(AppLocalizations.of(context)!.request),
               ),
             ),
           );

@@ -1603,7 +1603,7 @@
         "isOneOf": null,
         "fields": [
           {
-            "name": "points",
+            "name": "pointsEarned",
             "description": null,
             "args": [],
             "type": {
@@ -1635,15 +1635,15 @@
             "deprecationReason": null
           },
           {
-            "name": "userId",
+            "name": "user",
             "description": null,
             "args": [],
             "type": {
               "kind": "NON_NULL",
               "name": null,
               "ofType": {
-                "kind": "SCALAR",
-                "name": "ID",
+                "kind": "OBJECT",
+                "name": "UserType",
                 "ofType": null
               }
             },

@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 import 'package:mobile/data/models/group.dart';
 import 'package:mobile/data/models/group_member.dart';
 import 'package:mobile/data/providers/auth_providers.dart';
 import 'package:mobile/data/providers/group_providers.dart';
 import 'package:mobile/l10n/app_localizations.dart';
 import 'package:mobile/presentation/screens/groups/group_leaderboard_screen.dart';
+import 'package:mobile/presentation/screens/groups/group_members_screen.dart';
 import 'package:mobile/presentation/screens/groups/group_rewards_screen.dart';
+import 'package:mobile/presentation/screens/groups/group_settings_screen.dart';
 import 'package:mobile/presentation/screens/tasks/tasks_screen.dart';
 
 /// Layout for group screens with tabs
@@ -49,8 +49,10 @@ class _GroupLayoutScreenState extends ConsumerState<GroupLayoutScreen>
     final authState = ref.read(authStateProvider);
     if (authState.status == AuthStatus.authenticated && authState.user != null) {
       _currentUserId = authState.user!.id;
+      print('DEBUG: Current user ID: $_currentUserId');
     } else {
       _currentUserId = null;
+      print('DEBUG: No authenticated user');
     }
 
     // Load group details
@@ -65,24 +67,51 @@ class _GroupLayoutScreenState extends ConsumerState<GroupLayoutScreen>
 
     setState(() {
       _isLoading = false;
-      groupResult.fold((failure) {}, (group) => _group = group);
-      membersResult.fold((failure) {}, (members) => _members = members);
+      groupResult.fold(
+        (failure) {
+          print('DEBUG: Failed to load group: ${failure.message}');
+        },
+        (group) {
+          _group = group;
+          print('DEBUG: Group loaded: ${group.name}');
+        },
+      );
+      membersResult.fold(
+        (failure) {
+          print('DEBUG: Failed to load members: ${failure.message}');
+        },
+        (members) {
+          _members = members;
+          print('DEBUG: Members loaded: ${members.length}');
+          for (var member in members) {
+            print(
+              'DEBUG: Member - userId: ${member.userId}, role: ${member.role}, username: ${member.user.username}',
+            );
+          }
+        },
+      );
     });
+
+    // Check admin status
+    print('DEBUG: Is admin check: $_isAdmin');
 
     // Initialize tab controller after loading group
     if (_group != null) {
       _tabController = TabController(length: _getTabsCount(), vsync: this);
+      print('DEBUG: Tab count: ${_getTabsCount()}');
       setState(() {});
     }
   }
 
   bool get _isAdmin {
     if (_currentUserId == null || _members == null) return false;
-    final currentMember = _members!.firstWhere(
-      (m) => m.userId == _currentUserId,
-      orElse: () => _members!.first,
-    );
-    return currentMember.role == 'ADMIN';
+    try {
+      final currentMember = _members!.firstWhere((m) => m.userId == _currentUserId);
+      return currentMember.role == 'ADMIN';
+    } catch (e) {
+      // User not found in members list
+      return false;
+    }
   }
 
   int _getTabsCount() {
@@ -93,9 +122,9 @@ class _GroupLayoutScreenState extends ConsumerState<GroupLayoutScreen>
     }
 
     if (_isAdmin) {
-      if (_group?.requiresApproval == true) {
-        count++; // Approval tab
-      }
+      // if (_group?.requiresApproval == true) {
+      //   count++; // Approval tab
+      // }
       count += 2; // Members and Settings
     }
 
@@ -124,14 +153,14 @@ class _GroupLayoutScreenState extends ConsumerState<GroupLayoutScreen>
     }
 
     if (_isAdmin) {
-      if (_group?.requiresApproval == true) {
-        tabs.add(
-          Tab(
-            text: AppLocalizations.of(context)!.approval,
-            icon: const Icon(Icons.check_circle, size: 20),
-          ),
-        );
-      }
+      // if (_group?.requiresApproval == true) {
+      //   tabs.add(
+      //     Tab(
+      //       text: AppLocalizations.of(context)!.approval,
+      //       icon: const Icon(Icons.check_circle, size: 20),
+      //     ),
+      //   );
+      // }
       tabs.addAll([
         Tab(text: AppLocalizations.of(context)!.members, icon: const Icon(Icons.people, size: 20)),
         Tab(
@@ -192,9 +221,9 @@ class _GroupLayoutScreenState extends ConsumerState<GroupLayoutScreen>
     }
 
     if (_isAdmin) {
-      if (_group?.requiresApproval == true) {
-        views.add(_buildApprovalTab());
-      }
+      // if (_group?.requiresApproval == true) {
+      //   views.add(_buildApprovalTab());
+      // }
       views.addAll([_buildMembersTab(), _buildSettingsTab()]);
     }
 
@@ -214,136 +243,12 @@ class _GroupLayoutScreenState extends ConsumerState<GroupLayoutScreen>
     return GroupLeaderboardScreen(groupId: widget.groupId);
   }
 
-  Widget _buildApprovalTab() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.check_circle, size: 64),
-          const SizedBox(height: 16),
-          Text(AppLocalizations.of(context)!.taskApproval),
-          const SizedBox(height: 8),
-          Text(
-            AppLocalizations.of(context)!.comingSoon,
-            style: Theme.of(context).textTheme.bodySmall,
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildMembersTab() {
-    if (_members == null) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    return RefreshIndicator(
-      onRefresh: _loadData,
-      child: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          Text(
-            AppLocalizations.of(context)!.groupMembersCount(_members!.length),
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
-          const SizedBox(height: 16),
-          ..._members!.map((member) {
-            final isCurrentUser = member.userId == _currentUserId;
-            return Card(
-              margin: const EdgeInsets.only(bottom: 8),
-              child: ListTile(
-                leading: CircleAvatar(
-                  backgroundImage: member.user.avatarUrl != null
-                      ? NetworkImage(member.user.avatarUrl!)
-                      : null,
-                  child: member.user.avatarUrl == null
-                      ? Text(member.user.username[0].toUpperCase())
-                      : null,
-                ),
-                title: Row(
-                  children: [
-                    Text(member.user.username),
-                    if (isCurrentUser) ...[
-                      const SizedBox(width: 8),
-                      Chip(
-                        label: Text(AppLocalizations.of(context)!.youLabel),
-                        labelStyle: const TextStyle(fontSize: 10),
-                        visualDensity: VisualDensity.compact,
-                        padding: EdgeInsets.zero,
-                      ),
-                    ],
-                  ],
-                ),
-                subtitle: Text(
-                  AppLocalizations.of(
-                    context,
-                  )!.joinedAt(DateFormat('MMM d, y').format(member.joinedAt)),
-                ),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Chip(
-                      label: Text(member.role),
-                      backgroundColor: member.role == 'ADMIN'
-                          ? Theme.of(context).colorScheme.primaryContainer
-                          : Theme.of(context).colorScheme.secondaryContainer,
-                    ),
-                    if (_isAdmin && !isCurrentUser) ...[
-                      const SizedBox(width: 8),
-                      PopupMenuButton<String>(
-                        onSelected: (value) {
-                          if (value == 'remove') {
-                            _removeMember(member);
-                          } else if (value == 'promote' || value == 'demote') {
-                            _changeRole(member);
-                          }
-                        },
-                        itemBuilder: (context) => [
-                          PopupMenuItem(
-                            value: member.role == 'ADMIN' ? 'demote' : 'promote',
-                            child: Text(
-                              member.role == 'ADMIN'
-                                  ? AppLocalizations.of(context)!.makeMember
-                                  : AppLocalizations.of(context)!.makeAdmin,
-                            ),
-                          ),
-                          PopupMenuItem(
-                            value: 'remove',
-                            child: Text(AppLocalizations.of(context)!.removeFromGroup),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-            );
-          }),
-        ],
-      ),
-    );
+    return GroupMembersScreen(groupId: widget.groupId);
   }
 
   Widget _buildSettingsTab() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.settings, size: 64),
-            const SizedBox(height: 16),
-            Text(AppLocalizations.of(context)!.useSettingsIconInAppBar),
-            const SizedBox(height: 24),
-            FilledButton.icon(
-              onPressed: () => context.push('/groups/${widget.groupId}/settings'),
-              icon: const Icon(Icons.settings),
-              label: Text(AppLocalizations.of(context)!.goToSettings),
-            ),
-          ],
-        ),
-      ),
-    );
+    return GroupSettingsContent(groupId: widget.groupId, group: _group!);
   }
 
   Future<void> _removeMember(GroupMember member) async {

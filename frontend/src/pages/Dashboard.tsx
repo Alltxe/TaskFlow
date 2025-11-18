@@ -166,13 +166,13 @@ export function DashboardPage() {
   }
 
   return (
-    <Box sx={{ maxWidth: 1400, mx: 'auto' }}>
+    <Box sx={{ maxWidth: { xs: '100%', sm: 600, md: 900 }, mx: 'auto', px: { xs: 0, sm: 3 } }}>
       {/* Header Section */}
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" fontWeight={700} sx={{ mb: 1 }}>
+      <Box sx={{ mb: { xs: 2, sm: 4 }, px: { xs: 2, sm: 0 } }}>
+        <Typography variant="h4" fontWeight={700} sx={{ mb: 1, fontSize: { xs: '1.5rem', sm: '2rem' } }}>
           Мои задачи
         </Typography>
-        <Typography variant="body1" color="text.secondary">
+        <Typography variant="body1" color="text.secondary" sx={{ fontSize: { xs: '0.875rem', sm: '1rem' } }}>
           {selectedDate &&
             `${selectedDate.getDate()} ${monthNames[selectedDate.getMonth()]} ${selectedDate.getFullYear()} г.`}
         </Typography>
@@ -180,57 +180,57 @@ export function DashboardPage() {
 
       {/* Statistics Cards */}
       {stats && (
-        <Grid container spacing={2} sx={{ mb: 4 }}>
-          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-            <Paper sx={{ p: 2, textAlign: 'center' }}>
-              <TaskIcon sx={{ fontSize: 32, color: 'primary.main', mb: 1 }} />
-              <Typography variant="h4" fontWeight={700}>
+        <Grid container spacing={2} sx={{ mb: { xs: 2, sm: 4 }, px: { xs: 2, sm: 0 } }}>
+          <Grid size={{ xs: 6, sm: 6, md: 4 }}>
+            <Paper sx={{ p: { xs: 1.5, sm: 2 }, textAlign: 'center' }}>
+              <TaskIcon sx={{ fontSize: { xs: 24, sm: 32 }, color: 'primary.main', mb: 1 }} />
+              <Typography variant="h4" fontWeight={700} sx={{ fontSize: { xs: '1.5rem', sm: '2rem' } }}>
                 {stats.tasksAssigned}
               </Typography>
-              <Typography variant="body2" color="text.secondary">
+              <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.7rem', sm: '0.875rem' } }}>
                 Назначено задач
               </Typography>
             </Paper>
           </Grid>
-          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-            <Paper sx={{ p: 2, textAlign: 'center' }}>
-              <CheckIcon sx={{ fontSize: 32, color: 'success.main', mb: 1 }} />
-              <Typography variant="h4" fontWeight={700}>
+          <Grid size={{ xs: 6, sm: 6, md: 4 }}>
+            <Paper sx={{ p: { xs: 1.5, sm: 2 }, textAlign: 'center' }}>
+              <CheckIcon sx={{ fontSize: { xs: 24, sm: 32 }, color: 'success.main', mb: 1 }} />
+              <Typography variant="h4" fontWeight={700} sx={{ fontSize: { xs: '1.5rem', sm: '2rem' } }}>
                 {stats.tasksCompleted}
               </Typography>
-              <Typography variant="body2" color="text.secondary">
+              <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.7rem', sm: '0.875rem' } }}>
                 Выполнено задач
               </Typography>
             </Paper>
           </Grid>
-          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-            <Paper sx={{ p: 2, textAlign: 'center' }}>
-              <PointsIcon sx={{ fontSize: 32, color: 'warning.main', mb: 1 }} />
-              <Typography variant="h4" fontWeight={700}>
+          <Grid size={{ xs: 6, sm: 6, md: 4 }}>
+            <Paper sx={{ p: { xs: 1.5, sm: 2 }, textAlign: 'center' }}>
+              <PointsIcon sx={{ fontSize: { xs: 24, sm: 32 }, color: 'warning.main', mb: 1 }} />
+              <Typography variant="h4" fontWeight={700} sx={{ fontSize: { xs: '1.5rem', sm: '2rem' } }}>
                 {stats.currentPointBalance}
               </Typography>
-              <Typography variant="body2" color="text.secondary">
+              <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.7rem', sm: '0.875rem' } }}>
                 Очков
               </Typography>
             </Paper>
           </Grid>
-          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-            <Paper sx={{ p: 2, textAlign: 'center' }}>
-              <CheckIcon sx={{ fontSize: 32, color: 'info.main', mb: 1 }} />
-              <Typography variant="h4" fontWeight={700}>
-                {Math.round(stats.completionRate * 100)}%
+          {/* <Grid size={{ xs: 6, sm: 6, md: 3 }}>
+            <Paper sx={{ p: { xs: 1.5, sm: 2 }, textAlign: 'center' }}>
+              <CheckIcon sx={{ fontSize: { xs: 24, sm: 32 }, color: 'info.main', mb: 1 }} />
+              <Typography variant="h4" fontWeight={700} sx={{ fontSize: { xs: '1.5rem', sm: '2rem' } }}>
+                {Math.round(stats.completionRate)}%
               </Typography>
-              <Typography variant="body2" color="text.secondary">
+              <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.7rem', sm: '0.875rem' } }}>
                 Процент выполнения
               </Typography>
             </Paper>
-          </Grid>
+          </Grid> */}
         </Grid>
       )}
 
       {/* Group Filter */}
-      <Box sx={{ mb: 3 }}>
-        <FormControl size="small" sx={{ minWidth: 200 }}>
+      <Box sx={{ mb: { xs: 2, sm: 3 }, px: { xs: 2, sm: 0 } }}>
+        <FormControl size="small" sx={{ minWidth: { xs: '100%', sm: 200 } }}>
           <InputLabel>Группа</InputLabel>
           <Select
             value={selectedGroup}
@@ -248,27 +248,38 @@ export function DashboardPage() {
       </Box>
 
       {/* Week Calendar Strip */}
-      <Paper 
+      <Paper
         elevation={0}
-        sx={{ 
-          p: 2.5,
-          mb: 4,
-          borderRadius: 3,
+        sx={{
+          p: { xs: 1.5, sm: 2.5 },
+          mb: { xs: 2, sm: 4 },
+          mx: { xs: 2, sm: 0 },
+          borderRadius: { xs: 2, sm: 3 },
           border: '1px solid',
           borderColor: 'divider',
           bgcolor: 'background.paper'
         }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <IconButton onClick={handlePrevPeriod} size="small">
+          <IconButton onClick={handlePrevPeriod} size="small" sx={{ flexShrink: 0 }}>
             <ChevronLeftIcon />
           </IconButton>
-          
-          <Box sx={{ display: 'flex', gap: 1.5, flex: 1, justifyContent: 'center' }}>
+
+          <Box
+            sx={{
+              display: 'flex',
+              gap: { xs: 0.5, sm: 1.5 },
+              flex: 1,
+              justifyContent: 'center',
+              overflowX: 'auto',
+              '&::-webkit-scrollbar': { display: 'none' },
+              scrollbarWidth: 'none'
+            }}
+          >
             {datesList.map((date) => {
               const isSelected = selectedDate && date.toDateString() === selectedDate.toDateString()
               const isToday = date.toDateString() === today.toDateString()
-              
+
               return (
                 <Box
                   key={date.toISOString()}
@@ -277,39 +288,41 @@ export function DashboardPage() {
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
-                    gap: 0.5,
-                    py: 1.5,
-                    px: 2.5,
-                    minWidth: 70,
-                    borderRadius: 2,
+                    gap: { xs: 0.25, sm: 0.5 },
+                    py: { xs: 1, sm: 1.5 },
+                    px: { xs: 1, sm: 2.5 },
+                    minWidth: { xs: 45, sm: 70 },
+                    borderRadius: { xs: 1.5, sm: 2 },
                     cursor: 'pointer',
                     bgcolor: isSelected ? 'primary.main' : 'transparent',
                     color: isSelected ? 'primary.contrastText' : 'text.primary',
                     transition: 'all 0.2s',
                     border: '2px solid',
                     borderColor: isSelected ? 'primary.main' : isToday ? 'primary.light' : 'transparent',
+                    flexShrink: 0,
                     '&:hover': {
                       bgcolor: isSelected ? 'primary.dark' : 'action.hover',
                     },
                   }}
                 >
-                  <Typography 
-                    variant="caption" 
-                    sx={{ 
+                  <Typography
+                    variant="caption"
+                    sx={{
                       fontWeight: 600,
-                      fontSize: '0.7rem',
+                      fontSize: { xs: '0.6rem', sm: '0.7rem' },
                       textTransform: 'uppercase',
-                      letterSpacing: 0.5,
+                      letterSpacing: { xs: 0.3, sm: 0.5 },
                       opacity: isSelected ? 1 : 0.7
                     }}
                   >
                     {getWeekDay(date)}
                   </Typography>
-                  <Typography 
-                    variant="h6" 
-                    sx={{ 
+                  <Typography
+                    variant="h6"
+                    sx={{
                       fontWeight: 700,
-                      lineHeight: 1
+                      lineHeight: 1,
+                      fontSize: { xs: '1rem', sm: '1.25rem' }
                     }}
                   >
                     {date.getDate()}
@@ -319,16 +332,16 @@ export function DashboardPage() {
             })}
           </Box>
 
-          <IconButton onClick={handleNextPeriod} size="small">
+          <IconButton onClick={handleNextPeriod} size="small" sx={{ flexShrink: 0 }}>
             <ChevronRightIcon />
           </IconButton>
         </Box>
       </Paper>
 
       {/* Tasks Section */}
-      <Box>
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
-          <Typography variant="h6" fontWeight={600}>
+      <Box sx={{ px: { xs: 2, sm: 0 } }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: { xs: 2, sm: 3 }, flexWrap: 'wrap', gap: 1 }}>
+          <Typography variant="h6" fontWeight={600} sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }}>
             Задачи на выбранную дату
           </Typography>
           <Chip
@@ -339,7 +352,7 @@ export function DashboardPage() {
           />
         </Box>
 
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: { xs: 1.5, sm: 2 } }}>
           {filteredTasks.length === 0 ? (
             <Card
               elevation={0}
@@ -349,8 +362,8 @@ export function DashboardPage() {
                 borderRadius: 2,
               }}
             >
-              <CardContent sx={{ textAlign: 'center', py: 6 }}>
-                <Typography variant="body1" color="text.secondary">
+              <CardContent sx={{ textAlign: 'center', py: { xs: 4, sm: 6 } }}>
+                <Typography variant="body1" color="text.secondary" sx={{ fontSize: { xs: '0.875rem', sm: '1rem' } }}>
                   Нет запланированных задач на эту дату
                 </Typography>
               </CardContent>
@@ -377,12 +390,12 @@ export function DashboardPage() {
                     },
                   }}
                 >
-                  <CardContent sx={{ p: 2.5 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
+                  <CardContent sx={{ p: { xs: 1.5, sm: 2.5 } }}>
+                    <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: { xs: 1.5, sm: 2 } }}>
                       <Box
                         sx={{
-                          width: 40,
-                          height: 40,
+                          width: { xs: 32, sm: 40 },
+                          height: { xs: 32, sm: 40 },
                           borderRadius: 1.5,
                           bgcolor: isCompleted ? 'success.light' : 'primary.light',
                           display: 'flex',
@@ -394,39 +407,40 @@ export function DashboardPage() {
                         <CheckIcon
                           sx={{
                             color: isCompleted ? 'success.dark' : 'primary.main',
-                            fontSize: 24,
+                            fontSize: { xs: 20, sm: 24 },
                           }}
                         />
                       </Box>
 
-                      <Box sx={{ flex: 1 }}>
+                      <Box sx={{ flex: 1, minWidth: 0 }}>
                         <Typography
                           variant="body1"
                           fontWeight={600}
                           sx={{
                             mb: 1,
                             textDecoration: isCompleted ? 'line-through' : 'none',
+                            fontSize: { xs: '0.875rem', sm: '1rem' },
                           }}
                         >
                           {task.title}
                         </Typography>
 
-                        <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center', flexWrap: 'wrap' }}>
+                        <Box sx={{ display: 'flex', gap: { xs: 1, sm: 1.5 }, alignItems: 'center', flexWrap: 'wrap' }}>
                           <Chip
                             label={getPriorityLabel(task.priority)}
                             size="small"
                             color={getPriorityColor(task.priority)}
-                            sx={{ fontSize: '0.75rem' }}
+                            sx={{ fontSize: { xs: '0.65rem', sm: '0.75rem' }, height: { xs: 20, sm: 24 } }}
                           />
                           <Chip
                             label={`${task.points} очков`}
                             size="small"
                             variant="outlined"
-                            sx={{ fontSize: '0.75rem' }}
+                            sx={{ fontSize: { xs: '0.65rem', sm: '0.75rem' }, height: { xs: 20, sm: 24 } }}
                           />
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                            <TimeIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
-                            <Typography variant="caption" color="text.secondary">
+                            <TimeIcon sx={{ fontSize: { xs: 14, sm: 16 }, color: 'text.secondary' }} />
+                            <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.7rem', sm: '0.75rem' } }}>
                               {timeStr}
                             </Typography>
                           </Box>

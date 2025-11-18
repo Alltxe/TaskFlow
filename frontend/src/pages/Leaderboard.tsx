@@ -124,10 +124,10 @@ export const Leaderboard: FC = () => {
 
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
           {leaderboardEntries.map((entry: any) => {
-            const isCurrentUser = entry.userId === user?.id
+            const isCurrentUser = entry.user.id === user?.id
             return (
               <Card
-                key={entry.userId}
+                key={entry.user.id}
                 sx={{
                   border: isCurrentUser ? '2px solid' : '1px solid',
                   borderColor: isCurrentUser ? 'primary.main' : 'divider',
@@ -144,11 +144,11 @@ export const Leaderboard: FC = () => {
                     />
                     <Box sx={{ flexGrow: 1 }}>
                       <Typography variant="body1" fontWeight={isCurrentUser ? 600 : 400}>
-                        ID: {entry.userId}
+                        {entry.user.username}
                         {isCurrentUser && ' (Вы)'}
                       </Typography>
                       <Typography variant="body2" color="primary" fontWeight={600}>
-                        {formatPoints(entry.points)}
+                        {formatPoints(entry.pointsEarned)}
                       </Typography>
                     </Box>
                   </Box>
@@ -183,10 +183,10 @@ export const Leaderboard: FC = () => {
           </TableHead>
           <TableBody>
             {leaderboardEntries.map((entry: any) => {
-              const isCurrentUser = entry.userId === user?.id
+              const isCurrentUser = entry.user.id === user?.id
               return (
                 <TableRow
-                  key={entry.userId}
+                  key={entry.user.id}
                   sx={{
                     bgcolor: isCurrentUser ? 'primary.50' : 'inherit',
                     borderLeft: isCurrentUser ? '4px solid' : 'none',
@@ -209,7 +209,7 @@ export const Leaderboard: FC = () => {
                   <TableCell>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                       <Typography variant="body1" fontWeight={isCurrentUser ? 600 : 400}>
-                        ID: {entry.userId}
+                        {entry.user.username}
                       </Typography>
                       {isCurrentUser && (
                         <Chip label="Вы" size="small" color="primary" />
@@ -218,7 +218,7 @@ export const Leaderboard: FC = () => {
                   </TableCell>
                   <TableCell align="right">
                     <Typography variant="body1" fontWeight={600} color="primary.main">
-                      {formatPoints(entry.points)}
+                      {formatPoints(entry.pointsEarned)}
                     </Typography>
                   </TableCell>
                 </TableRow>

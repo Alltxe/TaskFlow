@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/data/models/join_group_request.dart';
+import 'package:mobile/data/providers/auth_providers.dart';
 import 'package:mobile/data/providers/group_providers.dart';
 import 'package:mobile/l10n/app_localizations.dart';
 import 'package:mobile/presentation/providers/group_notifier.dart';
@@ -23,9 +24,12 @@ class _JoinGroupScreenState extends ConsumerState<JoinGroupScreen> {
   @override
   void initState() {
     super.initState();
-    // Auto-join on screen load
+    // Auto-join on screen load if authenticated
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _joinGroup();
+      final authState = ref.read(authStateProvider);
+      if (authState.status == AuthStatus.authenticated) {
+        _joinGroup();
+      }
     });
   }
 
@@ -76,6 +80,8 @@ class _JoinGroupScreenState extends ConsumerState<JoinGroupScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final authState = ref.watch(authStateProvider);
+    final isAuthenticated = authState.status == AuthStatus.authenticated;
 
     return Scaffold(
       appBar: AppBar(title: Text(AppLocalizations.of(context)!.joinGroupTitle)),
@@ -85,7 +91,47 @@ class _JoinGroupScreenState extends ConsumerState<JoinGroupScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              if (_isJoining) ...[
+              if (!isAuthenticated) ...[
+                Icon(Icons.login, size: 64, color: colorScheme.primary),
+                const SizedBox(height: 24),
+                Text(
+                  AppLocalizations.of(context)!.loginRequired,
+                  style: theme.textTheme.titleLarge,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  AppLocalizations.of(context)!.pleaseLoginToJoinGroup,
+                  style: theme.textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 24),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    FilledButton.icon(
+                      onPressed: () => context.go('/login'),
+                      icon: const Icon(Icons.login),
+                      label: Text(AppLocalizations.of(context)!.login),
+                    ),
+                    const SizedBox(width: 12),
+                    FilledButton.tonalIcon(
+                      onPressed: () => context.go('/register'),
+                      icon: const Icon(Icons.person_add),
+                      label: Text(AppLocalizations.of(context)!.register),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Invite token: ${widget.inviteToken}',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                    fontFamily: 'monospace',
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ] else if (_isJoining) ...[
                 const CircularProgressIndicator(),
                 const SizedBox(height: 24),
                 Text(AppLocalizations.of(context)!.joiningGroup, style: theme.textTheme.titleLarge),

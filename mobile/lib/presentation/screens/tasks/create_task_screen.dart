@@ -4,17 +4,15 @@ import 'package:go_router/go_router.dart';
 import 'package:mobile/data/models/create_task_request.dart';
 import 'package:mobile/data/models/task_enums.dart';
 import 'package:mobile/domain/usecases/task/task_usecase_providers.dart';
+import 'package:mobile/l10n/app_localizations.dart';
+import 'package:mobile/presentation/providers/task_state_provider.dart';
 
 /// Create/Edit Task Screen with form and validation (PRD 3.4.4, 3.4.5)
 class CreateTaskScreen extends ConsumerStatefulWidget {
   final String? taskId; // null for create, non-null for edit
   final String groupId;
 
-  const CreateTaskScreen({
-    super.key,
-    this.taskId,
-    required this.groupId,
-  });
+  const CreateTaskScreen({super.key, this.taskId, required this.groupId});
 
   @override
   ConsumerState<CreateTaskScreen> createState() => _CreateTaskScreenState();
@@ -28,6 +26,7 @@ class _CreateTaskScreenState extends ConsumerState<CreateTaskScreen> {
 
   DateTime? _selectedDeadline;
   TaskPriority _selectedPriority = TaskPriority.medium;
+  RotationType _selectedRotationType = RotationType.roundRobin;
   bool _requiresApproval = true;
   bool _isSubmitting = false;
 
@@ -37,6 +36,20 @@ class _CreateTaskScreenState extends ConsumerState<CreateTaskScreen> {
     _descriptionController.dispose();
     _pointsController.dispose();
     super.dispose();
+  }
+
+  String _getRotationTypeLabel(BuildContext context, RotationType type) {
+    final l10n = AppLocalizations.of(context)!;
+    switch (type) {
+      case RotationType.roundRobin:
+        return l10n.rotationTypeRoundRobin;
+      case RotationType.random:
+        return l10n.rotationTypeRandom;
+      case RotationType.loadBalancing:
+        return l10n.rotationTypeLoadBalancing;
+      case RotationType.disabled:
+        return l10n.rotationTypeDisabled;
+    }
   }
 
   Future<void> _selectDeadline() async {
@@ -70,9 +83,19 @@ class _CreateTaskScreenState extends ConsumerState<CreateTaskScreen> {
   Future<void> _submitForm() async {
     if (!_formKey.currentState!.validate()) return;
     if (_selectedDeadline == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a deadline')),
-      );
+      final l10n = AppLocalizations.of(context)!;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.pleaseSelectDeadline)));
+      return;
+    }
+
+    // Validate groupId
+    if (widget.groupId.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Group ID is required')));
+      debugPrint('[CreateTask] ERROR: groupId is empty!');
       return;
     }
 
@@ -86,8 +109,19 @@ class _CreateTaskScreenState extends ConsumerState<CreateTaskScreen> {
       deadline: _selectedDeadline!,
       priority: _selectedPriority.value,
       points: int.parse(_pointsController.text),
+      requiresApproval: _requiresApproval,
       groupId: widget.groupId,
+      rotationType: _selectedRotationType.value,
+      isRecurring: false,
     );
+
+    debugPrint('[CreateTask] Request data:');
+    debugPrint('  - groupId: ${widget.groupId}');
+    debugPrint('  - title: ${request.title}');
+    debugPrint('  - priority: ${request.priority}');
+    debugPrint('  - points: ${request.points}');
+    debugPrint('  - requiresApproval: ${request.requiresApproval}');
+    debugPrint('  - rotationType: ${request.rotationType}');
 
     final useCase = ref.read(createTaskUseCaseProvider);
     final result = await useCase(request);
@@ -97,16 +131,23 @@ class _CreateTaskScreenState extends ConsumerState<CreateTaskScreen> {
     result.fold(
       (failure) {
         if (mounted) {
+          final l10n = AppLocalizations.of(context)!;
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error: ${failure.message}')),
+            SnackBar(content: Text(l10n.errorWithMessage(failure.message))),
           );
         }
       },
       (task) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Task created successfully')),
-          );
+          final l10n = AppLocalizations.of(context)!;
+
+          // Invalidate task lists to trigger automatic refresh
+          ref.invalidate(userTasksProvider);
+          ref.invalidate(groupTasksProvider(widget.groupId));
+
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(l10n.taskCreatedSuccessfully)));
           context.pop();
         }
       },
@@ -115,11 +156,11 @@ class _CreateTaskScreenState extends ConsumerState<CreateTaskScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.taskId == null ? 'Create Task' : 'Edit Task'),
+        title: Text(widget.taskId == null ? l10n.createTask : l10n.editTask),
       ),
       body: Form(
         key: _formKey,
@@ -129,14 +170,14 @@ class _CreateTaskScreenState extends ConsumerState<CreateTaskScreen> {
             // Title
             TextFormField(
               controller: _titleController,
-              decoration: const InputDecoration(
-                labelText: 'Task Title',
-                hintText: 'Enter task title',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: l10n.taskTitle,
+                hintText: l10n.enterTaskTitle,
+                border: const OutlineInputBorder(),
               ),
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
-                  return 'Please enter a task title';
+                  return l10n.enterTitleValidation;
                 }
                 return null;
               },
@@ -148,10 +189,10 @@ class _CreateTaskScreenState extends ConsumerState<CreateTaskScreen> {
             // Description
             TextFormField(
               controller: _descriptionController,
-              decoration: const InputDecoration(
-                labelText: 'Description (Optional)',
-                hintText: 'Enter task description',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: l10n.descriptionOptional,
+                hintText: l10n.enterTaskDescription,
+                border: const OutlineInputBorder(),
               ),
               maxLines: 4,
               maxLength: 500,
@@ -162,10 +203,10 @@ class _CreateTaskScreenState extends ConsumerState<CreateTaskScreen> {
             // Deadline
             ListTile(
               contentPadding: EdgeInsets.zero,
-              title: const Text('Deadline'),
+              title: Text(l10n.deadlineLabel),
               subtitle: Text(
                 _selectedDeadline == null
-                    ? 'Tap to select deadline'
+                    ? l10n.tapToSelectDeadline
                     : _selectedDeadline.toString().substring(0, 16),
               ),
               leading: const Icon(Icons.calendar_today),
@@ -181,10 +222,10 @@ class _CreateTaskScreenState extends ConsumerState<CreateTaskScreen> {
 
             // Priority
             DropdownButtonFormField<TaskPriority>(
-              value: _selectedPriority,
-              decoration: const InputDecoration(
-                labelText: 'Priority',
-                border: OutlineInputBorder(),
+              initialValue: _selectedPriority,
+              decoration: InputDecoration(
+                labelText: l10n.priority,
+                border: const OutlineInputBorder(),
               ),
               items: TaskPriority.values.map((priority) {
                 return DropdownMenuItem(
@@ -201,23 +242,45 @@ class _CreateTaskScreenState extends ConsumerState<CreateTaskScreen> {
 
             const SizedBox(height: 16),
 
+            // Rotation Type
+            DropdownButtonFormField<RotationType>(
+              initialValue: _selectedRotationType,
+              decoration: InputDecoration(
+                labelText: l10n.rotationTypeLabel,
+                border: const OutlineInputBorder(),
+              ),
+              items: RotationType.values.map((rotationType) {
+                return DropdownMenuItem(
+                  value: rotationType,
+                  child: Text(_getRotationTypeLabel(context, rotationType)),
+                );
+              }).toList(),
+              onChanged: (value) {
+                if (value != null) {
+                  setState(() => _selectedRotationType = value);
+                }
+              },
+            ),
+
+            const SizedBox(height: 16),
+
             // Points
             TextFormField(
               controller: _pointsController,
-              decoration: const InputDecoration(
-                labelText: 'Points',
-                hintText: 'Enter point value',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.stars),
+              decoration: InputDecoration(
+                labelText: l10n.pointsLabelDetail,
+                hintText: l10n.enterPointValue,
+                border: const OutlineInputBorder(),
+                prefixIcon: const Icon(Icons.stars),
               ),
               keyboardType: TextInputType.number,
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'Please enter point value';
+                  return l10n.enterPointValueValidation;
                 }
                 final points = int.tryParse(value);
                 if (points == null || points < 1 || points > 1000) {
-                  return 'Points must be between 1 and 1000';
+                  return l10n.pointsRangeValidation;
                 }
                 return null;
               },
@@ -227,8 +290,8 @@ class _CreateTaskScreenState extends ConsumerState<CreateTaskScreen> {
 
             // Requires Approval
             SwitchListTile(
-              title: const Text('Requires Approval'),
-              subtitle: const Text('Task must be approved by admin after completion'),
+              title: Text(l10n.requiresApprovalTitle),
+              subtitle: Text(l10n.requiresApprovalSubtitle),
               value: _requiresApproval,
               onChanged: (value) {
                 setState(() => _requiresApproval = value);
@@ -248,7 +311,11 @@ class _CreateTaskScreenState extends ConsumerState<CreateTaskScreen> {
                         width: 20,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : Text(widget.taskId == null ? 'Create Task' : 'Update Task'),
+                    : Text(
+                        widget.taskId == null
+                            ? l10n.createTask
+                            : l10n.updateTask,
+                      ),
               ),
             ),
           ],

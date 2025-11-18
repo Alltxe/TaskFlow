@@ -2,11 +2,11 @@ import 'package:dartz/dartz.dart';
 import 'package:mobile/core/errors/exceptions.dart';
 import 'package:mobile/core/errors/failure.dart';
 import 'package:mobile/data/datasources/group_remote_datasource.dart';
+import 'package:mobile/data/models/create_group_request.dart';
 import 'package:mobile/data/models/group.dart';
 import 'package:mobile/data/models/group_member.dart';
-import 'package:mobile/data/models/create_group_request.dart';
-import 'package:mobile/data/models/update_group_request.dart';
 import 'package:mobile/data/models/join_group_request.dart';
+import 'package:mobile/data/models/update_group_request.dart';
 import 'package:mobile/data/repositories/group_repository.dart';
 
 class GroupRepositoryImpl implements GroupRepository {
@@ -47,9 +47,7 @@ class GroupRepositoryImpl implements GroupRepository {
   }
 
   @override
-  Future<Either<Failure, List<GroupMember>>> getGroupMembers(
-    String groupId,
-  ) async {
+  Future<Either<Failure, List<GroupMember>>> getGroupMembers(String groupId) async {
     try {
       final members = await remoteDataSource.getGroupMembers(groupId);
       return Right(members);
@@ -65,9 +63,7 @@ class GroupRepositoryImpl implements GroupRepository {
   }
 
   @override
-  Future<Either<Failure, Group>> createGroup(
-    CreateGroupRequest request,
-  ) async {
+  Future<Either<Failure, Group>> createGroup(CreateGroupRequest request) async {
     try {
       final group = await remoteDataSource.createGroup(request);
       return Right(group);
@@ -85,10 +81,7 @@ class GroupRepositoryImpl implements GroupRepository {
   }
 
   @override
-  Future<Either<Failure, Group>> updateGroup(
-    String groupId,
-    UpdateGroupRequest request,
-  ) async {
+  Future<Either<Failure, Group>> updateGroup(String groupId, UpdateGroupRequest request) async {
     try {
       final group = await remoteDataSource.updateGroup(groupId, request);
       return Right(group);
@@ -156,10 +149,7 @@ class GroupRepositoryImpl implements GroupRepository {
   }
 
   @override
-  Future<Either<Failure, void>> removeMember(
-    String groupId,
-    String userId,
-  ) async {
+  Future<Either<Failure, void>> removeMember(String groupId, String userId) async {
     try {
       await remoteDataSource.removeMember(groupId, userId);
       return const Right(null);
@@ -181,11 +171,7 @@ class GroupRepositoryImpl implements GroupRepository {
     String role,
   ) async {
     try {
-      final member = await remoteDataSource.updateMemberRole(
-        groupId,
-        userId,
-        role,
-      );
+      final member = await remoteDataSource.updateMemberRole(groupId, userId, role);
       return Right(member);
     } on NetworkException catch (e) {
       return Left(Failure.network(message: e.message, code: e.code));

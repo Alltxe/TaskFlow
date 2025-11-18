@@ -33,6 +33,8 @@ export class TaskResolver {
     @CurrentUser() user: User,
     @Args('input') input: CreateTaskInput,
   ) {
+    console.log('[TaskResolver.createTask] Received input:', JSON.stringify(input, null, 2));
+    console.log('[TaskResolver.createTask] User:', user.id, user.username);
     return this.taskService.createTask(user.id, input);
   }
 

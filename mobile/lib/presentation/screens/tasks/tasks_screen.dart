@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/data/models/task_enums.dart';
 import 'package:mobile/data/providers/auth_providers.dart';
+import 'package:mobile/data/providers/group_providers.dart';
 import 'package:mobile/l10n/app_localizations.dart';
 import 'package:mobile/presentation/providers/task_state_provider.dart';
 import 'package:mobile/presentation/widgets/task/task_list_widget.dart';
@@ -18,14 +19,17 @@ class TasksScreen extends ConsumerStatefulWidget {
   ConsumerState<TasksScreen> createState() => _TasksScreenState();
 }
 
-class _TasksScreenState extends ConsumerState<TasksScreen> with SingleTickerProviderStateMixin {
+class _TasksScreenState extends ConsumerState<TasksScreen>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
   late int _tabsCount;
 
   @override
   void initState() {
     super.initState();
-    _tabsCount = widget.groupId == null ? 3 : 4; // hide 'My tasks' for top-level Tasks
+    _tabsCount = widget.groupId == null
+        ? 3
+        : 4; // hide 'My tasks' for top-level Tasks
     _tabController = TabController(length: _tabsCount, vsync: this);
   }
 
@@ -39,8 +43,14 @@ class _TasksScreenState extends ConsumerState<TasksScreen> with SingleTickerProv
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
+    // Check if user is admin when groupId is provided
+    final isAdminAsync = widget.groupId != null
+        ? ref.watch(isGroupAdminProvider(widget.groupId!))
+        : const AsyncValue.data(true); // Show button for non-group tasks
+
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: Text(l10n.tasksTitle),
         bottom: TabBar(
           controller: _tabController,
@@ -73,10 +83,21 @@ class _TasksScreenState extends ConsumerState<TasksScreen> with SingleTickerProv
           _PendingApprovalTab(groupId: widget.groupId),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => context.push('/tasks/create'),
-        icon: const Icon(Icons.add),
-        label: Text(l10n.createTask),
+      floatingActionButton: isAdminAsync.when(
+        data: (isAdmin) => isAdmin
+            ? FloatingActionButton.extended(
+                onPressed: () {
+                  final uri = widget.groupId != null
+                      ? Uri(path: '/tasks/create', queryParameters: {'groupId': widget.groupId!})
+                      : Uri(path: '/tasks/create');
+                  context.push(uri.toString());
+                },
+                icon: const Icon(Icons.add),
+                label: Text(l10n.createTask),
+              )
+            : null,
+        loading: () => null,
+        error: (_, __) => null,
       ),
     );
   }
@@ -157,12 +178,16 @@ class _GroupTasksTab extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               l10n.selectGroup,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.grey.shade600),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(color: Colors.grey.shade600),
             ),
             const SizedBox(height: 8),
             Text(
               l10n.viewGroupTasksFromGroupsTab,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey.shade500),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: Colors.grey.shade500),
             ),
           ],
         ),
@@ -181,8 +206,9 @@ class _GroupTasksTab extends StatelessWidget {
             onRefresh: () => ref.invalidate(groupTasksProvider(groupId!)),
           ),
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (error, stack) =>
-              Center(child: Text('${l10n.errorLoadingTasks}: ${error.toString()}')),
+          error: (error, stack) => Center(
+            child: Text('${l10n.errorLoadingTasks}: ${error.toString()}'),
+          ),
         );
       },
     );
@@ -204,8 +230,10 @@ class _UpForGrabsTab extends ConsumerWidget {
     return tasksAsync.when(
       data: (allTasks) {
         // Filter for unassigned tasks
-        final upForGrabsTasks = allTasks.where((task) => task.assigneeId == null).toList();
-
+        final upForGrabsTasks = allTasks
+            .where((task) => task.assigneeId == null)
+            .toList();
+  
         return TaskListWidget(
           tasks: upForGrabsTasks,
           emptyStateMessage: l10n.noTasksAvailable,

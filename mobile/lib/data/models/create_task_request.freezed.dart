@@ -26,7 +26,8 @@ mixin _$CreateTaskRequest {
   DateTime get deadline => throw _privateConstructorUsedError;
   String get priority =>
       throw _privateConstructorUsedError; // LOW, MEDIUM, HIGH
-  int? get points => throw _privateConstructorUsedError;
+  int get points => throw _privateConstructorUsedError;
+  bool? get requiresApproval => throw _privateConstructorUsedError;
   String? get assigneeId => throw _privateConstructorUsedError;
   bool? get isRecurring => throw _privateConstructorUsedError;
   String? get recurrenceRule => throw _privateConstructorUsedError;
@@ -51,7 +52,8 @@ abstract class $CreateTaskRequestCopyWith<$Res> {
       String? description,
       DateTime deadline,
       String priority,
-      int? points,
+      int points,
+      bool? requiresApproval,
       String? assigneeId,
       bool? isRecurring,
       String? recurrenceRule,
@@ -77,7 +79,8 @@ class _$CreateTaskRequestCopyWithImpl<$Res, $Val extends CreateTaskRequest>
     Object? description = freezed,
     Object? deadline = null,
     Object? priority = null,
-    Object? points = freezed,
+    Object? points = null,
+    Object? requiresApproval = freezed,
     Object? assigneeId = freezed,
     Object? isRecurring = freezed,
     Object? recurrenceRule = freezed,
@@ -105,10 +108,14 @@ class _$CreateTaskRequestCopyWithImpl<$Res, $Val extends CreateTaskRequest>
           ? _value.priority
           : priority // ignore: cast_nullable_to_non_nullable
               as String,
-      points: freezed == points
+      points: null == points
           ? _value.points
           : points // ignore: cast_nullable_to_non_nullable
-              as int?,
+              as int,
+      requiresApproval: freezed == requiresApproval
+          ? _value.requiresApproval
+          : requiresApproval // ignore: cast_nullable_to_non_nullable
+              as bool?,
       assigneeId: freezed == assigneeId
           ? _value.assigneeId
           : assigneeId // ignore: cast_nullable_to_non_nullable
@@ -147,7 +154,8 @@ abstract class _$$CreateTaskRequestImplCopyWith<$Res>
       String? description,
       DateTime deadline,
       String priority,
-      int? points,
+      int points,
+      bool? requiresApproval,
       String? assigneeId,
       bool? isRecurring,
       String? recurrenceRule,
@@ -171,7 +179,8 @@ class __$$CreateTaskRequestImplCopyWithImpl<$Res>
     Object? description = freezed,
     Object? deadline = null,
     Object? priority = null,
-    Object? points = freezed,
+    Object? points = null,
+    Object? requiresApproval = freezed,
     Object? assigneeId = freezed,
     Object? isRecurring = freezed,
     Object? recurrenceRule = freezed,
@@ -199,10 +208,14 @@ class __$$CreateTaskRequestImplCopyWithImpl<$Res>
           ? _value.priority
           : priority // ignore: cast_nullable_to_non_nullable
               as String,
-      points: freezed == points
+      points: null == points
           ? _value.points
           : points // ignore: cast_nullable_to_non_nullable
-              as int?,
+              as int,
+      requiresApproval: freezed == requiresApproval
+          ? _value.requiresApproval
+          : requiresApproval // ignore: cast_nullable_to_non_nullable
+              as bool?,
       assigneeId: freezed == assigneeId
           ? _value.assigneeId
           : assigneeId // ignore: cast_nullable_to_non_nullable
@@ -236,7 +249,8 @@ class _$CreateTaskRequestImpl implements _CreateTaskRequest {
       this.description,
       required this.deadline,
       required this.priority,
-      this.points,
+      required this.points,
+      this.requiresApproval,
       this.assigneeId,
       this.isRecurring,
       this.recurrenceRule,
@@ -258,7 +272,9 @@ class _$CreateTaskRequestImpl implements _CreateTaskRequest {
   final String priority;
 // LOW, MEDIUM, HIGH
   @override
-  final int? points;
+  final int points;
+  @override
+  final bool? requiresApproval;
   @override
   final String? assigneeId;
   @override
@@ -272,7 +288,7 @@ class _$CreateTaskRequestImpl implements _CreateTaskRequest {
 
   @override
   String toString() {
-    return 'CreateTaskRequest(groupId: $groupId, title: $title, description: $description, deadline: $deadline, priority: $priority, points: $points, assigneeId: $assigneeId, isRecurring: $isRecurring, recurrenceRule: $recurrenceRule, rotationType: $rotationType, weight: $weight)';
+    return 'CreateTaskRequest(groupId: $groupId, title: $title, description: $description, deadline: $deadline, priority: $priority, points: $points, requiresApproval: $requiresApproval, assigneeId: $assigneeId, isRecurring: $isRecurring, recurrenceRule: $recurrenceRule, rotationType: $rotationType, weight: $weight)';
   }
 
   @override
@@ -289,6 +305,8 @@ class _$CreateTaskRequestImpl implements _CreateTaskRequest {
             (identical(other.priority, priority) ||
                 other.priority == priority) &&
             (identical(other.points, points) || other.points == points) &&
+            (identical(other.requiresApproval, requiresApproval) ||
+                other.requiresApproval == requiresApproval) &&
             (identical(other.assigneeId, assigneeId) ||
                 other.assigneeId == assigneeId) &&
             (identical(other.isRecurring, isRecurring) ||
@@ -310,6 +328,7 @@ class _$CreateTaskRequestImpl implements _CreateTaskRequest {
       deadline,
       priority,
       points,
+      requiresApproval,
       assigneeId,
       isRecurring,
       recurrenceRule,
@@ -338,7 +357,8 @@ abstract class _CreateTaskRequest implements CreateTaskRequest {
       final String? description,
       required final DateTime deadline,
       required final String priority,
-      final int? points,
+      required final int points,
+      final bool? requiresApproval,
       final String? assigneeId,
       final bool? isRecurring,
       final String? recurrenceRule,
@@ -359,7 +379,9 @@ abstract class _CreateTaskRequest implements CreateTaskRequest {
   @override
   String get priority;
   @override // LOW, MEDIUM, HIGH
-  int? get points;
+  int get points;
+  @override
+  bool? get requiresApproval;
   @override
   String? get assigneeId;
   @override

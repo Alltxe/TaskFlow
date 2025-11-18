@@ -740,6 +740,18 @@ abstract class AppLocalizations {
   /// **'Join Group'**
   String get joinGroupTitle;
 
+  /// No description provided for @loginRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Login Required'**
+  String get loginRequired;
+
+  /// No description provided for @pleaseLoginToJoinGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Please login or register to join this group'**
+  String get pleaseLoginToJoinGroup;
+
   /// No description provided for @joiningGroup.
   ///
   /// In en, this message translates to:
@@ -1735,6 +1747,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Tasks for {date}'**
   String tasksForDate(Object date);
+
+  /// No description provided for @rotationTypeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Rotation Type'**
+  String get rotationTypeLabel;
+
+  /// No description provided for @rotationTypeRoundRobin.
+  ///
+  /// In en, this message translates to:
+  /// **'Round Robin'**
+  String get rotationTypeRoundRobin;
+
+  /// No description provided for @rotationTypeRandom.
+  ///
+  /// In en, this message translates to:
+  /// **'Random'**
+  String get rotationTypeRandom;
+
+  /// No description provided for @rotationTypeLoadBalancing.
+  ///
+  /// In en, this message translates to:
+  /// **'Load Balancing'**
+  String get rotationTypeLoadBalancing;
+
+  /// No description provided for @rotationTypeDisabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Disabled (Manual)'**
+  String get rotationTypeDisabled;
+
+  /// No description provided for @pleaseSelectDeadline.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select a deadline'**
+  String get pleaseSelectDeadline;
 }
 
 class _AppLocalizationsDelegate

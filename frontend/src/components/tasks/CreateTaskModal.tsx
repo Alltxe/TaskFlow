@@ -350,7 +350,7 @@ export const CreateTaskModal: FC<CreateTaskModalProps> = ({
             </Grid>
 
             {/* Recurrence Settings */}
-            <Grid size={{ xs: 12 }}>
+            {/* <Grid size={{ xs: 12 }}>
               <FormControlLabel
                 control={
                   <Checkbox
@@ -369,7 +369,7 @@ export const CreateTaskModal: FC<CreateTaskModalProps> = ({
                 }
                 label="Повторяющаяся задача"
               />
-            </Grid>
+            </Grid> */}
 
             {/* Recurrence Type Selection */}
             {isRecurring && (

@@ -17,35 +17,13 @@ class GroupSettingsScreen extends ConsumerStatefulWidget {
 }
 
 class _GroupSettingsScreenState extends ConsumerState<GroupSettingsScreen> {
-  final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
-  final _descriptionController = TextEditingController();
-
   Group? _group;
-  String? _rotationType;
-  bool? _gamificationEnabled;
-  bool? _requiresApproval;
   bool _isLoading = true;
-  bool _isSaving = false;
-
-  final List<Map<String, String>> _rotationTypes = [
-    {'value': 'ROUND_ROBIN', 'label': 'Round Robin'},
-    {'value': 'RANDOM', 'label': 'Random'},
-    {'value': 'LOAD_BALANCING', 'label': 'Load Balancing'},
-    {'value': 'DISABLED', 'label': 'Disabled'},
-  ];
 
   @override
   void initState() {
     super.initState();
     _loadData();
-  }
-
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _descriptionController.dispose();
-    super.dispose();
   }
 
   Future<void> _loadData() async {
@@ -60,14 +38,84 @@ class _GroupSettingsScreenState extends ConsumerState<GroupSettingsScreen> {
       _isLoading = false;
       groupResult.fold((failure) {}, (group) {
         _group = group;
-        _nameController.text = group.name;
-        _descriptionController.text = group.description ?? '';
-        _rotationType = group.rotationType;
-        _gamificationEnabled = group.gamificationEnabled;
-        _requiresApproval = group.requiresApproval;
       });
-      // We don't use the members list in this screen currently; skip early fetch
     });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_isLoading) {
+      return Scaffold(
+        appBar: AppBar(title: Text(AppLocalizations.of(context)!.groupSettingsTitle)),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (_group == null) {
+      return Scaffold(
+        appBar: AppBar(title: Text(AppLocalizations.of(context)!.groupSettingsTitle)),
+        body: Center(child: Text(AppLocalizations.of(context)!.failedToLoadGroupSettings)),
+      );
+    }
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(AppLocalizations.of(context)!.groupSettingsTitle),
+      ),
+      body: GroupSettingsContent(groupId: widget.groupId, group: _group!),
+    );
+  }
+}
+
+/// Reusable settings content widget that can be embedded in tabs or standalone screens
+class GroupSettingsContent extends ConsumerStatefulWidget {
+  final String groupId;
+  final Group group;
+
+  const GroupSettingsContent({super.key, required this.groupId, required this.group});
+
+  @override
+  ConsumerState<GroupSettingsContent> createState() => _GroupSettingsContentState();
+}
+
+class _GroupSettingsContentState extends ConsumerState<GroupSettingsContent> {
+  final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
+  final _descriptionController = TextEditingController();
+
+  Group? _group;
+  String? _rotationType;
+  bool? _gamificationEnabled;
+  bool? _requiresApproval;
+  bool _isSaving = false;
+
+  final List<Map<String, String>> _rotationTypes = [
+    {'value': 'ROUND_ROBIN', 'label': 'Round Robin'},
+    {'value': 'RANDOM', 'label': 'Random'},
+    {'value': 'LOAD_BALANCING', 'label': 'Load Balancing'},
+    {'value': 'DISABLED', 'label': 'Disabled'},
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeFromGroup();
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _descriptionController.dispose();
+    super.dispose();
+  }
+
+  void _initializeFromGroup() {
+    _group = widget.group;
+    _nameController.text = widget.group.name;
+    _descriptionController.text = widget.group.description ?? '';
+    _rotationType = widget.group.rotationType;
+    _gamificationEnabled = widget.group.gamificationEnabled;
+    _requiresApproval = widget.group.requiresApproval;
   }
 
   Future<void> _saveChanges() async {
@@ -104,11 +152,11 @@ class _GroupSettingsScreenState extends ConsumerState<GroupSettingsScreen> {
         );
       },
       (group) {
+        setState(() => _group = group);
         ref.read(groupNotifierProvider.notifier).refresh();
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.settingsSaved)));
-        context.pop();
       },
     );
   }
@@ -200,150 +248,144 @@ class _GroupSettingsScreenState extends ConsumerState<GroupSettingsScreen> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    if (_isLoading) {
-      return Scaffold(
-        appBar: AppBar(title: Text(AppLocalizations.of(context)!.groupSettingsTitle)),
-        body: const Center(child: CircularProgressIndicator()),
-      );
-    }
-
     if (_group == null) {
-      return Scaffold(
-        appBar: AppBar(title: Text(AppLocalizations.of(context)!.groupSettingsTitle)),
-        body: Center(child: Text(AppLocalizations.of(context)!.failedToLoadGroupSettings)),
-      );
+      return Center(child: Text(AppLocalizations.of(context)!.failedToLoadGroupSettings));
     }
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(AppLocalizations.of(context)!.groupSettingsTitle),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.save),
-            onPressed: _isSaving ? null : _saveChanges,
-            tooltip: AppLocalizations.of(context)!.save,
+    return Form(
+      key: _formKey,
+      child: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          // Save button at top
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              FilledButton.icon(
+                onPressed: _isSaving ? null : _saveChanges,
+                icon: _isSaving ? const SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ) : const Icon(Icons.save),
+                label: Text(AppLocalizations.of(context)!.save),
+              ),
+            ],
           ),
-        ],
-      ),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            // Basic info section
-            Text(AppLocalizations.of(context)!.basicInformation, style: theme.textTheme.titleMedium),
-            const SizedBox(height: 12),
+          const SizedBox(height: 16),
+          // Basic info section
+          Text(AppLocalizations.of(context)!.basicInformation, style: theme.textTheme.titleMedium),
+          const SizedBox(height: 12),
 
-            TextFormField(
-              controller: _nameController,
-              decoration: InputDecoration(
-                labelText: AppLocalizations.of(context)!.groupName,
-                border: const OutlineInputBorder(),
-                prefixIcon: const Icon(Icons.group),
-              ),
-              validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                  return AppLocalizations.of(context)!.groupNameRequired;
-                }
-                return null;
-              },
-              enabled: !_isSaving,
+          TextFormField(
+            controller: _nameController,
+            decoration: InputDecoration(
+              labelText: AppLocalizations.of(context)!.groupName,
+              border: const OutlineInputBorder(),
+              prefixIcon: const Icon(Icons.group),
             ),
-            const SizedBox(height: 16),
+            validator: (value) {
+              if (value == null || value.trim().isEmpty) {
+                return AppLocalizations.of(context)!.groupNameRequired;
+              }
+              return null;
+            },
+            enabled: !_isSaving,
+          ),
+          const SizedBox(height: 16),
 
-            TextFormField(
-              controller: _descriptionController,
-              decoration: InputDecoration(
-                labelText: AppLocalizations.of(context)!.descriptionLabel,
-                border: const OutlineInputBorder(),
-                prefixIcon: const Icon(Icons.description),
-              ),
-              maxLines: 3,
-              enabled: !_isSaving,
+          TextFormField(
+            controller: _descriptionController,
+            decoration: InputDecoration(
+              labelText: AppLocalizations.of(context)!.descriptionLabel,
+              border: const OutlineInputBorder(),
+              prefixIcon: const Icon(Icons.description),
             ),
-            const SizedBox(height: 24),
+            maxLines: 3,
+            enabled: !_isSaving,
+          ),
+          const SizedBox(height: 24),
 
-            // Configuration section
-            Text(AppLocalizations.of(context)!.configuration, style: theme.textTheme.titleMedium),
-            const SizedBox(height: 12),
+          // Configuration section
+          Text(AppLocalizations.of(context)!.configuration, style: theme.textTheme.titleMedium),
+          const SizedBox(height: 12),
 
-            DropdownButtonFormField<String>(
-              initialValue: _rotationType,
-                decoration: InputDecoration(
-                labelText: AppLocalizations.of(context)!.rotationType,
-                border: const OutlineInputBorder(),
-                prefixIcon: const Icon(Icons.sync),
-              ),
-              items: _rotationTypes.map((type) {
-                return DropdownMenuItem<String>(value: type['value'], child: Text(type['label']!));
-              }).toList(),
+          DropdownButtonFormField<String>(
+            initialValue: _rotationType,
+            decoration: InputDecoration(
+              labelText: AppLocalizations.of(context)!.rotationType,
+              border: const OutlineInputBorder(),
+              prefixIcon: const Icon(Icons.sync),
+            ),
+            items: _rotationTypes.map((type) {
+              return DropdownMenuItem<String>(value: type['value'], child: Text(type['label']!));
+            }).toList(),
+            onChanged: _isSaving
+                ? null
+                : (value) {
+                    setState(() => _rotationType = value);
+                  },
+          ),
+          const SizedBox(height: 16),
+
+          Card(
+            child: SwitchListTile(
+              value: _gamificationEnabled ?? false,
               onChanged: _isSaving
                   ? null
                   : (value) {
-                      setState(() => _rotationType = value);
+                      setState(() => _gamificationEnabled = value);
                     },
+              title: Text(AppLocalizations.of(context)!.gamification),
+              subtitle: Text(AppLocalizations.of(context)!.enablePointsAndRewards),
+              secondary: const Icon(Icons.emoji_events),
             ),
-            const SizedBox(height: 16),
+          ),
+          const SizedBox(height: 8),
 
-            Card(
-              child: SwitchListTile(
-                value: _gamificationEnabled ?? false,
-                onChanged: _isSaving
-                    ? null
-                    : (value) {
-                        setState(() => _gamificationEnabled = value);
-                      },
-                title: Text(AppLocalizations.of(context)!.gamification),
-                subtitle: Text(AppLocalizations.of(context)!.enablePointsAndRewards),
-                secondary: const Icon(Icons.emoji_events),
-              ),
+          Card(
+            child: SwitchListTile(
+              value: _requiresApproval ?? false,
+              onChanged: _isSaving
+                  ? null
+                  : (value) {
+                      setState(() => _requiresApproval = value);
+                    },
+              title: Text(AppLocalizations.of(context)!.requireApproval),
+              subtitle: Text(AppLocalizations.of(context)!.adminMustApproveTasks),
+              secondary: const Icon(Icons.check_circle),
             ),
-            const SizedBox(height: 8),
+          ),
+          const SizedBox(height: 24),
 
-            Card(
-              child: SwitchListTile(
-                value: _requiresApproval ?? false,
-                onChanged: _isSaving
-                    ? null
-                    : (value) {
-                        setState(() => _requiresApproval = value);
-                      },
-                title: Text(AppLocalizations.of(context)!.requireApproval),
-                subtitle: Text(AppLocalizations.of(context)!.adminMustApproveTasks),
-                secondary: const Icon(Icons.check_circle),
-              ),
+          // Member management section
+          Text(AppLocalizations.of(context)!.memberManagement, style: theme.textTheme.titleMedium),
+          const SizedBox(height: 12),
+
+          FilledButton.tonalIcon(
+            onPressed: _regenerateInviteToken,
+            icon: const Icon(Icons.refresh),
+            label: Text(AppLocalizations.of(context)!.regenerateInviteToken),
+          ),
+          const SizedBox(height: 32),
+
+          // Danger zone
+          Text(
+            AppLocalizations.of(context)!.dangerZone,
+            style: theme.textTheme.titleMedium?.copyWith(color: colorScheme.error),
+          ),
+          const SizedBox(height: 12),
+
+          OutlinedButton.icon(
+            onPressed: _deleteGroup,
+            icon: const Icon(Icons.delete_forever),
+            label: Text(AppLocalizations.of(context)!.deleteGroup),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: colorScheme.error,
+              side: BorderSide(color: colorScheme.error),
             ),
-            const SizedBox(height: 24),
-
-            // Member management section
-            Text(AppLocalizations.of(context)!.memberManagement, style: theme.textTheme.titleMedium),
-            const SizedBox(height: 12),
-
-            FilledButton.tonalIcon(
-              onPressed: _regenerateInviteToken,
-              icon: const Icon(Icons.refresh),
-              label: Text(AppLocalizations.of(context)!.regenerateInviteToken),
-            ),
-            const SizedBox(height: 32),
-
-            // Danger zone
-            Text(
-              AppLocalizations.of(context)!.dangerZone,
-              style: theme.textTheme.titleMedium?.copyWith(color: colorScheme.error),
-            ),
-            const SizedBox(height: 12),
-
-            OutlinedButton.icon(
-              onPressed: _deleteGroup,
-              icon: const Icon(Icons.delete_forever),
-              label: Text(AppLocalizations.of(context)!.deleteGroup),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: colorScheme.error,
-                side: BorderSide(color: colorScheme.error),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

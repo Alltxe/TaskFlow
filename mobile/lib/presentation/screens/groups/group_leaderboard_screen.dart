@@ -130,58 +130,103 @@ class _GroupLeaderboardScreenState extends ConsumerState<GroupLeaderboardScreen>
           final isCurrentUser = entry.user.id == _currentUserId;
           final position = entry.rank;
 
-          return Card(
-            margin: const EdgeInsets.only(bottom: 8),
-            color: isCurrentUser
-                ? colorScheme.primaryContainer.withAlpha((0.3 * 255).round())
-                : null,
-            child: ListTile(
-              leading: _buildRankBadge(position, colorScheme),
-              title: Row(
-                children: [
-                  Text(
-                    entry.user.username,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: isCurrentUser ? FontWeight.bold : FontWeight.normal,
-                    ),
-                  ),
-                  if (isCurrentUser) ...[
-                    const SizedBox(width: 8),
-                    Chip(
-                      label: Text(AppLocalizations.of(context)!.you),
-                      labelStyle: const TextStyle(fontSize: 10),
-                      visualDensity: VisualDensity.compact,
-                      padding: EdgeInsets.zero,
-                    ),
-                  ],
-                ],
+          return Container(
+            margin: const EdgeInsets.only(bottom: 12),
+            decoration: BoxDecoration(
+              color: isCurrentUser
+                  ? colorScheme.primaryContainer.withValues(alpha: 0.15)
+                  : colorScheme.surface,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: isCurrentUser
+                    ? colorScheme.primary.withValues(alpha: 0.5)
+                    : colorScheme.outlineVariant.withValues(alpha: 0.5),
+                width: isCurrentUser ? 2 : 1,
               ),
-              subtitle: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
                 children: [
-                  const SizedBox(height: 4),
-                  Text(AppLocalizations.of(context)!.pointsLabel(entry.pointsEarned)),
-                ],
-              ),
-              trailing: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.stars, size: 20, color: colorScheme.primary),
-                      const SizedBox(width: 4),
-                      Text(
-                        '${entry.pointsEarned}',
-                        style: theme.textTheme.titleLarge?.copyWith(
-                          color: colorScheme.primary,
-                          fontWeight: FontWeight.bold,
+                  // Rank badge
+                  _buildRankBadge(position, colorScheme),
+                  const SizedBox(width: 16),
+
+                  // User info
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          entry.user.username,
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: isCurrentUser ? FontWeight.bold : FontWeight.w600,
+                            color: colorScheme.onSurface,
+                          ),
                         ),
-                      ),
-                    ],
+                        if (isCurrentUser) ...[
+                          const SizedBox(height: 6),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: colorScheme.primary,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              AppLocalizations.of(context)!.you,
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: colorScheme.onPrimary,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
                   ),
-                  Text(AppLocalizations.of(context)!.pointsWord, style: theme.textTheme.bodySmall),
+
+                  // Points
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          const Color(0xFFFFA726),
+                          const Color(0xFFFF9800),
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFFFF9800).withValues(alpha: 0.3),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.stars_rounded,
+                          size: 20,
+                          color: Colors.white,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          '${entry.pointsEarned}',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -193,34 +238,78 @@ class _GroupLeaderboardScreenState extends ConsumerState<GroupLeaderboardScreen>
 
   Widget _buildRankBadge(int position, ColorScheme colorScheme) {
     IconData icon;
-    Color color;
+    List<Color> gradientColors;
+    Color shadowColor;
 
     switch (position) {
       case 1:
-        icon = Icons.emoji_events;
-        color = Colors.amber;
+        icon = Icons.emoji_events_rounded;
+        gradientColors = [
+          const Color(0xFFFFD700),
+          const Color(0xFFFFA000),
+        ];
+        shadowColor = const Color(0xFFFFD700);
         break;
       case 2:
-        icon = Icons.emoji_events;
-        color = Colors.grey[400]!;
+        icon = Icons.emoji_events_rounded;
+        gradientColors = [
+          const Color(0xFFE0E0E0),
+          const Color(0xFFBDBDBD),
+        ];
+        shadowColor = const Color(0xFFBDBDBD);
         break;
       case 3:
-        icon = Icons.emoji_events;
-        color = Colors.brown[300]!;
+        icon = Icons.emoji_events_rounded;
+        gradientColors = [
+          const Color(0xFFD4A574),
+          const Color(0xFFCD7F32),
+        ];
+        shadowColor = const Color(0xFFCD7F32);
         break;
       default:
-        return CircleAvatar(
-          backgroundColor: colorScheme.surfaceContainerHighest,
-          child: Text(
-            '#$position',
-            style: TextStyle(color: colorScheme.onSurfaceVariant, fontWeight: FontWeight.bold),
+        return Container(
+          width: 48,
+          height: 48,
+          decoration: BoxDecoration(
+            color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: colorScheme.outlineVariant.withValues(alpha: 0.3),
+              width: 2,
+            ),
+          ),
+          child: Center(
+            child: Text(
+              '#$position',
+              style: TextStyle(
+                color: colorScheme.onSurfaceVariant,
+                fontWeight: FontWeight.bold,
+                fontSize: 15,
+              ),
+            ),
           ),
         );
     }
 
-    return CircleAvatar(
-      backgroundColor: color.withAlpha((0.2 * 255).round()),
-      child: Icon(icon, color: color),
+    return Container(
+      width: 48,
+      height: 48,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: gradientColors,
+        ),
+        shape: BoxShape.circle,
+        boxShadow: [
+          BoxShadow(
+            color: shadowColor.withValues(alpha: 0.4),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Icon(icon, color: Colors.white, size: 28),
     );
   }
 }

@@ -34,6 +34,9 @@ export class TaskService {
    * Создать задачу (только админы группы)
    */
   async createTask(userId: string, input: CreateTaskInput) {
+    console.log('[TaskService.createTask] Input:', JSON.stringify(input, null, 2));
+    console.log('[TaskService.createTask] UserId:', userId);
+
     const {
       title,
       description,

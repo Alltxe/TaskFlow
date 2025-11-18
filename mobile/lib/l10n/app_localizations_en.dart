@@ -363,6 +363,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get joinGroupTitle => 'Join Group';
 
   @override
+  String get loginRequired => 'Login Required';
+
+  @override
+  String get pleaseLoginToJoinGroup =>
+      'Please login or register to join this group';
+
+  @override
   String get joiningGroup => 'Joining group...';
 
   @override
@@ -894,4 +901,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String tasksForDate(Object date) {
     return 'Tasks for $date';
   }
+
+  @override
+  String get rotationTypeLabel => 'Rotation Type';
+
+  @override
+  String get rotationTypeRoundRobin => 'Round Robin';
+
+  @override
+  String get rotationTypeRandom => 'Random';
+
+  @override
+  String get rotationTypeLoadBalancing => 'Load Balancing';
+
+  @override
+  String get rotationTypeDisabled => 'Disabled (Manual)';
+
+  @override
+  String get pleaseSelectDeadline => 'Please select a deadline';
 }

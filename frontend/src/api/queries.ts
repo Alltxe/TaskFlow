@@ -686,8 +686,13 @@ export const GET_POINT_TRANSACTION_HISTORY_QUERY = gql`
 export const GET_GROUP_LEADERBOARD_QUERY = gql`
   query GetGroupLeaderboard($groupId: String!) {
     getGroupLeaderboard(groupId: $groupId) {
-      userId
-      points
+      user {
+        id
+        username
+        avatarUrl
+        email
+      }
+      pointsEarned
       rank
     }
   }

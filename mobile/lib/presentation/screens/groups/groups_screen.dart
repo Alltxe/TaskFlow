@@ -92,34 +92,127 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
       itemCount: groups.length,
       itemBuilder: (context, index) {
         final group = groups[index];
-        return Card(
+        return Container(
           margin: const EdgeInsets.only(bottom: 12),
-          child: ListTile(
-            contentPadding: const EdgeInsets.all(16),
-            leading: CircleAvatar(
-              backgroundColor: colorScheme.primaryContainer,
-              child: Icon(Icons.groups, color: colorScheme.onPrimaryContainer),
+          decoration: BoxDecoration(
+            color: colorScheme.surface,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+              width: 1,
             ),
-            title: Text(group.name, style: Theme.of(context).textTheme.titleMedium),
-            subtitle: group.description != null
-                ? Padding(
-                    padding: const EdgeInsets.only(top: 4),
-                    child: Text(group.description!, maxLines: 2, overflow: TextOverflow.ellipsis),
-                  )
-                : null,
-            trailing: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                if (group.gamificationEnabled)
-                  Chip(
-                    label: Text(AppLocalizations.of(context)!.gamified),
-                    labelStyle: TextStyle(fontSize: 11, color: colorScheme.onSecondaryContainer),
-                    backgroundColor: colorScheme.secondaryContainer,
-                    visualDensity: VisualDensity.compact,
-                  ),
-              ],
-            ),
+          ),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(16),
             onTap: () => context.push('/groups/${group.id}'),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      // Group icon
+                      Container(
+                        width: 56,
+                        height: 56,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              colorScheme.primary.withValues(alpha: 0.8),
+                              colorScheme.primary,
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: colorScheme.primary.withValues(alpha: 0.3),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Icon(
+                          Icons.groups_rounded,
+                          color: colorScheme.onPrimary,
+                          size: 32,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      // Group name
+                      Expanded(
+                        child: Text(
+                          group.name,
+                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: colorScheme.onSurface,
+                          ),
+                        ),
+                      ),
+                      // Arrow icon
+                      Icon(
+                        Icons.chevron_right,
+                        color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
+                        size: 28,
+                      ),
+                    ],
+                  ),
+                  if (group.description != null || group.gamificationEnabled) ...[
+                    const SizedBox(height: 12),
+                    if (group.description != null) ...[
+                      Text(
+                        group.description!,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: colorScheme.onSurfaceVariant,
+                          height: 1.4,
+                        ),
+                      ),
+                    ],
+                    if (group.gamificationEnabled) ...[
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF2196F3).withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(
+                                color: const Color(0xFF2196F3).withValues(alpha: 0.3),
+                                width: 1,
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(
+                                  Icons.stars_rounded,
+                                  size: 16,
+                                  color: Color(0xFF2196F3),
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  AppLocalizations.of(context)!.gamified,
+                                  style: const TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                    color: Color(0xFF2196F3),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ],
+                ],
+              ),
+            ),
           ),
         );
       },

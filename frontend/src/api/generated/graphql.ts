@@ -173,9 +173,9 @@ export type JoinGroupInput = {
 
 export type LeaderboardEntryType = {
   __typename?: 'LeaderboardEntryType';
-  points: Scalars['Int']['output'];
+  pointsEarned: Scalars['Int']['output'];
   rank: Scalars['Int']['output'];
-  userId: Scalars['ID']['output'];
+  user: UserType;
 };
 
 export type ListNotificationsInput = {
@@ -1227,7 +1227,7 @@ export type GetGroupLeaderboardQueryVariables = Exact<{
 }>;
 
 
-export type GetGroupLeaderboardQuery = { __typename?: 'Query', getGroupLeaderboard: Array<{ __typename?: 'LeaderboardEntryType', userId: string, points: number, rank: number }> };
+export type GetGroupLeaderboardQuery = { __typename?: 'Query', getGroupLeaderboard: Array<{ __typename?: 'LeaderboardEntryType', pointsEarned: number, rank: number, user: { __typename?: 'UserType', id: string, username: string, avatarUrl?: string | null, email: string } }> };
 
 
 export const LoginDocument = gql`
@@ -2014,8 +2014,13 @@ export function useGetPointTransactionHistoryQuery(options?: Omit<Urql.UseQueryA
 export const GetGroupLeaderboardDocument = gql`
     query GetGroupLeaderboard($groupId: String!) {
   getGroupLeaderboard(groupId: $groupId) {
-    userId
-    points
+    user {
+      id
+      username
+      avatarUrl
+      email
+    }
+    pointsEarned
     rank
   }
 }

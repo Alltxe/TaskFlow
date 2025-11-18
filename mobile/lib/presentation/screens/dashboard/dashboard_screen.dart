@@ -61,9 +61,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     final username = authState.user?.username ?? '';
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(AppLocalizations.of(context)!.home),
-      ),
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.home)),
       body: RefreshIndicator(
         onRefresh: () async {
           ref.invalidate(getUserTasksUseCaseProvider);
@@ -108,41 +106,35 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         if (!snapshot.hasData) return const SizedBox.shrink();
 
         final groupsResult = snapshot.data!;
-        return groupsResult.fold(
-          (failure) => const SizedBox.shrink(),
-          (groups) {
-            if (groups.isEmpty) return const SizedBox.shrink();
+        return groupsResult.fold((failure) => const SizedBox.shrink(), (groups) {
+          if (groups.isEmpty) return const SizedBox.shrink();
 
-            return Card(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: DropdownButton<String?>(
-                  isExpanded: true,
-                  value: _selectedGroupId,
-                  underline: const SizedBox.shrink(),
-                  hint: Text(AppLocalizations.of(context)!.filterByGroup),
-                  items: [
-                    DropdownMenuItem<String?>(
-                      value: null,
-                      child: Text(AppLocalizations.of(context)!.allGroups),
-                    ),
-                    ...groups.map((group) {
-                      return DropdownMenuItem<String?>(
-                        value: group.id,
-                        child: Text(group.name),
-                      );
-                    }),
-                  ],
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedGroupId = value;
-                    });
-                  },
-                ),
+          return Card(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: DropdownButton<String?>(
+                isExpanded: true,
+                value: _selectedGroupId,
+                underline: const SizedBox.shrink(),
+                hint: Text(AppLocalizations.of(context)!.filterByGroup),
+                items: [
+                  DropdownMenuItem<String?>(
+                    value: null,
+                    child: Text(AppLocalizations.of(context)!.allGroups),
+                  ),
+                  ...groups.map((group) {
+                    return DropdownMenuItem<String?>(value: group.id, child: Text(group.name));
+                  }),
+                ],
+                onChanged: (value) {
+                  setState(() {
+                    _selectedGroupId = value;
+                  });
+                },
               ),
-            );
-          },
-        );
+            ),
+          );
+        });
       },
     );
   }
@@ -175,12 +167,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             ),
             const SizedBox(height: 12),
             GridView.count(
-              crossAxisCount: 2,
+              crossAxisCount: 3,
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              mainAxisSpacing: 12,
-              crossAxisSpacing: 12,
-              childAspectRatio: 1.5,
+              mainAxisSpacing: 8,
+              crossAxisSpacing: 8,
+              childAspectRatio: 0.85,
               children: [
                 _buildStatCard(
                   AppLocalizations.of(context)!.tasksAssigned,
@@ -200,12 +192,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   Icons.star,
                   Colors.amber,
                 ),
-                _buildStatCard(
-                  AppLocalizations.of(context)!.completionRateLabel,
-                  '${stats.completionRate.toStringAsFixed(0)}%',
-                  Icons.trending_up,
-                  Colors.purple,
-                ),
               ],
             ),
           ],
@@ -217,24 +203,23 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   Widget _buildStatCard(String title, String value, IconData icon, Color color) {
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(8),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, color: color, size: 28),
-            const SizedBox(height: 6),
+            Icon(icon, color: color, size: 24),
+            const SizedBox(height: 4),
             Flexible(
               child: Text(
                 value,
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: color,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold, color: color),
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-            const SizedBox(height: 2),
+            const SizedBox(height: 1),
             Flexible(
               child: Text(
                 title,
@@ -316,20 +301,20 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       Text(
                         _getWeekdayName(date.weekday),
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: isSelected
-                                  ? Theme.of(context).colorScheme.onPrimaryContainer
-                                  : Theme.of(context).colorScheme.onSurfaceVariant,
-                            ),
+                          color: isSelected
+                              ? Theme.of(context).colorScheme.onPrimaryContainer
+                              : Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         DateFormat('d').format(date),
                         style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: isSelected
-                                  ? Theme.of(context).colorScheme.onPrimaryContainer
-                                  : Theme.of(context).colorScheme.onSurface,
-                            ),
+                          fontWeight: FontWeight.bold,
+                          color: isSelected
+                              ? Theme.of(context).colorScheme.onPrimaryContainer
+                              : Theme.of(context).colorScheme.onSurface,
+                        ),
                       ),
                     ],
                   ),
@@ -377,9 +362,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         if (snapshot.hasError || !snapshot.hasData) {
           return Center(
             child: Text(
-              AppLocalizations.of(context)!.errorWithMessage(
-                snapshot.error?.toString() ?? 'Unknown error',
-              ),
+              AppLocalizations.of(
+                context,
+              )!.errorWithMessage(snapshot.error?.toString() ?? 'Unknown error'),
               style: TextStyle(color: Theme.of(context).colorScheme.error),
             ),
           );
@@ -398,8 +383,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             final filteredTasks = allTasks.where((task) {
               final taskDate = task.deadline;
               final matchesDate = _isSameDay(taskDate, _selectedDate);
-              final matchesGroup =
-                  _selectedGroupId == null || task.groupId == _selectedGroupId;
+              final matchesGroup = _selectedGroupId == null || task.groupId == _selectedGroupId;
               return matchesDate && matchesGroup;
             }).toList();
 
@@ -414,9 +398,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  AppLocalizations.of(context)!.tasksForDate(
-                    DateFormat('MMM d, y').format(_selectedDate),
-                  ),
+                  AppLocalizations.of(
+                    context,
+                  )!.tasksForDate(DateFormat('MMM d, y').format(_selectedDate)),
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
                 const SizedBox(height: 12),
@@ -435,8 +419,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                           Text(
                             AppLocalizations.of(context)!.noTasksDueToday,
                             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                ),
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            ),
                           ),
                         ],
                       ),
@@ -446,10 +430,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   ...filteredTasks.map((task) {
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 8),
-                      child: TaskCard(
-                        task: task,
-                        onTap: () => context.push('/tasks/${task.id}'),
-                      ),
+                      child: TaskCard(task: task, onTap: () => context.push('/tasks/${task.id}')),
                     );
                   }),
               ],

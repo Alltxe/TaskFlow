@@ -30,6 +30,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       final isLoading = authState.status == AuthStatus.loading;
       final isOnSplash = state.matchedLocation == '/';
       final isOnAuth = state.matchedLocation == '/login' || state.matchedLocation == '/register';
+      final isOnJoin = state.matchedLocation.startsWith('/join/');
 
       // If loading, stay on splash
       if (isLoading && !isOnSplash) {
@@ -39,6 +40,11 @@ final routerProvider = Provider<GoRouter>((ref) {
       // If authenticated, redirect to home
       if (isAuthenticated && (isOnSplash || isOnAuth)) {
         return '/home';
+      }
+
+      // Allow join group screen for unauthenticated users
+      if (isOnJoin) {
+        return null; // Allow access to join screen
       }
 
       // If not authenticated and not loading, redirect to login

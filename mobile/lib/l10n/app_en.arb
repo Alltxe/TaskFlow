@@ -131,6 +131,8 @@
     "roleChangedTo": "Role changed to {newRole}",
     "joinedSuccessfully": "Joined \"{groupName}\" successfully!",
     "joinGroupTitle": "Join Group",
+    "loginRequired": "Login Required",
+    "pleaseLoginToJoinGroup": "Please login or register to join this group",
     "joiningGroup": "Joining group...",
     "pleaseWait": "Please wait",
     "failedToJoinGroup": "Failed to join group",
@@ -366,5 +368,11 @@
         "placeholders": {
             "date": {}
         }
-    }
+    },
+    "rotationTypeLabel": "Rotation Type",
+    "rotationTypeRoundRobin": "Round Robin",
+    "rotationTypeRandom": "Random",
+    "rotationTypeLoadBalancing": "Load Balancing",
+    "rotationTypeDisabled": "Disabled (Manual)",
+    "pleaseSelectDeadline": "Please select a deadline"
 }

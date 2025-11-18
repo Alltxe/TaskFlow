@@ -118,7 +118,7 @@ export const Profile: FC = () => {
 
   if (!user) {
     return (
-      <Container maxWidth="md" sx={{ mt: 4 }}>
+      <Container maxWidth="md" sx={{ mt: 20 }}>
         <Alert severity="error">Пользователь не авторизован</Alert>
       </Container>
     )
@@ -127,7 +127,7 @@ export const Profile: FC = () => {
   const stats = statsData?.myStatistics
 
   return (
-    <Container maxWidth="md" sx={{ mt: 4, mb: 8 }}>
+    <Container maxWidth="md" sx={{ mt: 25, mb: 8 }}>
       {/* Profile Header */}
       <Paper sx={{ p: 3, mb: 3 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>

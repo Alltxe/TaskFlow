@@ -197,14 +197,16 @@ export const GroupTasks: FC = () => {
         <Typography variant="h4" component="h1">
           Задачи группы
         </Typography>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          size="large"
-          onClick={() => setCreateModalOpen(true)}
-        >
-          Создать задачу
-        </Button>
+        {isAdmin && (
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            size="large"
+            onClick={() => setCreateModalOpen(true)}
+          >
+            Создать задачу
+          </Button>
+        )}
       </Box>
 
       {/* Tabs */}
@@ -258,7 +260,7 @@ export const GroupTasks: FC = () => {
       <Paper sx={{ p: 2, mb: 3 }}>
         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, alignItems: 'center' }}>
           {/* View Mode Toggle */}
-          <ToggleButtonGroup
+          {/* <ToggleButtonGroup
             value={viewMode}
             exclusive
             onChange={(_, value) => value && setViewMode(value)}
@@ -273,7 +275,7 @@ export const GroupTasks: FC = () => {
             <ToggleButton value="calendar" disabled>
               <CalendarIcon />
             </ToggleButton>
-          </ToggleButtonGroup>
+          </ToggleButtonGroup> */}
 
           {/* Search */}
           <TextField
@@ -420,19 +422,21 @@ export const GroupTasks: FC = () => {
       )}
 
       {/* Floating Action Button for mobile */}
-      <Fab
-        color="primary"
-        aria-label="add task"
-        onClick={() => setCreateModalOpen(true)}
-        sx={{
-          position: 'fixed',
-          bottom: 16,
-          right: 16,
-          display: { xs: 'flex', sm: 'none' },
-        }}
-      >
-        <AddIcon />
-      </Fab>
+      {isAdmin && (
+        <Fab
+          color="primary"
+          aria-label="add task"
+          onClick={() => setCreateModalOpen(true)}
+          sx={{
+            position: 'fixed',
+            bottom: 16,
+            right: 16,
+            display: { xs: 'flex', sm: 'none' },
+          }}
+        >
+          <AddIcon />
+        </Fab>
+      )}
 
       {/* Create Task Modal */}
       <CreateTaskModal

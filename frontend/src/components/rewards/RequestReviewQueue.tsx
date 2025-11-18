@@ -37,7 +37,7 @@ export interface RequestReviewQueueProps {
 }
 
 export const RequestReviewQueue: FC<RequestReviewQueueProps> = ({ groupId }) => {
-  const [rejectDialogOpen, setRejectDialogOpen] = useState(false)
+
   const [selectedRequestId, setSelectedRequestId] = useState<string | null>(null)
   const [rejectionReason, setRejectionReason] = useState('')
 
@@ -54,7 +54,7 @@ export const RequestReviewQueue: FC<RequestReviewQueueProps> = ({ groupId }) => 
     const result = await approveRequest({
       input: {
         requestId,
-        approve: true,
+        approved: true,
       },
     })
 
@@ -69,7 +69,7 @@ export const RequestReviewQueue: FC<RequestReviewQueueProps> = ({ groupId }) => 
 
   const handleRejectClick = (requestId: string) => {
     setSelectedRequestId(requestId)
-    setRejectDialogOpen(true)
+    handleRejectConfirm()
   }
 
   const handleRejectConfirm = async () => {
@@ -78,8 +78,7 @@ export const RequestReviewQueue: FC<RequestReviewQueueProps> = ({ groupId }) => 
     const result = await approveRequest({
       input: {
         requestId: selectedRequestId,
-        approve: false,
-        rejectionReason: rejectionReason.trim() || 'Запрос отклонен администратором',
+        approved: false,
       },
     })
 
@@ -89,7 +88,6 @@ export const RequestReviewQueue: FC<RequestReviewQueueProps> = ({ groupId }) => 
     }
 
     showToast('Запрос награды отклонен. Баллы возвращены пользователю.', 'success')
-    setRejectDialogOpen(false)
     setSelectedRequestId(null)
     setRejectionReason('')
     reexecuteQuery({ requestPolicy: 'network-only' })
@@ -188,29 +186,6 @@ export const RequestReviewQueue: FC<RequestReviewQueueProps> = ({ groupId }) => 
           </TableBody>
         </Table>
       </TableContainer>
-
-      {/* Reject Dialog */}
-      <Dialog open={rejectDialogOpen} onClose={() => setRejectDialogOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>Отклонить запрос награды</DialogTitle>
-        <DialogContent>
-          <TextField
-            label="Причина отклонения (необязательно)"
-            value={rejectionReason}
-            onChange={(e) => setRejectionReason(e.target.value)}
-            fullWidth
-            multiline
-            rows={3}
-            placeholder="Укажите причину отклонения..."
-            sx={{ mt: 2 }}
-          />
-        </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 2 }}>
-          <Button onClick={() => setRejectDialogOpen(false)}>Отмена</Button>
-          <Button onClick={handleRejectConfirm} variant="contained" color="error">
-            Отклонить запрос
-          </Button>
-        </DialogActions>
-      </Dialog>
     </>
   )
 }

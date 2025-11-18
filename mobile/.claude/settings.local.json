@@ -7,7 +7,15 @@
       "Bash(flutter analyze:*)",
       "Bash(find:*)",
       "Bash(flutter gen-l10n:*)",
-      "Bash(findstr:*)"
+      "Bash(findstr:*)",
+      "Bash(dart format:*)",
+      "Bash(cat:*)",
+      "Bash(flutter build:*)",
+      "Bash(dart analyze:*)",
+      "Bash(nul)",
+      "Bash(dir libl10n*.dart /b 2)",
+      "Bash(dir .dart_toolflutter_gengen_l10n 2)",
+      "Bash(dir .dart_toolflutter_gengen_l10n*.dart /b 2)"
     ],
     "deny": [],
     "ask": []

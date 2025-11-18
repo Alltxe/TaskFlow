@@ -369,6 +369,13 @@ class AppLocalizationsRu extends AppLocalizations {
   String get joinGroupTitle => 'Присоединиться к группе';
 
   @override
+  String get loginRequired => 'Требуется вход';
+
+  @override
+  String get pleaseLoginToJoinGroup =>
+      'Пожалуйста, войдите или зарегистрируйтесь, чтобы присоединиться к группе';
+
+  @override
   String get joiningGroup => 'Присоединение к группе...';
 
   @override
@@ -903,4 +910,22 @@ class AppLocalizationsRu extends AppLocalizations {
   String tasksForDate(Object date) {
     return 'Задачи на $date';
   }
+
+  @override
+  String get rotationTypeLabel => 'Тип ротации';
+
+  @override
+  String get rotationTypeRoundRobin => 'По очереди';
+
+  @override
+  String get rotationTypeRandom => 'Случайно';
+
+  @override
+  String get rotationTypeLoadBalancing => 'Балансировка нагрузки';
+
+  @override
+  String get rotationTypeDisabled => 'Отключено (Вручную)';
+
+  @override
+  String get pleaseSelectDeadline => 'Пожалуйста, выберите срок';
 }

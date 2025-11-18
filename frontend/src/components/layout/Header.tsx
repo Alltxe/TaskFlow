@@ -56,9 +56,9 @@ export function Header() {
   const menuItems = [
     { text: 'Дашборд', icon: <DashboardIcon />, path: '/dashboard' },
     { text: 'Группы', icon: <GroupIcon />, path: '/groups' },
-    { text: 'Мои задачи', icon: <TaskIcon />, path: '/tasks' },
-    { text: 'Награды', icon: <RewardsIcon />, path: '/rewards' },
-    { text: 'Рейтинг', icon: <LeaderboardIcon />, path: '/leaderboard' },
+    // { text: 'Мои задачи', icon: <TaskIcon />, path: '/tasks' },
+    // { text: 'Награды', icon: <RewardsIcon />, path: '/rewards' },
+    // { text: 'Рейтинг', icon: <LeaderboardIcon />, path: '/leaderboard' },
   ]
 
   const handleProfileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {

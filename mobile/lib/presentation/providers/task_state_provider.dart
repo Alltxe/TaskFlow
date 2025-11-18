@@ -4,11 +4,18 @@ import 'package:mobile/domain/usecases/task/task_usecase_providers.dart';
 
 /// Task list state for a specific group
 final groupTasksProvider = FutureProvider.family<List<Task>, String>((ref, groupId) async {
+  print('[TaskProvider] groupTasksProvider called for groupId: $groupId');
   final useCase = ref.watch(getGroupTasksUseCaseProvider);
   final result = await useCase(groupId, status: null);
   return result.fold(
-    (failure) => throw Exception(failure.message),
-    (tasks) => tasks,
+    (failure) {
+      print('[TaskProvider] groupTasksProvider failed: ${failure.message}');
+      throw Exception(failure.message);
+    },
+    (tasks) {
+      print('[TaskProvider] groupTasksProvider success - ${tasks.length} tasks loaded');
+      return tasks;
+    },
   );
 });
 

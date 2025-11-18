@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-Guidance for Claude Code when working with TaskFlow frontend.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Project Overview
 
@@ -51,13 +51,19 @@ src/
 npm run build            # TypeScript + Vite build (use this to check compilation)
 npm run lint             # Check code style
 npm run lint:fix         # Auto-fix lint issues
+npm run format           # Format code with Prettier
+npm run format:check     # Check code formatting
 
 # GraphQL (requires backend on port 3000)
 npm run codegen          # Generate types from GraphQL schema
+npm run codegen:watch    # Generate types in watch mode
 
 # Testing
-npm test                 # Run unit tests
-npm run test:e2e         # E2E tests (requires backend)
+npm test                 # Run unit tests (Vitest)
+npm run test:ui          # Run tests with Vitest UI
+npm run test:coverage    # Run tests with coverage report
+npm run test:e2e         # E2E tests with Playwright (requires backend)
+npm run test:e2e:ui      # E2E tests with Playwright UI
 ```
 
 ## Workflow Rules
@@ -111,9 +117,16 @@ const [, mutate] = useMutation(MY_MUTATION)
 
 ### Routing (React Router 7)
 - **Public**: `/`, `/login`, `/register`
-- **Protected**: `/dashboard` + future `/group/:id/*` routes
+- **Protected**: `/dashboard`, `/groups`, `/profile`, `/join/:inviteToken`
+- **Group routes**: `/group/:groupId/*` - uses `<GroupLayout>` with nested routes:
+  - `/group/:groupId/tasks` - Task management
+  - `/group/:groupId/members` - Member management
+  - `/group/:groupId/settings` - Group settings (admin only)
+  - `/group/:groupId/rotation` - Rotation schedule
+  - `/group/:groupId/rewards` - Rewards catalog
+  - `/group/:groupId/leaderboard` - Points leaderboard
 - **Protection**: `<ProtectedRoute>` checks `authStore.isAuthenticated`
-- **Layout**: `<AppShell>` wraps authenticated pages (Header + Sidebar)
+- **Layout**: `<AppShell>` wraps all authenticated pages (Header + Sidebar)
 
 ### Component Patterns
 - **Functional components** with TypeScript (.tsx)
@@ -170,6 +183,17 @@ const [, mutate] = useMutation(MY_MUTATION)
 2. **Auth token not sent**: Token read from localStorage `auth-storage` key automatically
 3. **Routes not working**: Check `authStore.isAuthenticated` for protected routes
 4. **Path alias errors**: Must be in both `tsconfig.app.json` and `vite.config.ts`
+5. **Tests failing on Windows**: Tests run sequentially to avoid EMFILE errors. MUI icons are mocked in test environment.
+
+## Environment Setup
+
+Create `.env` file from `.env.example`:
+```bash
+VITE_API_URL=http://localhost:3000/graphql
+VITE_WS_URL=ws://localhost:3000/graphql
+```
+
+Backend must be running on port 3000 for GraphQL operations and codegen.
 
 ## Documentation
 
@@ -177,6 +201,7 @@ const [, mutate] = useMutation(MY_MUTATION)
 - `.docs/GRAPHQL_API_DOCUMENTATION.md` - API guide with examples
 - `.docs/schema.gql` - GraphQL schema
 - `.docs/DEVELOPMENT_ROADMAP.md` - Development phases
+- `.docs/BACKEND_API_REQUIREMENTS.md` - Backend API requirements
 
 ## File Operations
 

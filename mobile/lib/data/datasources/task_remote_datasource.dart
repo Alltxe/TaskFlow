@@ -63,21 +63,28 @@ class TaskRemoteDataSource {
     ''';
 
     try {
+      final variables = {'groupId': groupId, if (status != null) 'status': status};
+      print('[GetGroupTasks] Request - groupId: $groupId, status: $status');
+      print('[GetGroupTasks] Variables: $variables');
+
       final result = await client.query(
         QueryOptions(
           document: gql(query + _taskFragment + _userFragment),
-          variables: {'groupId': groupId, if (status != null) 'status': status},
+          variables: variables,
           fetchPolicy: FetchPolicy.networkOnly,
         ),
       );
 
       if (result.hasException) {
+        print('[GetGroupTasks] Exception: ${result.exception}');
         _handleGraphQLException(result.exception!);
       }
 
       final List<dynamic> tasksData = result.data?['getGroupTasks'] ?? [];
+      print('[GetGroupTasks] Success - received ${tasksData.length} tasks');
       return tasksData.map((json) => Task.fromJson(json)).toList();
     } catch (e) {
+      print('[GetGroupTasks] Error: $e');
       if (e is app_exceptions.AppException) rethrow;
       throw app_exceptions.NetworkException(
         message: 'Failed to fetch group tasks: ${e.toString()}',
@@ -111,7 +118,9 @@ class TaskRemoteDataSource {
       return tasksData.map((json) => Task.fromJson(json)).toList();
     } catch (e) {
       if (e is app_exceptions.AppException) rethrow;
-      throw app_exceptions.NetworkException(message: 'Failed to fetch user tasks: ${e.toString()}');
+      throw app_exceptions.NetworkException(
+        message: 'Failed to fetch user tasks: ${e.toString()}',
+      );
     }
   }
 
@@ -145,7 +154,9 @@ class TaskRemoteDataSource {
       return Task.fromJson(taskData);
     } catch (e) {
       if (e is app_exceptions.AppException) rethrow;
-      throw app_exceptions.NetworkException(message: 'Failed to fetch task: ${e.toString()}');
+      throw app_exceptions.NetworkException(
+        message: 'Failed to fetch task: ${e.toString()}',
+      );
     }
   }
 
@@ -161,26 +172,35 @@ class TaskRemoteDataSource {
     ''';
 
     try {
+      final inputJson = request.toJson();
+      print('[CreateTask] Request JSON: $inputJson');
+
       final result = await client.mutate(
         MutationOptions(
           document: gql(mutation + _taskFragment + _userFragment),
-          variables: {'input': request.toJson()},
+          variables: {'input': inputJson},
         ),
       );
 
       if (result.hasException) {
+        print('[CreateTask] Exception: ${result.exception}');
         _handleGraphQLException(result.exception!);
       }
 
       final taskData = result.data?['createTask'];
       if (taskData == null) {
-        throw const app_exceptions.ServerException(message: 'Failed to create task');
+        throw const app_exceptions.ServerException(
+          message: 'Failed to create task',
+        );
       }
 
       return Task.fromJson(taskData);
     } catch (e) {
+      print('[CreateTask] Error: $e');
       if (e is app_exceptions.AppException) rethrow;
-      throw app_exceptions.NetworkException(message: 'Failed to create task: ${e.toString()}');
+      throw app_exceptions.NetworkException(
+        message: 'Failed to create task: ${e.toString()}',
+      );
     }
   }
 
@@ -207,13 +227,17 @@ class TaskRemoteDataSource {
 
       final taskData = result.data?['updateTask'];
       if (taskData == null) {
-        throw const app_exceptions.ServerException(message: 'Failed to update task');
+        throw const app_exceptions.ServerException(
+          message: 'Failed to update task',
+        );
       }
 
       return Task.fromJson(taskData);
     } catch (e) {
       if (e is app_exceptions.AppException) rethrow;
-      throw app_exceptions.NetworkException(message: 'Failed to update task: ${e.toString()}');
+      throw app_exceptions.NetworkException(
+        message: 'Failed to update task: ${e.toString()}',
+      );
     }
   }
 
@@ -234,7 +258,9 @@ class TaskRemoteDataSource {
       }
     } catch (e) {
       if (e is app_exceptions.AppException) rethrow;
-      throw app_exceptions.NetworkException(message: 'Failed to delete task: ${e.toString()}');
+      throw app_exceptions.NetworkException(
+        message: 'Failed to delete task: ${e.toString()}',
+      );
     }
   }
 
@@ -252,7 +278,7 @@ class TaskRemoteDataSource {
         MutationOptions(
           document: gql(mutation + _taskFragment + _userFragment),
           variables: {
-            'input': {'taskId': taskId}
+            'input': {'taskId': taskId},
           },
         ),
       );
@@ -263,16 +289,19 @@ class TaskRemoteDataSource {
 
       final taskData = result.data?['claimTask'];
       if (taskData == null) {
-        throw const app_exceptions.ServerException(message: 'Failed to claim task');
+        throw const app_exceptions.ServerException(
+          message: 'Failed to claim task',
+        );
       }
 
       return Task.fromJson(taskData);
     } catch (e) {
       if (e is app_exceptions.AppException) rethrow;
-      throw app_exceptions.NetworkException(message: 'Failed to claim task: ${e.toString()}');
+      throw app_exceptions.NetworkException(
+        message: 'Failed to claim task: ${e.toString()}',
+      );
     }
   }
-
 
   Future<Task> completeTask(String taskId) async {
     const mutation = r'''
@@ -288,7 +317,7 @@ class TaskRemoteDataSource {
         MutationOptions(
           document: gql(mutation + _taskFragment + _userFragment),
           variables: {
-            'input': {'taskId': taskId}
+            'input': {'taskId': taskId},
           },
         ),
       );
@@ -299,17 +328,25 @@ class TaskRemoteDataSource {
 
       final taskData = result.data?['completeTask'];
       if (taskData == null) {
-        throw const app_exceptions.ServerException(message: 'Failed to complete task');
+        throw const app_exceptions.ServerException(
+          message: 'Failed to complete task',
+        );
       }
 
       return Task.fromJson(taskData);
     } catch (e) {
       if (e is app_exceptions.AppException) rethrow;
-      throw app_exceptions.NetworkException(message: 'Failed to complete task: ${e.toString()}');
+      throw app_exceptions.NetworkException(
+        message: 'Failed to complete task: ${e.toString()}',
+      );
     }
   }
 
-  Future<Task> approveTask(String taskId, bool approved, {String? rejectionReason}) async {
+  Future<Task> approveTask(
+    String taskId,
+    bool approved, {
+    String? rejectionReason,
+  }) async {
     const mutation = r'''
       mutation ApproveTask($input: ApproveTaskInput!) {
         approveTask(input: $input) {
@@ -327,7 +364,7 @@ class TaskRemoteDataSource {
               'taskId': taskId,
               'approved': approved,
               if (rejectionReason != null) 'rejectionReason': rejectionReason,
-            }
+            },
           },
         ),
       );
@@ -338,13 +375,17 @@ class TaskRemoteDataSource {
 
       final taskData = result.data?['approveTask'];
       if (taskData == null) {
-        throw const app_exceptions.ServerException(message: 'Failed to approve/reject task');
+        throw const app_exceptions.ServerException(
+          message: 'Failed to approve/reject task',
+        );
       }
 
       return Task.fromJson(taskData);
     } catch (e) {
       if (e is app_exceptions.AppException) rethrow;
-      throw app_exceptions.NetworkException(message: 'Failed to approve/reject task: ${e.toString()}');
+      throw app_exceptions.NetworkException(
+        message: 'Failed to approve/reject task: ${e.toString()}',
+      );
     }
   }
 

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:mobile/data/models/group.dart';
 import 'package:mobile/data/providers/group_providers.dart';
 import 'package:mobile/l10n/app_localizations.dart';
+import 'package:share_plus/share_plus.dart';
 
 class InviteScreen extends ConsumerStatefulWidget {
   final String groupId;
@@ -109,11 +109,12 @@ $_inviteLink
 
     return Scaffold(
       appBar: AppBar(title: Text(AppLocalizations.of(context)!.inviteMembers)),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
             // Info card
             Card(
               color: colorScheme.primaryContainer,
@@ -224,7 +225,7 @@ $_inviteLink
               icon: const Icon(Icons.copy),
               label: Text(AppLocalizations.of(context)!.copyInviteLink),
             ),
-            const Spacer(),
+            const SizedBox(height: 32),
 
             // Info text
             Text(
@@ -233,6 +234,7 @@ $_inviteLink
               textAlign: TextAlign.center,
             ),
           ],
+        ),
         ),
       ),
     );

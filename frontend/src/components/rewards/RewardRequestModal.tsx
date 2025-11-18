@@ -46,7 +46,6 @@ export const RewardRequestModal: FC<RewardRequestModalProps> = ({
     const result = await requestReward({
       input: {
         rewardId: reward.id,
-        groupId,
       },
     })
 

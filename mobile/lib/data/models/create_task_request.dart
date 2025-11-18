@@ -11,7 +11,8 @@ class CreateTaskRequest with _$CreateTaskRequest {
     String? description,
     required DateTime deadline,
     required String priority, // LOW, MEDIUM, HIGH
-    int? points,
+    required int points,
+    bool? requiresApproval,
     String? assigneeId,
     bool? isRecurring,
     String? recurrenceRule,

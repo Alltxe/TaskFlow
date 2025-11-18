@@ -15,16 +15,22 @@ class TaskRepositoryImpl implements TaskRepository {
 
   @override
   Future<Either<Failure, List<Task>>> getGroupTasks(String groupId, {String? status}) async {
+    print('[TaskRepository] getGroupTasks called - groupId: $groupId, status: $status');
     try {
       final tasks = await remoteDataSource.getGroupTasks(groupId, status: status);
+      print('[TaskRepository] getGroupTasks success - received ${tasks.length} tasks');
       return Right(tasks);
     } on NetworkException catch (e) {
+      print('[TaskRepository] getGroupTasks NetworkException: ${e.message}');
       return Left(NetworkFailure(message: e.message));
     } on ServerException catch (e) {
+      print('[TaskRepository] getGroupTasks ServerException: ${e.message}');
       return Left(ServerFailure(message: e.message));
     } on AuthException catch (e) {
+      print('[TaskRepository] getGroupTasks AuthException: ${e.message}');
       return Left(AuthFailure(message: e.message));
     } catch (e) {
+      print('[TaskRepository] getGroupTasks UnknownException: $e');
       return Left(UnknownFailure(message: e.toString()));
     }
   }

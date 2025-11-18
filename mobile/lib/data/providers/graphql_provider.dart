@@ -182,6 +182,23 @@ final authLinkProvider = Provider<AuthLink>((ref) {
   );
 });
 
+/// Provider for GraphQL Request logging link
+final requestLoggerLinkProvider = Provider<Link>((ref) {
+  return Link.function((request, [forward]) async* {
+    debugPrint('[GraphQL Request] Operation: ${request.operation.operationName}');
+    debugPrint('[GraphQL Request] Variables: ${request.variables}');
+    debugPrint('[GraphQL Request] Query: ${request.operation.document}');
+
+    if (forward != null) {
+      await for (final response in forward(request)) {
+        debugPrint('[GraphQL Response] Data: ${response.data}');
+        debugPrint('[GraphQL Response] Errors: ${response.errors}');
+        yield response;
+      }
+    }
+  });
+});
+
 /// Provider for GraphQL Error link (for logging only)
 final errorLinkProvider = Provider<Link>((ref) {
   return ErrorLink(
@@ -207,9 +224,10 @@ final graphqlLinkProvider = Provider<Link>((ref) {
   final authLink = ref.read(authLinkProvider);
   final refreshTokenLink = ref.read(refreshTokenLinkProvider);
   final errorLink = ref.read(errorLinkProvider);
+  final requestLoggerLink = ref.read(requestLoggerLinkProvider);
 
-  // Chain links: Error -> RefreshToken -> Auth -> HTTP
-  return Link.from([errorLink, refreshTokenLink, authLink, httpLink]);
+  // Chain links: RequestLogger -> Error -> RefreshToken -> Auth -> HTTP
+  return Link.from([requestLoggerLink, errorLink, refreshTokenLink, authLink, httpLink]);
 });
 
 /// Provider for GraphQL Client

@@ -108,7 +108,7 @@ export const GroupSettings: FC = () => {
 
   if (fetching) {
     return (
-      <Container maxWidth="md" sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
+      <Container maxWidth="md" sx={{ mt: 6, mb: 8, display: 'flex', justifyContent: 'center' }}>
         <CircularProgress />
       </Container>
     )
@@ -116,7 +116,7 @@ export const GroupSettings: FC = () => {
 
   if (error) {
     return (
-      <Container maxWidth="md" sx={{ mt: 4 }}>
+      <Container maxWidth="md" sx={{ mt: 20, mb: 8 }}>
         <Alert severity="error">Ошибка загрузки настроек: {error.message}</Alert>
       </Container>
     )
@@ -124,7 +124,7 @@ export const GroupSettings: FC = () => {
 
   if (!isAdmin) {
     return (
-      <Container maxWidth="md" sx={{ mt: 4 }}>
+      <Container maxWidth="md" sx={{ mt: 20, mb: 8 }}>
         <Alert severity="error">
           У вас нет прав для редактирования настроек этой группы. Только администратор может
           изменять настройки.
@@ -137,7 +137,7 @@ export const GroupSettings: FC = () => {
   }
 
   return (
-    <Container maxWidth="md" sx={{ mt: 4, mb: 8 }}>
+    <Container maxWidth="md" sx={{ mt: 20, mb: 8 }}>
       <Box sx={{ mb: 4 }}>
         <Typography variant="h4" component="h1" gutterBottom>
           Настройки группы

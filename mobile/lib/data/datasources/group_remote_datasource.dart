@@ -31,7 +31,7 @@ class GroupRemoteDataSource {
     fragment GroupMemberUserFields on GroupMemberUserType {
       id
       username
-      // email is not available on GroupMemberUserType in the backend schema
+      # email is not available on GroupMemberUserType in the backend schema
       avatarUrl
       isAway
       awayUntil
@@ -160,14 +160,18 @@ class GroupRemoteDataSource {
     ''';
 
     try {
+      final inputJson = request.toJson();
+      print('[CreateGroup] Request JSON: $inputJson');
+
       final result = await client.mutate(
         MutationOptions(
           document: gql(mutation + _groupFragment),
-          variables: {'input': request.toJson()},
+          variables: {'input': inputJson},
         ),
       );
 
       if (result.hasException) {
+        print('[CreateGroup] Exception: ${result.exception}');
         _handleGraphQLException(result.exception!);
       }
 
@@ -178,6 +182,7 @@ class GroupRemoteDataSource {
 
       return Group.fromJson(groupData);
     } catch (e) {
+      print('[CreateGroup] Error: $e');
       if (e is app_exceptions.AppException) rethrow;
       throw app_exceptions.NetworkException(message: 'Failed to create group: ${e.toString()}');
     }
