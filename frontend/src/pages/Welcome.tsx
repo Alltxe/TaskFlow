@@ -67,6 +67,7 @@ export function WelcomePage() {
           </Typography>
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} justifyContent="center">
             <Button
+              data-testid="welcome-register-button"
               variant="contained"
               size="large"
               onClick={() => navigate('/register')}
@@ -84,6 +85,7 @@ export function WelcomePage() {
               Начать работу
             </Button>
             <Button
+              data-testid="welcome-login-button"
               variant="outlined"
               size="large"
               onClick={() => navigate('/login')}

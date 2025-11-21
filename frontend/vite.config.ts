@@ -5,6 +5,15 @@ import path from 'path'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
+  build: {
+    minify: false
+  },
+  css: {
+    modules: {
+      // Это предотвратит хэширование имен в ваших файлах .module.css
+      generateScopedName: '[local]', 
+    },
+  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),

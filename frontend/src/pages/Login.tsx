@@ -107,8 +107,9 @@ export function LoginPage() {
             </Alert>
           )}
 
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} data-testid="login-form">
             <TextField
+              data-testid="login-email-input"
               fullWidth
               label="Email"
               type="email"
@@ -127,6 +128,7 @@ export function LoginPage() {
             />
 
             <TextField
+              data-testid="login-password-input"
               fullWidth
               label="Пароль"
               type={showPassword ? 'text' : 'password'}
@@ -145,6 +147,7 @@ export function LoginPage() {
                 endAdornment: (
                   <InputAdornment position="end">
                     <IconButton
+                      data-testid="login-password-toggle"
                       onClick={() => setShowPassword(!showPassword)}
                       edge="end"
                       disabled={loading}
@@ -157,6 +160,7 @@ export function LoginPage() {
             />
 
             <Button
+              data-testid="login-submit-button"
               type="submit"
               fullWidth
               variant="contained"
@@ -170,7 +174,7 @@ export function LoginPage() {
             <Box sx={{ textAlign: 'center', mt: 2 }}>
               <Typography variant="body2" color="text.secondary">
                 Нет аккаунта?{' '}
-                <Link component={RouterLink} to="/register" underline="hover">
+                <Link data-testid="login-register-link" component={RouterLink} to="/register" underline="hover">
                   Зарегистрироваться
                 </Link>
               </Typography>

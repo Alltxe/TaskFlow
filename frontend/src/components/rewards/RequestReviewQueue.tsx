@@ -12,11 +12,6 @@ import {
   Button,
   Box,
   Chip,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
   CircularProgress,
   Alert,
 } from '@mui/material'
@@ -39,7 +34,6 @@ export interface RequestReviewQueueProps {
 export const RequestReviewQueue: FC<RequestReviewQueueProps> = ({ groupId }) => {
 
   const [selectedRequestId, setSelectedRequestId] = useState<string | null>(null)
-  const [rejectionReason, setRejectionReason] = useState('')
 
   const [requestsResult, reexecuteQuery] = useQuery({
     query: GET_GROUP_REWARD_REQUESTS_QUERY,
@@ -89,7 +83,6 @@ export const RequestReviewQueue: FC<RequestReviewQueueProps> = ({ groupId }) => 
 
     showToast('Запрос награды отклонен. Баллы возвращены пользователю.', 'success')
     setSelectedRequestId(null)
-    setRejectionReason('')
     reexecuteQuery({ requestPolicy: 'network-only' })
   }
 

@@ -11,8 +11,6 @@ import {
   Button,
   CircularProgress,
   Grid,
-  ToggleButtonGroup,
-  ToggleButton,
   FormControl,
   InputLabel,
   Select,
@@ -25,9 +23,6 @@ import {
 } from '@mui/material'
 import {
   Add as AddIcon,
-  ViewList as ListIcon,
-  ViewKanban as KanbanIcon,
-  CalendarMonth as CalendarIcon,
   Search as SearchIcon,
 } from '@mui/icons-material'
 import { TaskCard, CreateTaskModal, TaskDetailModal } from '@components/tasks'
@@ -38,7 +33,6 @@ import {
 } from '@api/queries'
 import { useAuthStore } from '@store/authStore'
 
-type ViewMode = 'list' | 'kanban' | 'calendar'
 type TabValue = 'all' | 'my' | 'upForGrabs' | 'review'
 
 interface TabPanelProps {
@@ -61,7 +55,6 @@ export const GroupTasks: FC = () => {
 
   // UI state
   const [activeTab, setActiveTab] = useState<TabValue>('all')
-  const [viewMode, setViewMode] = useState<ViewMode>('list')
   const [searchQuery, setSearchQuery] = useState('')
   const [priorityFilter, setPriorityFilter] = useState<string>('all')
   const [statusFilter, setStatusFilter] = useState<string>('all')

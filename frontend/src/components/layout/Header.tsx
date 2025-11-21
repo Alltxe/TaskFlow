@@ -21,9 +21,6 @@ import {
   AccountCircle,
   Dashboard as DashboardIcon,
   Group as GroupIcon,
-  Assignment as TaskIcon,
-  EmojiEvents as RewardsIcon,
-  Leaderboard as LeaderboardIcon,
   Stars as StarsIcon,
 } from '@mui/icons-material'
 import { useState } from 'react'

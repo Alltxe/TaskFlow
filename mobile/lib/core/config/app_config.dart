@@ -20,6 +20,13 @@ class AppConfig {
   static const String graphqlEndpoint = '$apiBaseUrl/graphql';
   static const String wsEndpoint = 'ws://10.0.2.2:3000/graphql';
 
+  // Web Frontend URL (for invite links)
+  // TODO: Update with actual GitHub Pages URL
+  static const String webBaseUrl = String.fromEnvironment(
+    'WEB_BASE_URL',
+    defaultValue: 'https://Alltxe.github.io/TaskFlow', // Replace with actual URL
+  );
+
   // Timeouts
   static const Duration connectionTimeout = Duration(seconds: 30);
   static const Duration receiveTimeout = Duration(seconds: 30);

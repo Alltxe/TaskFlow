@@ -33,7 +33,6 @@ export interface RewardRequestModalProps {
 export const RewardRequestModal: FC<RewardRequestModalProps> = ({
   open,
   reward,
-  groupId,
   availableBalance,
   onClose,
   onSuccess,

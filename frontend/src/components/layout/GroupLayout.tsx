@@ -12,7 +12,6 @@ import {
   Assignment as TaskIcon,
   EmojiEvents as RewardsIcon,
   Leaderboard as LeaderboardIcon,
-  RateReview as ReviewIcon,
   Group as GroupIcon,
   Settings as SettingsIcon,
 } from '@mui/icons-material'

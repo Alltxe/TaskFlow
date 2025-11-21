@@ -14,9 +14,6 @@ import {
 import {
   Dashboard as DashboardIcon,
   Group as GroupIcon,
-  Assignment as TaskIcon,
-  EmojiEvents as RewardsIcon,
-  Leaderboard as LeaderboardIcon,
   Person as PersonIcon,
 } from '@mui/icons-material'
 import { useNavigate, useLocation } from 'react-router-dom'
