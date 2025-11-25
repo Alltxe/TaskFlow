@@ -1,5 +1,5 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:mobile/data/models/task_enums.dart';
+﻿import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:taskflow/data/models/task_enums.dart';
 
 part 'task_filter.freezed.dart';
 

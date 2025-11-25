@@ -1,6 +1,6 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mobile/data/models/task.dart';
-import 'package:mobile/domain/usecases/task/task_usecase_providers.dart';
+﻿import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:taskflow/data/models/task.dart';
+import 'package:taskflow/domain/usecases/task/task_usecase_providers.dart';
 
 /// Task list state for a specific group
 final groupTasksProvider = FutureProvider.family<List<Task>, String>((ref, groupId) async {

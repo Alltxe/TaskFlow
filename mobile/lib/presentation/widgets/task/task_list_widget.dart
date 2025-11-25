@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
-import 'package:mobile/data/models/task.dart';
-import 'package:mobile/data/models/task_enums.dart';
-import 'package:mobile/l10n/app_localizations.dart';
-import 'package:mobile/presentation/widgets/task/task_card.dart';
+﻿import 'package:flutter/material.dart';
+import 'package:taskflow/data/models/task.dart';
+import 'package:taskflow/data/models/task_enums.dart';
+import 'package:taskflow/l10n/app_localizations.dart';
+import 'package:taskflow/presentation/widgets/task/task_card.dart';
 
 /// Filterable/sortable task list widget (PRD 3.4.2)
 class TaskListWidget extends StatelessWidget {

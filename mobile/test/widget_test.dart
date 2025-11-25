@@ -1,9 +1,9 @@
-// This is a basic Flutter widget test for TaskFlow mobile app.
+﻿// This is a basic Flutter widget test for TaskFlow mobile app.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mobile/main.dart';
+import 'package:taskflow/main.dart';
 
 void main() {
   testWidgets('App starts and displays initial screen', (WidgetTester tester) async {

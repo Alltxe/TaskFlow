@@ -1,9 +1,9 @@
-// Import only the Either type from dartz to avoid name conflicts with our `Task` model
+﻿// Import only the Either type from dartz to avoid name conflicts with our `Task` model
 import 'package:dartz/dartz.dart' show Either;
-import 'package:mobile/core/errors/failure.dart';
-import 'package:mobile/data/models/create_task_request.dart';
-import 'package:mobile/data/models/task.dart';
-import 'package:mobile/data/models/update_task_request.dart';
+import 'package:taskflow/core/errors/failure.dart';
+import 'package:taskflow/data/models/create_task_request.dart';
+import 'package:taskflow/data/models/task.dart';
+import 'package:taskflow/data/models/update_task_request.dart';
 
 abstract class TaskRepository {
   /// Get all tasks for a group (PRD 3.4.1)

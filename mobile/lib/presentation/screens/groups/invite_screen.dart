@@ -1,10 +1,10 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mobile/core/config/app_config.dart';
-import 'package:mobile/data/models/group.dart';
-import 'package:mobile/data/providers/group_providers.dart';
-import 'package:mobile/l10n/app_localizations.dart';
+import 'package:taskflow/core/config/app_config.dart';
+import 'package:taskflow/data/models/group.dart';
+import 'package:taskflow/data/providers/group_providers.dart';
+import 'package:taskflow/l10n/app_localizations.dart';
 import 'package:share_plus/share_plus.dart';
 
 class InviteScreen extends ConsumerStatefulWidget {

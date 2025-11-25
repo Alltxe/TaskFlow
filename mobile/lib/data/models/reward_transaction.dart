@@ -1,6 +1,6 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:mobile/data/models/reward.dart';
-import 'package:mobile/data/models/user.dart';
+﻿import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:taskflow/data/models/reward.dart';
+import 'package:taskflow/data/models/user.dart';
 
 part 'reward_transaction.freezed.dart';
 part 'reward_transaction.g.dart';

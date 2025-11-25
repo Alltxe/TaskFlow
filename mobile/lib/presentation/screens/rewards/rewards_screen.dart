@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
-import 'package:mobile/l10n/app_localizations.dart';
+﻿import 'package:flutter/material.dart';
+import 'package:taskflow/l10n/app_localizations.dart';
 
 /// Rewards tab screen
 class RewardsScreen extends StatelessWidget {

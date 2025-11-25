@@ -1,13 +1,13 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:mobile/data/models/user_statistics.dart';
-import 'package:mobile/data/providers/auth_providers.dart';
-import 'package:mobile/data/providers/profile_providers.dart';
-import 'package:mobile/domain/usecases/task/task_usecase_providers.dart';
-import 'package:mobile/l10n/app_localizations.dart';
-import 'package:mobile/presentation/widgets/task/task_card.dart';
+import 'package:taskflow/data/models/user_statistics.dart';
+import 'package:taskflow/data/providers/auth_providers.dart';
+import 'package:taskflow/data/providers/profile_providers.dart';
+import 'package:taskflow/domain/usecases/task/task_usecase_providers.dart';
+import 'package:taskflow/l10n/app_localizations.dart';
+import 'package:taskflow/presentation/widgets/task/task_card.dart';
 
 /// Dashboard/Home tab screen showing user statistics, upcoming tasks, and calendar
 class DashboardScreen extends ConsumerStatefulWidget {

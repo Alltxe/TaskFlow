@@ -1,11 +1,11 @@
-import 'package:dartz/dartz.dart';
-import 'package:mobile/core/errors/exceptions.dart';
-import 'package:mobile/core/errors/failure.dart';
-import 'package:mobile/data/datasources/profile_remote_datasource.dart';
-import 'package:mobile/data/models/group_summary.dart';
-import 'package:mobile/data/models/user.dart';
-import 'package:mobile/data/models/user_statistics.dart';
-import 'package:mobile/data/repositories/profile_repository.dart';
+﻿import 'package:dartz/dartz.dart';
+import 'package:taskflow/core/errors/exceptions.dart';
+import 'package:taskflow/core/errors/failure.dart';
+import 'package:taskflow/data/datasources/profile_remote_datasource.dart';
+import 'package:taskflow/data/models/group_summary.dart';
+import 'package:taskflow/data/models/user.dart';
+import 'package:taskflow/data/models/user_statistics.dart';
+import 'package:taskflow/data/repositories/profile_repository.dart';
 
 /// Implementation of ProfileRepository
 class ProfileRepositoryImpl implements ProfileRepository {

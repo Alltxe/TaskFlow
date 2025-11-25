@@ -1,8 +1,8 @@
-import 'package:graphql_flutter/graphql_flutter.dart';
-import 'package:mobile/core/errors/exceptions.dart' as app_exceptions;
-import 'package:mobile/data/models/leaderboard_entry.dart';
-import 'package:mobile/data/models/reward.dart';
-import 'package:mobile/data/models/user_statistics.dart';
+﻿import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:taskflow/core/errors/exceptions.dart' as app_exceptions;
+import 'package:taskflow/data/models/leaderboard_entry.dart';
+import 'package:taskflow/data/models/reward.dart';
+import 'package:taskflow/data/models/user_statistics.dart';
 
 class RewardRemoteDataSource {
   final GraphQLClient client;

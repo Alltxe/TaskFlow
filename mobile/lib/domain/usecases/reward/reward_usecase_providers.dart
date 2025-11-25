@@ -1,7 +1,7 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mobile/data/providers/reward_providers.dart';
-import 'package:mobile/domain/usecases/reward/get_group_leaderboard_usecase.dart';
-import 'package:mobile/domain/usecases/reward/get_group_rewards_usecase.dart';
+﻿import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:taskflow/data/providers/reward_providers.dart';
+import 'package:taskflow/domain/usecases/reward/get_group_leaderboard_usecase.dart';
+import 'package:taskflow/domain/usecases/reward/get_group_rewards_usecase.dart';
 
 // Reward Use Cases
 final getGroupRewardsUseCaseProvider = Provider<GetGroupRewardsUseCase>((ref) {

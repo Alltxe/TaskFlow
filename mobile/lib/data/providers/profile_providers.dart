@@ -1,13 +1,13 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mobile/data/datasources/profile_remote_datasource.dart';
-import 'package:mobile/data/providers/graphql_provider.dart';
-import 'package:mobile/data/repositories/profile_repository.dart';
-import 'package:mobile/data/repositories/profile_repository_impl.dart';
-import 'package:mobile/domain/usecases/profile/get_user_groups_usecase.dart';
-import 'package:mobile/domain/usecases/profile/get_user_profile_usecase.dart';
-import 'package:mobile/domain/usecases/profile/get_user_statistics_usecase.dart';
-import 'package:mobile/domain/usecases/profile/update_profile_usecase.dart';
-import 'package:mobile/domain/usecases/profile/upload_avatar_usecase.dart';
+﻿import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:taskflow/data/datasources/profile_remote_datasource.dart';
+import 'package:taskflow/data/providers/graphql_provider.dart';
+import 'package:taskflow/data/repositories/profile_repository.dart';
+import 'package:taskflow/data/repositories/profile_repository_impl.dart';
+import 'package:taskflow/domain/usecases/profile/get_user_groups_usecase.dart';
+import 'package:taskflow/domain/usecases/profile/get_user_profile_usecase.dart';
+import 'package:taskflow/domain/usecases/profile/get_user_statistics_usecase.dart';
+import 'package:taskflow/domain/usecases/profile/update_profile_usecase.dart';
+import 'package:taskflow/domain/usecases/profile/upload_avatar_usecase.dart';
 
 /// Provider for ProfileRemoteDataSource
 final profileRemoteDataSourceProvider = Provider<ProfileRemoteDataSource>((ref) {

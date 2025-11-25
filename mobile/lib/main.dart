@@ -4,10 +4,10 @@ import 'package:app_links/app_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
-import 'package:mobile/core/router/app_router.dart';
-import 'package:mobile/core/theme/app_theme.dart';
-import 'package:mobile/data/providers/graphql_provider.dart';
-import 'package:mobile/l10n/app_localizations.dart';
+import 'package:taskflow/core/router/app_router.dart';
+import 'package:taskflow/core/theme/app_theme.dart';
+import 'package:taskflow/data/providers/graphql_provider.dart';
+import 'package:taskflow/l10n/app_localizations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

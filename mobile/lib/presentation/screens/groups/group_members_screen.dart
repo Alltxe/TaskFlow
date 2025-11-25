@@ -1,10 +1,10 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mobile/data/models/group_member.dart';
-import 'package:mobile/data/providers/auth_providers.dart';
-import 'package:mobile/data/providers/group_providers.dart';
-import 'package:mobile/l10n/app_localizations.dart';
-import 'package:mobile/presentation/screens/groups/invite_screen.dart';
+import 'package:taskflow/data/models/group_member.dart';
+import 'package:taskflow/data/providers/auth_providers.dart';
+import 'package:taskflow/data/providers/group_providers.dart';
+import 'package:taskflow/l10n/app_localizations.dart';
+import 'package:taskflow/presentation/screens/groups/invite_screen.dart';
 
 class GroupMembersScreen extends ConsumerStatefulWidget {
   final String groupId;

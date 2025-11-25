@@ -1,15 +1,15 @@
-import 'package:dartz/dartz.dart' as dartz;
+﻿import 'package:dartz/dartz.dart' as dartz;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mobile/core/errors/failure.dart';
-import 'package:mobile/data/models/create_task_request.dart';
-import 'package:mobile/data/models/task.dart';
-import 'package:mobile/data/models/update_task_request.dart';
-import 'package:mobile/data/providers/task_providers.dart';
+import 'package:taskflow/core/errors/failure.dart';
+import 'package:taskflow/data/models/create_task_request.dart';
+import 'package:taskflow/data/models/task.dart';
+import 'package:taskflow/data/models/update_task_request.dart';
+import 'package:taskflow/data/providers/task_providers.dart';
 // dartz alias imported below
-import 'package:mobile/data/repositories/task_repository.dart';
-import 'package:mobile/presentation/screens/tasks/tasks_screen.dart';
+import 'package:taskflow/data/repositories/task_repository.dart';
+import 'package:taskflow/presentation/screens/tasks/tasks_screen.dart';
 
 void main() {
   testWidgets('TasksScreen displays group tasks when groupId is provided', (tester) async {

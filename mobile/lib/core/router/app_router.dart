@@ -1,23 +1,23 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mobile/data/providers/auth_providers.dart';
-import 'package:mobile/l10n/app_localizations.dart';
-import 'package:mobile/presentation/screens/auth/login_screen.dart';
-import 'package:mobile/presentation/screens/auth/register_screen.dart';
-import 'package:mobile/presentation/screens/auth/splash_screen.dart';
-import 'package:mobile/presentation/screens/dashboard/dashboard_screen.dart';
-import 'package:mobile/presentation/screens/groups/create_group_screen.dart';
-import 'package:mobile/presentation/screens/groups/group_layout_screen.dart';
-import 'package:mobile/presentation/screens/groups/group_settings_screen.dart';
-import 'package:mobile/presentation/screens/groups/groups_screen.dart';
-import 'package:mobile/presentation/screens/groups/invite_screen.dart';
-import 'package:mobile/presentation/screens/groups/join_group_screen.dart';
-import 'package:mobile/presentation/screens/main_navigation_screen.dart';
-import 'package:mobile/presentation/screens/profile/profile_screen.dart';
-import 'package:mobile/presentation/screens/settings/settings_screen.dart';
-import 'package:mobile/presentation/screens/tasks/create_task_screen.dart';
-import 'package:mobile/presentation/screens/tasks/task_detail_screen.dart';
+import 'package:taskflow/data/providers/auth_providers.dart';
+import 'package:taskflow/l10n/app_localizations.dart';
+import 'package:taskflow/presentation/screens/auth/login_screen.dart';
+import 'package:taskflow/presentation/screens/auth/register_screen.dart';
+import 'package:taskflow/presentation/screens/auth/splash_screen.dart';
+import 'package:taskflow/presentation/screens/dashboard/dashboard_screen.dart';
+import 'package:taskflow/presentation/screens/groups/create_group_screen.dart';
+import 'package:taskflow/presentation/screens/groups/group_layout_screen.dart';
+import 'package:taskflow/presentation/screens/groups/group_settings_screen.dart';
+import 'package:taskflow/presentation/screens/groups/groups_screen.dart';
+import 'package:taskflow/presentation/screens/groups/invite_screen.dart';
+import 'package:taskflow/presentation/screens/groups/join_group_screen.dart';
+import 'package:taskflow/presentation/screens/main_navigation_screen.dart';
+import 'package:taskflow/presentation/screens/profile/profile_screen.dart';
+import 'package:taskflow/presentation/screens/settings/settings_screen.dart';
+import 'package:taskflow/presentation/screens/tasks/create_task_screen.dart';
+import 'package:taskflow/presentation/screens/tasks/task_detail_screen.dart';
 
 /// Router configuration for the app
 final routerProvider = Provider<GoRouter>((ref) {

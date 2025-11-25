@@ -88,3 +88,5 @@ typings/
 .dynamodb/
 
 .turbo/daemon/*.log.*mobile/nul
+
+nul

@@ -1,12 +1,12 @@
-import 'package:mobile/core/errors/exceptions.dart';
-import 'package:mobile/data/datasources/auth_local_datasource.dart';
-import 'package:mobile/data/datasources/auth_remote_datasource.dart';
-import 'package:mobile/data/models/auth_response.dart';
-import 'package:mobile/data/models/auth_tokens.dart';
-import 'package:mobile/data/models/login_request.dart';
-import 'package:mobile/data/models/register_request.dart';
-import 'package:mobile/data/models/user.dart';
-import 'package:mobile/data/repositories/auth_repository.dart';
+﻿import 'package:taskflow/core/errors/exceptions.dart';
+import 'package:taskflow/data/datasources/auth_local_datasource.dart';
+import 'package:taskflow/data/datasources/auth_remote_datasource.dart';
+import 'package:taskflow/data/models/auth_response.dart';
+import 'package:taskflow/data/models/auth_tokens.dart';
+import 'package:taskflow/data/models/login_request.dart';
+import 'package:taskflow/data/models/register_request.dart';
+import 'package:taskflow/data/models/user.dart';
+import 'package:taskflow/data/repositories/auth_repository.dart';
 
 /// Implementation of AuthRepository
 class AuthRepositoryImpl implements AuthRepository {

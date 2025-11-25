@@ -1,11 +1,11 @@
-import 'package:dartz/dartz.dart';
-import 'package:mobile/core/errors/exceptions.dart';
-import 'package:mobile/core/errors/failure.dart';
-import 'package:mobile/data/datasources/reward_remote_datasource.dart';
-import 'package:mobile/data/models/leaderboard_entry.dart';
-import 'package:mobile/data/models/reward.dart';
-import 'package:mobile/data/models/user_statistics.dart';
-import 'package:mobile/data/repositories/reward_repository.dart';
+﻿import 'package:dartz/dartz.dart';
+import 'package:taskflow/core/errors/exceptions.dart';
+import 'package:taskflow/core/errors/failure.dart';
+import 'package:taskflow/data/datasources/reward_remote_datasource.dart';
+import 'package:taskflow/data/models/leaderboard_entry.dart';
+import 'package:taskflow/data/models/reward.dart';
+import 'package:taskflow/data/models/user_statistics.dart';
+import 'package:taskflow/data/repositories/reward_repository.dart';
 
 class RewardRepositoryImpl implements RewardRepository {
   final RewardRemoteDataSource remoteDataSource;

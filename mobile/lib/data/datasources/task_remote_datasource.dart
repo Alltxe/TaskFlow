@@ -1,8 +1,8 @@
-import 'package:graphql_flutter/graphql_flutter.dart';
-import 'package:mobile/core/errors/exceptions.dart' as app_exceptions;
-import 'package:mobile/data/models/create_task_request.dart';
-import 'package:mobile/data/models/task.dart';
-import 'package:mobile/data/models/update_task_request.dart';
+﻿import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:taskflow/core/errors/exceptions.dart' as app_exceptions;
+import 'package:taskflow/data/models/create_task_request.dart';
+import 'package:taskflow/data/models/task.dart';
+import 'package:taskflow/data/models/update_task_request.dart';
 
 class TaskRemoteDataSource {
   final GraphQLClient client;

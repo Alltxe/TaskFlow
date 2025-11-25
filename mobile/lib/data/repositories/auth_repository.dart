@@ -1,8 +1,8 @@
-import 'package:mobile/data/models/auth_response.dart';
-import 'package:mobile/data/models/auth_tokens.dart';
-import 'package:mobile/data/models/login_request.dart';
-import 'package:mobile/data/models/register_request.dart';
-import 'package:mobile/data/models/user.dart';
+﻿import 'package:taskflow/data/models/auth_response.dart';
+import 'package:taskflow/data/models/auth_tokens.dart';
+import 'package:taskflow/data/models/login_request.dart';
+import 'package:taskflow/data/models/register_request.dart';
+import 'package:taskflow/data/models/user.dart';
 
 /// Repository interface for authentication operations
 abstract class AuthRepository {

@@ -1,8 +1,8 @@
-import 'package:graphql_flutter/graphql_flutter.dart' hide ServerException, NetworkException;
-import 'package:mobile/core/errors/exceptions.dart';
-import 'package:mobile/data/models/group_summary.dart';
-import 'package:mobile/data/models/user.dart';
-import 'package:mobile/data/models/user_statistics.dart';
+﻿import 'package:graphql_flutter/graphql_flutter.dart' hide ServerException, NetworkException;
+import 'package:taskflow/core/errors/exceptions.dart';
+import 'package:taskflow/data/models/group_summary.dart';
+import 'package:taskflow/data/models/user.dart';
+import 'package:taskflow/data/models/user_statistics.dart';
 
 /// Remote data source for user profile operations via GraphQL API
 class ProfileRemoteDataSource {

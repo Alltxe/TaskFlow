@@ -1,12 +1,12 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:mobile/data/models/task_enums.dart';
-import 'package:mobile/presentation/providers/task_state_provider.dart';
-import 'package:mobile/presentation/widgets/task/deadline_countdown.dart';
-import 'package:mobile/presentation/widgets/task/priority_badge.dart';
-import 'package:mobile/presentation/widgets/task/status_badge.dart';
+import 'package:taskflow/data/models/task_enums.dart';
+import 'package:taskflow/presentation/providers/task_state_provider.dart';
+import 'package:taskflow/presentation/widgets/task/deadline_countdown.dart';
+import 'package:taskflow/presentation/widgets/task/priority_badge.dart';
+import 'package:taskflow/presentation/widgets/task/status_badge.dart';
 
 /// Task detail screen with full information (PRD 3.4.3)
 class TaskDetailScreen extends ConsumerWidget {
