@@ -17,7 +17,7 @@ class RewardTransaction with _$RewardTransaction {
     String? rejectionReason,
     required String rewardId,
     required String userId,
-    required String groupId,
+    String? groupId,
     String? approvedById,
     Reward? reward,
     User? user,

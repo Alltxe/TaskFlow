@@ -22,7 +22,7 @@ _$RewardTransactionImpl _$$RewardTransactionImplFromJson(
       rejectionReason: json['rejectionReason'] as String?,
       rewardId: json['rewardId'] as String,
       userId: json['userId'] as String,
-      groupId: json['groupId'] as String,
+      groupId: json['groupId'] as String?,
       approvedById: json['approvedById'] as String?,
       reward: json['reward'] == null
           ? null

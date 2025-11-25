@@ -32,8 +32,7 @@ export const RequestReviewQueue: FC<RequestReviewQueueProps> = ({ groupId }) => 
   const [selectedRequestId, setSelectedRequestId] = useState<string | null>(null)
 
   const [requestsResult, reexecuteQuery] = useQuery({
-    query: GET_GROUP_REWARD_REQUESTS_QUERY,
-    variables: { groupId },
+    query: GET_GROUP_REWARD_REQUESTS_QUERY
   })
 
   const [, approveRequest] = useMutation(APPROVE_REWARD_REQUEST_MUTATION)

@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python generate_icon.py:*)",
+      "Bash(flutter pub get:*)",
+      "Bash(dart run:*)",
+      "Bash(dir C:projectsTaskFlowmobileandroidappsrcmainresmipmap-mdpi)",
+      "Bash(findstr:*)",
+      "Bash(dir C:projectsTaskFlowmobileiosRunnerAssets.xcassetsAppIcon.appiconset)",
+      "Bash(powershell -ExecutionPolicy Bypass -File:*)",
+      "Bash(del \"C:\\projects\\TaskFlow\\replace_package_name.ps1\")",
+      "Bash(flutter analyze:*)",
+      "Bash(flutter build:*)",
+      "Bash(flutter pub run build_runner build:*)",
+      "Bash(flutter gen-l10n:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

@@ -97,9 +97,15 @@ class AuthStateNotifier extends StateNotifier<AuthState> {
       final response = await _authRepository.login(LoginRequest(email: email, password: password));
       state = AuthState.authenticated(response.user);
     } catch (e) {
-      state = AuthState.unauthenticated(e.toString());
+      // Don't change state immediately - let UI show error first
+      // State will be reset by UI after showing error message
       rethrow;
     }
+  }
+
+  /// Reset to unauthenticated state (called by UI after showing error)
+  void resetToUnauthenticated([String? error]) {
+    state = AuthState.unauthenticated(error);
   }
 
   /// Register
@@ -111,7 +117,8 @@ class AuthStateNotifier extends StateNotifier<AuthState> {
       );
       state = AuthState.authenticated(response.user);
     } catch (e) {
-      state = AuthState.unauthenticated(e.toString());
+      // Don't change state immediately - let UI show error first
+      // State will be reset by UI after showing error message
       rethrow;
     }
   }

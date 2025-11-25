@@ -1340,6 +1340,42 @@ abstract class AppLocalizations {
   /// **'+50% bonus'**
   String get bonusPoints;
 
+  /// No description provided for @requestRewardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Request Reward'**
+  String get requestRewardTitle;
+
+  /// Confirm reward request dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Would you like to request \"{rewardName}\" for {points} points?'**
+  String requestRewardMessage(Object rewardName, Object points);
+
+  /// No description provided for @rewardRequestedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Reward requested successfully! Awaiting approval.'**
+  String get rewardRequestedSuccess;
+
+  /// Error when user doesn't have enough points
+  ///
+  /// In en, this message translates to:
+  /// **'Insufficient points. You need {required} points but only have {available}.'**
+  String insufficientPoints(Object required, Object available);
+
+  /// No description provided for @availableBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Available Balance'**
+  String get availableBalance;
+
+  /// User's current point balance
+  ///
+  /// In en, this message translates to:
+  /// **'Your balance: {points} pts'**
+  String yourBalance(Object points);
+
   /// No description provided for @createdBy.
   ///
   /// In en, this message translates to:
@@ -1783,6 +1819,342 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Please select a deadline'**
   String get pleaseSelectDeadline;
+
+  /// No description provided for @pointsHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Points History'**
+  String get pointsHistory;
+
+  /// No description provided for @totalEarned.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Earned'**
+  String get totalEarned;
+
+  /// No description provided for @totalSpent.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Spent'**
+  String get totalSpent;
+
+  /// No description provided for @reservedPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Reserved (Pending)'**
+  String get reservedPending;
+
+  /// No description provided for @availablePoints.
+  ///
+  /// In en, this message translates to:
+  /// **'Available Points'**
+  String get availablePoints;
+
+  /// No description provided for @transactionHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction History'**
+  String get transactionHistory;
+
+  /// No description provided for @noTransactionsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No Transactions Yet'**
+  String get noTransactionsYet;
+
+  /// No description provided for @startCompletingTasks.
+  ///
+  /// In en, this message translates to:
+  /// **'Start completing tasks to earn points'**
+  String get startCompletingTasks;
+
+  /// No description provided for @earned.
+  ///
+  /// In en, this message translates to:
+  /// **'Earned'**
+  String get earned;
+
+  /// No description provided for @spent.
+  ///
+  /// In en, this message translates to:
+  /// **'Spent'**
+  String get spent;
+
+  /// No description provided for @taskCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Task Completed'**
+  String get taskCompleted;
+
+  /// No description provided for @rewardRequested.
+  ///
+  /// In en, this message translates to:
+  /// **'Reward Requested'**
+  String get rewardRequested;
+
+  /// No description provided for @adminRewardsManagement.
+  ///
+  /// In en, this message translates to:
+  /// **'Rewards Management (Admin)'**
+  String get adminRewardsManagement;
+
+  /// No description provided for @createReward.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Reward'**
+  String get createReward;
+
+  /// No description provided for @editReward.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Reward'**
+  String get editReward;
+
+  /// No description provided for @deleteReward.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Reward'**
+  String get deleteReward;
+
+  /// No description provided for @rewardName.
+  ///
+  /// In en, this message translates to:
+  /// **'Reward Name'**
+  String get rewardName;
+
+  /// No description provided for @rewardDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Description (Optional)'**
+  String get rewardDescription;
+
+  /// No description provided for @rewardCost.
+  ///
+  /// In en, this message translates to:
+  /// **'Cost (in points)'**
+  String get rewardCost;
+
+  /// No description provided for @rewardImageUrl.
+  ///
+  /// In en, this message translates to:
+  /// **'Image URL (Optional)'**
+  String get rewardImageUrl;
+
+  /// No description provided for @enterRewardName.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter reward name'**
+  String get enterRewardName;
+
+  /// No description provided for @enterRewardDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Describe the reward...'**
+  String get enterRewardDescription;
+
+  /// No description provided for @enterRewardCost.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter cost in points'**
+  String get enterRewardCost;
+
+  /// No description provided for @enterImageUrl.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter image URL'**
+  String get enterImageUrl;
+
+  /// No description provided for @rewardNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Reward name is required'**
+  String get rewardNameRequired;
+
+  /// No description provided for @rewardNameMinLength.
+  ///
+  /// In en, this message translates to:
+  /// **'Name must be at least 3 characters'**
+  String get rewardNameMinLength;
+
+  /// No description provided for @rewardCostRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Cost is required'**
+  String get rewardCostRequired;
+
+  /// No description provided for @rewardCostMustBePositive.
+  ///
+  /// In en, this message translates to:
+  /// **'Cost must be a positive number'**
+  String get rewardCostMustBePositive;
+
+  /// No description provided for @rewardCreatedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Reward created successfully!'**
+  String get rewardCreatedSuccess;
+
+  /// No description provided for @rewardUpdatedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Reward updated successfully!'**
+  String get rewardUpdatedSuccess;
+
+  /// No description provided for @rewardDeletedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Reward deleted successfully!'**
+  String get rewardDeletedSuccess;
+
+  /// No description provided for @confirmDeleteReward.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this reward?'**
+  String get confirmDeleteReward;
+
+  /// No description provided for @confirmDeleteRewardMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This action cannot be undone. Users who requested this reward will keep their requests.'**
+  String get confirmDeleteRewardMessage;
+
+  /// No description provided for @rewardRequestsQueue.
+  ///
+  /// In en, this message translates to:
+  /// **'Reward Requests (Admin)'**
+  String get rewardRequestsQueue;
+
+  /// No description provided for @noPendingRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'No Pending Requests'**
+  String get noPendingRequests;
+
+  /// No description provided for @noRequestsDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'All reward requests have been processed'**
+  String get noRequestsDescription;
+
+  /// No description provided for @approveRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve'**
+  String get approveRequest;
+
+  /// No description provided for @rejectRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject'**
+  String get rejectRequest;
+
+  /// No description provided for @requestedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Requested by'**
+  String get requestedBy;
+
+  /// No description provided for @requestedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Requested at'**
+  String get requestedAt;
+
+  /// No description provided for @pointsWillBeDeducted.
+  ///
+  /// In en, this message translates to:
+  /// **'Points will be deducted'**
+  String get pointsWillBeDeducted;
+
+  /// No description provided for @pointsWillBeReturned.
+  ///
+  /// In en, this message translates to:
+  /// **'Points will be returned'**
+  String get pointsWillBeReturned;
+
+  /// No description provided for @confirmApprove.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve Request'**
+  String get confirmApprove;
+
+  /// No description provided for @confirmReject.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject Request'**
+  String get confirmReject;
+
+  /// Confirm approve reward request
+  ///
+  /// In en, this message translates to:
+  /// **'Approve this reward request? {points} points will be deducted from the user.'**
+  String approveRequestMessage(Object points);
+
+  /// Confirm reject reward request
+  ///
+  /// In en, this message translates to:
+  /// **'Reject this reward request? {points} points will be returned to the user.'**
+  String rejectRequestMessage(Object points);
+
+  /// No description provided for @requestApprovedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Request approved! Points deducted from user.'**
+  String get requestApprovedSuccess;
+
+  /// No description provided for @requestRejectedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Request rejected. Points returned to user.'**
+  String get requestRejectedSuccess;
+
+  /// No description provided for @statusReserved.
+  ///
+  /// In en, this message translates to:
+  /// **'Awaiting Approval'**
+  String get statusReserved;
+
+  /// No description provided for @statusApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Approved'**
+  String get statusApproved;
+
+  /// No description provided for @statusRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Rejected'**
+  String get statusRejected;
+
+  /// No description provided for @manageRewards.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage Rewards'**
+  String get manageRewards;
+
+  /// No description provided for @viewRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'View Requests'**
+  String get viewRequests;
+
+  /// No description provided for @insufficientPointsShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Not enough'**
+  String get insufficientPointsShort;
+
+  /// No description provided for @create.
+  ///
+  /// In en, this message translates to:
+  /// **'Create'**
+  String get create;
+
+  /// No description provided for @delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get delete;
 }
 
 class _AppLocalizationsDelegate

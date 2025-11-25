@@ -29,7 +29,7 @@ mixin _$RewardTransaction {
   String? get rejectionReason => throw _privateConstructorUsedError;
   String get rewardId => throw _privateConstructorUsedError;
   String get userId => throw _privateConstructorUsedError;
-  String get groupId => throw _privateConstructorUsedError;
+  String? get groupId => throw _privateConstructorUsedError;
   String? get approvedById => throw _privateConstructorUsedError;
   Reward? get reward => throw _privateConstructorUsedError;
   User? get user => throw _privateConstructorUsedError;
@@ -57,7 +57,7 @@ abstract class $RewardTransactionCopyWith<$Res> {
       String? rejectionReason,
       String rewardId,
       String userId,
-      String groupId,
+      String? groupId,
       String? approvedById,
       Reward? reward,
       User? user,
@@ -90,7 +90,7 @@ class _$RewardTransactionCopyWithImpl<$Res, $Val extends RewardTransaction>
     Object? rejectionReason = freezed,
     Object? rewardId = null,
     Object? userId = null,
-    Object? groupId = null,
+    Object? groupId = freezed,
     Object? approvedById = freezed,
     Object? reward = freezed,
     Object? user = freezed,
@@ -133,10 +133,10 @@ class _$RewardTransactionCopyWithImpl<$Res, $Val extends RewardTransaction>
           ? _value.userId
           : userId // ignore: cast_nullable_to_non_nullable
               as String,
-      groupId: null == groupId
+      groupId: freezed == groupId
           ? _value.groupId
           : groupId // ignore: cast_nullable_to_non_nullable
-              as String,
+              as String?,
       approvedById: freezed == approvedById
           ? _value.approvedById
           : approvedById // ignore: cast_nullable_to_non_nullable
@@ -211,7 +211,7 @@ abstract class _$$RewardTransactionImplCopyWith<$Res>
       String? rejectionReason,
       String rewardId,
       String userId,
-      String groupId,
+      String? groupId,
       String? approvedById,
       Reward? reward,
       User? user,
@@ -245,7 +245,7 @@ class __$$RewardTransactionImplCopyWithImpl<$Res>
     Object? rejectionReason = freezed,
     Object? rewardId = null,
     Object? userId = null,
-    Object? groupId = null,
+    Object? groupId = freezed,
     Object? approvedById = freezed,
     Object? reward = freezed,
     Object? user = freezed,
@@ -288,10 +288,10 @@ class __$$RewardTransactionImplCopyWithImpl<$Res>
           ? _value.userId
           : userId // ignore: cast_nullable_to_non_nullable
               as String,
-      groupId: null == groupId
+      groupId: freezed == groupId
           ? _value.groupId
           : groupId // ignore: cast_nullable_to_non_nullable
-              as String,
+              as String?,
       approvedById: freezed == approvedById
           ? _value.approvedById
           : approvedById // ignore: cast_nullable_to_non_nullable
@@ -325,7 +325,7 @@ class _$RewardTransactionImpl implements _RewardTransaction {
       this.rejectionReason,
       required this.rewardId,
       required this.userId,
-      required this.groupId,
+      this.groupId,
       this.approvedById,
       this.reward,
       this.user,
@@ -353,7 +353,7 @@ class _$RewardTransactionImpl implements _RewardTransaction {
   @override
   final String userId;
   @override
-  final String groupId;
+  final String? groupId;
   @override
   final String? approvedById;
   @override
@@ -442,7 +442,7 @@ abstract class _RewardTransaction implements RewardTransaction {
       final String? rejectionReason,
       required final String rewardId,
       required final String userId,
-      required final String groupId,
+      final String? groupId,
       final String? approvedById,
       final Reward? reward,
       final User? user,
@@ -470,7 +470,7 @@ abstract class _RewardTransaction implements RewardTransaction {
   @override
   String get userId;
   @override
-  String get groupId;
+  String? get groupId;
   @override
   String? get approvedById;
   @override
