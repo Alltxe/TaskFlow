@@ -8,14 +8,12 @@ import {
   DiskHealthIndicator,
 } from '@nestjs/terminus';
 import { PrismaService } from '../prisma/prisma.service';
-import { SkipThrottle } from '@nestjs/throttler';
 
 /**
  * Health check controller for readiness/liveness probes
  * Implements PRD 4.3 monitoring requirements
  */
 @Controller('health')
-@SkipThrottle() // Health checks should not be rate limited
 export class HealthController {
   constructor(
     private health: HealthCheckService,
