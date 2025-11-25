@@ -170,7 +170,11 @@ export const RotationSchedule: FC = () => {
                       {format(new Date(entry.scheduledDate), 'dd MMM yyyy, HH:mm', { locale: ru })}
                     </TableCell>
                     <TableCell>
-                      <Chip label={entry.priority} size="small" color={getPriorityColor(entry.priority)} />
+                      <Chip
+                        label={entry.priority}
+                        size="small"
+                        color={getPriorityColor(entry.priority)}
+                      />
                     </TableCell>
                     <TableCell>{entry.points}</TableCell>
                     <TableCell>{entry.rotationType}</TableCell>
@@ -228,11 +232,17 @@ export const RotationSchedule: FC = () => {
                       </TableCell>
                       <TableCell>
                         {entry.completedAt
-                          ? format(new Date(entry.completedAt), 'dd MMM yyyy, HH:mm', { locale: ru })
+                          ? format(new Date(entry.completedAt), 'dd MMM yyyy, HH:mm', {
+                              locale: ru,
+                            })
                           : '—'}
                       </TableCell>
                       <TableCell>
-                        <Chip label={entry.status} size="small" color={getStatusColor(entry.status)} />
+                        <Chip
+                          label={entry.status}
+                          size="small"
+                          color={getStatusColor(entry.status)}
+                        />
                       </TableCell>
                       <TableCell>{entry.pointsEarned}</TableCell>
                     </TableRow>
@@ -245,7 +255,7 @@ export const RotationSchedule: FC = () => {
                 page={page}
                 onPageChange={(_, newPage) => setPage(newPage)}
                 rowsPerPage={rowsPerPage}
-                onRowsPerPageChange={(e) => {
+                onRowsPerPageChange={e => {
                   setRowsPerPage(parseInt(e.target.value, 10))
                   setPage(0)
                 }}
@@ -284,7 +294,9 @@ export const RotationSchedule: FC = () => {
                     Последнее назначение
                   </Typography>
                   <Typography variant="body1">
-                    {format(new Date(pattern.lastRotationAt), 'dd MMMM yyyy, HH:mm', { locale: ru })}
+                    {format(new Date(pattern.lastRotationAt), 'dd MMMM yyyy, HH:mm', {
+                      locale: ru,
+                    })}
                   </Typography>
                 </Box>
               )}
@@ -295,7 +307,9 @@ export const RotationSchedule: FC = () => {
                     Следующее назначение
                   </Typography>
                   <Typography variant="body1">
-                    {format(new Date(pattern.nextRotationAt), 'dd MMMM yyyy, HH:mm', { locale: ru })}
+                    {format(new Date(pattern.nextRotationAt), 'dd MMMM yyyy, HH:mm', {
+                      locale: ru,
+                    })}
                   </Typography>
                 </Box>
               )}
@@ -310,7 +324,15 @@ export const RotationSchedule: FC = () => {
                   {pattern.activeMembers.map((member: any) => (
                     <Box
                       key={member.id}
-                      sx={{ display: 'flex', alignItems: 'center', gap: 1, p: 1, border: 1, borderColor: 'divider', borderRadius: 1 }}
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 1,
+                        p: 1,
+                        border: 1,
+                        borderColor: 'divider',
+                        borderRadius: 1,
+                      }}
                     >
                       <Avatar src={member.avatarUrl || undefined} sx={{ width: 40, height: 40 }}>
                         {member.username[0].toUpperCase()}
@@ -330,7 +352,15 @@ export const RotationSchedule: FC = () => {
                     {pattern.awayMembers.map((member: any) => (
                       <Box
                         key={member.id}
-                        sx={{ display: 'flex', alignItems: 'center', gap: 1, p: 1, border: 1, borderColor: 'warning.main', borderRadius: 1 }}
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 1,
+                          p: 1,
+                          border: 1,
+                          borderColor: 'warning.main',
+                          borderRadius: 1,
+                        }}
                       >
                         <Avatar src={member.avatarUrl || undefined} sx={{ width: 40, height: 40 }}>
                           {member.username[0].toUpperCase()}

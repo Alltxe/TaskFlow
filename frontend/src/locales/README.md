@@ -3,6 +3,7 @@
 This directory contains internationalization (i18n) translation files.
 
 ## Languages
+
 - `ru/` - Russian (primary language)
   - `common.json` - Common UI strings
   - `auth.json` - Authentication strings

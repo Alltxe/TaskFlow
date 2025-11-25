@@ -1,18 +1,9 @@
 import { type FC } from 'react'
-import {
-  Box,
-  Container,
-  Tabs,
-  Tab,
-  Typography,
-  CircularProgress,
-  Alert,
-} from '@mui/material'
+import { Box, Container, Tabs, Tab, Typography, CircularProgress, Alert } from '@mui/material'
 import {
   Assignment as TaskIcon,
   EmojiEvents as RewardsIcon,
   Leaderboard as LeaderboardIcon,
-  RateReview as ReviewIcon,
   Group as GroupIcon,
   Settings as SettingsIcon,
 } from '@mui/icons-material'
@@ -37,7 +28,7 @@ export const GroupLayout: FC = () => {
   const { groupId } = useParams<{ groupId: string }>()
   const navigate = useNavigate()
   const location = useLocation()
-  const user = useAuthStore((state) => state.user)
+  const user = useAuthStore(state => state.user)
 
   const [groupResult] = useQuery<{ getGroup: Group }>({
     query: GET_GROUP_QUERY,
@@ -56,7 +47,7 @@ export const GroupLayout: FC = () => {
 
   const group = groupData?.getGroup
   const members = membersData?.getGroupMembers || []
-  const currentMember = members.find((m) => m.userId === user?.id)
+  const currentMember = members.find(m => m.userId === user?.id)
   const isAdmin = currentMember?.role === 'ADMIN'
   const gamificationEnabled = group?.gamificationEnabled ?? false
 
@@ -73,7 +64,14 @@ export const GroupLayout: FC = () => {
   }
 
   const currentTab = getCurrentTab()
-  console.log('Current path:', currentPath, 'Current tab:', currentTab, 'Gamification enabled:', gamificationEnabled)
+  console.log(
+    'Current path:',
+    currentPath,
+    'Current tab:',
+    currentTab,
+    'Gamification enabled:',
+    gamificationEnabled
+  )
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: string) => {
     console.log('Tab clicked, navigating to:', newValue)
@@ -83,14 +81,14 @@ export const GroupLayout: FC = () => {
   if (fetchingGroup) {
     return (
       <Container maxWidth="lg" sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
-        <CircularProgress />
+        <CircularProgress id="group-loading" />
       </Container>
     )
   }
 
   if (groupError) {
     return (
-      <Container maxWidth="lg" sx={{ mt: 4 }}>
+      <Container id="group-error" maxWidth="lg" sx={{ mt: 4 }}>
         <Alert severity="error">Ошибка загрузки группы: {groupError.message}</Alert>
       </Container>
     )
@@ -98,14 +96,14 @@ export const GroupLayout: FC = () => {
 
   if (!group) {
     return (
-      <Container maxWidth="lg" sx={{ mt: 4 }}>
+      <Container id="group-empty" maxWidth="lg" sx={{ mt: 4 }}>
         <Alert severity="error">Группа не найдена</Alert>
       </Container>
     )
   }
 
   return (
-    <Box>
+    <Box id="group-layout">
       {/* Group Header */}
       <Box
         sx={{
@@ -115,8 +113,8 @@ export const GroupLayout: FC = () => {
           py: 2,
         }}
       >
-        <Container maxWidth="lg">
-          <Typography variant="h5" component="h1" gutterBottom>
+        <Container id="group-header" maxWidth="lg">
+          <Typography id="group-title" variant="h5" component="h1" gutterBottom>
             {group.name}
           </Typography>
         </Container>
@@ -126,12 +124,14 @@ export const GroupLayout: FC = () => {
       <Box sx={{ bgcolor: 'background.paper', borderBottom: 1, borderColor: 'divider' }}>
         <Container maxWidth="lg">
           <Tabs
+            id="group-tabs"
             value={currentTab}
             onChange={handleTabChange}
             variant="scrollable"
             scrollButtons="auto"
           >
             <Tab
+              id={`group-tab-tasks-${groupId}`}
               label="Задачи"
               value={`/group/${groupId}/tasks`}
               icon={<TaskIcon />}
@@ -139,6 +139,7 @@ export const GroupLayout: FC = () => {
             />
             {gamificationEnabled && (
               <Tab
+                id={`group-tab-rewards-${groupId}`}
                 label="Награды"
                 value={`/group/${groupId}/rewards`}
                 icon={<RewardsIcon />}
@@ -147,6 +148,7 @@ export const GroupLayout: FC = () => {
             )}
             {gamificationEnabled && (
               <Tab
+                id={`group-tab-leaderboard-${groupId}`}
                 label="Рейтинг"
                 value={`/group/${groupId}/leaderboard`}
                 icon={<LeaderboardIcon />}
@@ -163,6 +165,7 @@ export const GroupLayout: FC = () => {
             )} */}
             {isAdmin && (
               <Tab
+                id={`group-tab-members-${groupId}`}
                 label="Участники"
                 value={`/group/${groupId}/members`}
                 icon={<GroupIcon />}
@@ -171,6 +174,7 @@ export const GroupLayout: FC = () => {
             )}
             {isAdmin && (
               <Tab
+                id={`group-tab-settings-${groupId}`}
                 label="Настройки"
                 value={`/group/${groupId}/settings`}
                 icon={<SettingsIcon />}

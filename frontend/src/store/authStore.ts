@@ -82,12 +82,10 @@ export const useAuthStore = create<AuthState>()(
 
       logout: async () => {
         const { refreshToken } = get()
-        
+
         if (refreshToken) {
           try {
-            await client
-              .mutation(LOGOUT_MUTATION, { refreshToken })
-              .toPromise()
+            await client.mutation(LOGOUT_MUTATION, { refreshToken }).toPromise()
           } catch (error) {
             console.error('Logout error:', error)
           }
@@ -102,7 +100,7 @@ export const useAuthStore = create<AuthState>()(
       },
 
       updateUser: (userData: Partial<User>) => {
-        set((state) => ({
+        set(state => ({
           user: state.user ? { ...state.user, ...userData } : null,
         }))
       },
@@ -113,7 +111,7 @@ export const useAuthStore = create<AuthState>()(
 
       initialize: async () => {
         const { accessToken } = get()
-        
+
         if (!accessToken) {
           return
         }
@@ -151,7 +149,7 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: 'auth-storage',
-      partialize: (state) => ({
+      partialize: state => ({
         user: state.user,
         accessToken: state.accessToken,
         refreshToken: state.refreshToken,
@@ -160,4 +158,3 @@ export const useAuthStore = create<AuthState>()(
     }
   )
 )
-

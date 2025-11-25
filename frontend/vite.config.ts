@@ -42,4 +42,9 @@ export default defineConfig({
     port: 4173,
     strictPort: false,
   },
+  build: {
+    minify: false,
+    outDir: 'dist',
+    emptyOutDir: true,
+  },
 })

@@ -91,15 +91,16 @@ export const CreateRewardModal: FC<CreateRewardModalProps> = ({
   }
 
   return (
-    <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
-      <DialogTitle>Создать награду</DialogTitle>
+    <Dialog id="create-reward-dialog" open={open} onClose={handleClose} maxWidth="sm" fullWidth>
+      <DialogTitle id="create-reward-title">Создать награду</DialogTitle>
 
       <DialogContent>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
           <TextField
+            id="create-reward-name-input"
             label="Название награды"
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={e => setName(e.target.value)}
             error={!!errors.name}
             helperText={errors.name}
             fullWidth
@@ -108,9 +109,10 @@ export const CreateRewardModal: FC<CreateRewardModalProps> = ({
           />
 
           <TextField
+            id="create-reward-desc-input"
             label="Описание"
             value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            onChange={e => setDescription(e.target.value)}
             fullWidth
             multiline
             rows={3}
@@ -118,9 +120,10 @@ export const CreateRewardModal: FC<CreateRewardModalProps> = ({
           />
 
           <TextField
+            id="create-reward-cost-input"
             label="Стоимость (в баллах)"
             value={cost}
-            onChange={(e) => {
+            onChange={e => {
               const value = e.target.value
               if (value === '') {
                 setCost('')
@@ -140,9 +143,10 @@ export const CreateRewardModal: FC<CreateRewardModalProps> = ({
           />
 
           <TextField
+            id="create-reward-image-input"
             label="URL изображения"
             value={imageUrl}
-            onChange={(e) => setImageUrl(e.target.value)}
+            onChange={e => setImageUrl(e.target.value)}
             fullWidth
             placeholder="https://example.com/image.jpg (необязательно)"
           />
@@ -150,8 +154,11 @@ export const CreateRewardModal: FC<CreateRewardModalProps> = ({
       </DialogContent>
 
       <DialogActions sx={{ px: 3, pb: 2 }}>
-        <Button onClick={handleClose}>Отмена</Button>
+        <Button id="create-reward-cancel" onClick={handleClose}>
+          Отмена
+        </Button>
         <Button
+          id="create-reward-submit"
           onClick={handleSubmit}
           variant="contained"
           disabled={!name.trim() || cost === '' || cost === 0}

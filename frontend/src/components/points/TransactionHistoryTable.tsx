@@ -19,10 +19,7 @@ import {
   Select,
   MenuItem,
 } from '@mui/material'
-import {
-  TrendingUp as TrendingUpIcon,
-  TrendingDown as TrendingDownIcon,
-} from '@mui/icons-material'
+import { TrendingUp as TrendingUpIcon, TrendingDown as TrendingDownIcon } from '@mui/icons-material'
 import { useQuery } from 'urql'
 import { GET_POINT_TRANSACTION_HISTORY_QUERY } from '@api/queries'
 import { formatPointsDiff } from '@lib/formatPoints'
@@ -112,11 +109,7 @@ export const TransactionHistoryTable: FC<TransactionHistoryTableProps> = ({ grou
   }
 
   if (error) {
-    return (
-      <Alert severity="error">
-        Ошибка загрузки истории транзакций: {error.message}
-      </Alert>
-    )
+    return <Alert severity="error">Ошибка загрузки истории транзакций: {error.message}</Alert>
   }
 
   const transactions = data?.getPointTransactionHistory?.items || []
@@ -124,9 +117,7 @@ export const TransactionHistoryTable: FC<TransactionHistoryTableProps> = ({ grou
 
   // Filter transactions by type
   const filteredTransactions =
-    typeFilter === 'ALL'
-      ? transactions
-      : transactions.filter((t: any) => t.type === typeFilter)
+    typeFilter === 'ALL' ? transactions : transactions.filter((t: any) => t.type === typeFilter)
 
   if (transactions.length === 0) {
     return (
@@ -139,15 +130,16 @@ export const TransactionHistoryTable: FC<TransactionHistoryTableProps> = ({ grou
   }
 
   return (
-    <Box>
+    <Box id="transaction-history">
       {/* Filter */}
       <Box sx={{ mb: 2 }}>
         <FormControl size="small" sx={{ minWidth: 200 }}>
           <InputLabel>Тип транзакции</InputLabel>
           <Select
+            id="transaction-type-select"
             value={typeFilter}
             label="Тип транзакции"
-            onChange={(e) => setTypeFilter(e.target.value as TransactionType)}
+            onChange={e => setTypeFilter(e.target.value as TransactionType)}
           >
             <MenuItem value="ALL">Все транзакции</MenuItem>
             <MenuItem value="EARNED">Заработано</MenuItem>
@@ -158,7 +150,7 @@ export const TransactionHistoryTable: FC<TransactionHistoryTableProps> = ({ grou
         </FormControl>
       </Box>
 
-      <TableContainer component={Paper}>
+      <TableContainer id="transaction-table" component={Paper}>
         <Table>
           <TableHead>
             <TableRow>
@@ -170,7 +162,7 @@ export const TransactionHistoryTable: FC<TransactionHistoryTableProps> = ({ grou
           </TableHead>
           <TableBody>
             {filteredTransactions.map((transaction: any) => (
-              <TableRow key={transaction.id} hover>
+              <TableRow id={`transaction-row-${transaction.id}`} key={transaction.id} hover>
                 <TableCell>
                   <Typography variant="body2">
                     {format(new Date(transaction.createdAt), 'dd MMM yyyy', { locale: ru })}
@@ -181,6 +173,7 @@ export const TransactionHistoryTable: FC<TransactionHistoryTableProps> = ({ grou
                 </TableCell>
                 <TableCell>
                   <Chip
+                    id={`transaction-type-${transaction.id}`}
                     label={getTransactionTypeLabel(transaction.type)}
                     color={getTransactionTypeColor(transaction.type)}
                     size="small"
@@ -200,7 +193,9 @@ export const TransactionHistoryTable: FC<TransactionHistoryTableProps> = ({ grou
                   )}
                 </TableCell>
                 <TableCell align="right">
-                  {getAmountDisplay(transaction.amount, transaction.type)}
+                  <div id={`transaction-amount-${transaction.id}`}>
+                    {getAmountDisplay(transaction.amount, transaction.type)}
+                  </div>
                 </TableCell>
               </TableRow>
             ))}
@@ -208,6 +203,7 @@ export const TransactionHistoryTable: FC<TransactionHistoryTableProps> = ({ grou
         </Table>
 
         <TablePagination
+          id="transaction-pagination"
           component="div"
           count={total}
           page={page}

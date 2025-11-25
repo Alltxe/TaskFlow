@@ -8,8 +8,8 @@ import { RegisterPage } from './Register'
 const { mockRegister, mockLogin, mockAuthStore } = vi.hoisted(() => {
   const mockRegister = vi.fn()
   const mockLogin = vi.fn()
-  
-  const mockAuthStore = vi.fn((selector) => {
+
+  const mockAuthStore = vi.fn(selector => {
     const store = {
       login: mockLogin,
       logout: vi.fn(),
@@ -24,7 +24,7 @@ const { mockRegister, mockLogin, mockAuthStore } = vi.hoisted(() => {
     }
     return selector ? selector(store) : store
   })
-  
+
   return { mockRegister, mockLogin, mockAuthStore }
 })
 
@@ -75,7 +75,7 @@ describe('RegisterPage', () => {
     renderRegister()
 
     const usernameInput = screen.getByLabelText(/имя пользователя/i)
-    
+
     // Too short
     await user.type(usernameInput, 'ab')
     await user.tab()
@@ -85,7 +85,7 @@ describe('RegisterPage', () => {
     })
 
     await user.clear(usernameInput)
-    
+
     // Too long
     await user.type(usernameInput, 'a'.repeat(31))
     await user.tab()
@@ -187,7 +187,7 @@ describe('RegisterPage', () => {
     expect(confirmPasswordInput.type).toBe('password')
 
     const toggleButtons = screen.getAllByRole('button', { name: '' })
-    
+
     // Toggle first password
     await user.click(toggleButtons[0])
     expect(passwordInput.type).toBe('text')

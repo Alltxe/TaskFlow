@@ -72,7 +72,7 @@ interface Group {
 
 export const GroupMembers: FC = () => {
   const { groupId } = useParams<{ groupId: string }>()
-  const user = useAuthStore((state) => state.user)
+  const user = useAuthStore(state => state.user)
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const [selectedMember, setSelectedMember] = useState<GroupMember | null>(null)
   const [inviteDialogOpen, setInviteDialogOpen] = useState(false)
@@ -121,11 +121,12 @@ export const GroupMembers: FC = () => {
         (task: any) => task.status === 'PENDING' || task.status === 'AWAITING_APPROVAL'
       )
       const completedTasks = memberTasks.filter((task: any) => task.status === 'COMPLETED')
-      const totalWeight = activeTasks.reduce((sum: number, task: any) => sum + (task.weight || 1), 0)
+      const totalWeight = activeTasks.reduce(
+        (sum: number, task: any) => sum + (task.weight || 1),
+        0
+      )
       const completionRate =
-        memberTasks.length > 0
-          ? Math.round((completedTasks.length / memberTasks.length) * 100)
-          : 0
+        memberTasks.length > 0 ? Math.round((completedTasks.length / memberTasks.length) * 100) : 0
 
       workloadMap.set(member.userId, {
         activeTasks: activeTasks.length,
@@ -211,7 +212,7 @@ export const GroupMembers: FC = () => {
 
   if (fetchingMembers || fetchingGroup) {
     return (
-      <Container maxWidth="lg" sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
+      <Container maxWidth="lg" sx={{ mt: 3, mb: 8, display: 'flex', justifyContent: 'center' }}>
         <CircularProgress />
       </Container>
     )
@@ -219,17 +220,17 @@ export const GroupMembers: FC = () => {
 
   if (membersError) {
     return (
-      <Container maxWidth="lg" sx={{ mt: 4 }}>
+      <Container maxWidth="lg" sx={{ mt: 3, mb: 8 }}>
         <Alert severity="error">Ошибка загрузки участников: {membersError.message}</Alert>
       </Container>
     )
   }
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 4, mb: 8 }}>
+    <Container id={`group-members-page-${groupId}`} maxWidth="lg" sx={{ mt: 3, mb: 8 }}>
       <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
-          <Typography variant="h4" component="h1" gutterBottom>
+          <Typography id="group-members-title" variant="h4" component="h1" gutterBottom>
             Участники группы
           </Typography>
           <Typography variant="body1" color="text.secondary">
@@ -238,6 +239,7 @@ export const GroupMembers: FC = () => {
         </div>
         {isAdmin && (
           <Button
+            id="group-invite-button"
             variant="contained"
             startIcon={<PersonAddIcon />}
             onClick={() => setInviteDialogOpen(true)}
@@ -247,7 +249,7 @@ export const GroupMembers: FC = () => {
         )}
       </Box>
 
-      <TableContainer component={Paper}>
+      <TableContainer id="group-members-table" component={Paper}>
         <Table>
           <TableHead>
             <TableRow>
@@ -262,7 +264,7 @@ export const GroupMembers: FC = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {members.map((member) => {
+            {members.map(member => {
               const workload = memberWorkloads.get(member.userId) || {
                 activeTasks: 0,
                 totalWeight: 0,
@@ -270,9 +272,11 @@ export const GroupMembers: FC = () => {
               }
 
               return (
-                <TableRow key={member.id}>
+                <TableRow id={`group-member-row-${member.id}`} key={member.id}>
                   <TableCell>
-                    <Typography variant="body1">{member.user.username}</Typography>
+                    <Typography id={`member-username-${member.userId}`} variant="body1">
+                      {member.user.username}
+                    </Typography>
                     {member.user.isAway && member.user.awayUntil && (
                       <Typography variant="caption" color="text.secondary">
                         Вернётся{' '}
@@ -285,6 +289,7 @@ export const GroupMembers: FC = () => {
                   </TableCell>
                   <TableCell>
                     <Chip
+                      id={`member-role-${member.id}`}
                       label={member.role === 'ADMIN' ? 'Администратор' : 'Участник'}
                       color={member.role === 'ADMIN' ? 'primary' : 'default'}
                       size="small"
@@ -305,11 +310,26 @@ export const GroupMembers: FC = () => {
                       label={workload.totalWeight}
                       size="small"
                       variant="outlined"
-                      color={workload.totalWeight > 10 ? 'error' : workload.totalWeight > 5 ? 'warning' : 'default'}
+                      color={
+                        workload.totalWeight > 10
+                          ? 'error'
+                          : workload.totalWeight > 5
+                            ? 'warning'
+                            : 'default'
+                      }
                     />
                   </TableCell>
                   <TableCell align="center">
-                    <Typography variant="body2" color={workload.completionRate >= 80 ? 'success.main' : workload.completionRate >= 50 ? 'warning.main' : 'error.main'}>
+                    <Typography
+                      variant="body2"
+                      color={
+                        workload.completionRate >= 80
+                          ? 'success.main'
+                          : workload.completionRate >= 50
+                            ? 'warning.main'
+                            : 'error.main'
+                      }
+                    >
                       {workload.completionRate}%
                     </Typography>
                   </TableCell>
@@ -325,8 +345,9 @@ export const GroupMembers: FC = () => {
                     <TableCell align="right">
                       {member.userId !== user?.id && (
                         <IconButton
+                          id={`member-action-menu-${member.id}`}
                           size="small"
-                          onClick={(e) => handleMenuOpen(e, member)}
+                          onClick={e => handleMenuOpen(e, member)}
                         >
                           <MoreVertIcon />
                         </IconButton>
@@ -342,30 +363,34 @@ export const GroupMembers: FC = () => {
 
       {/* Context Menu */}
       <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
-        <MenuItem onClick={handleToggleRole}>
-          {selectedMember?.role === 'ADMIN'
-            ? 'Сделать участником'
-            : 'Сделать администратором'}
+        <MenuItem id="menuitem-toggle-role" onClick={handleToggleRole}>
+          {selectedMember?.role === 'ADMIN' ? 'Сделать участником' : 'Сделать администратором'}
         </MenuItem>
-        <MenuItem onClick={handleRemoveMember} sx={{ color: 'error.main' }}>
+        <MenuItem
+          id="menuitem-remove-member"
+          onClick={handleRemoveMember}
+          sx={{ color: 'error.main' }}
+        >
           Удалить из группы
         </MenuItem>
       </Menu>
 
       {/* Invite Dialog */}
       <Dialog
+        id="invite-dialog"
         open={inviteDialogOpen}
         onClose={() => setInviteDialogOpen(false)}
         maxWidth="sm"
         fullWidth
       >
-        <DialogTitle>Пригласить участника</DialogTitle>
+        <DialogTitle id="invite-dialog-title">Пригласить участника</DialogTitle>
         <DialogContent>
           <Typography variant="body2" color="text.secondary" paragraph sx={{ mt: 1 }}>
             Скопируйте ссылку для приглашения и отправьте её новому участнику
           </Typography>
 
           <TextField
+            id="invite-link-input"
             fullWidth
             value={
               groupData?.getGroup?.inviteToken
@@ -376,7 +401,7 @@ export const GroupMembers: FC = () => {
               readOnly: true,
               endAdornment: (
                 <InputAdornment position="end">
-                  <IconButton onClick={handleCopyInviteLink} edge="end">
+                  <IconButton id="invite-copy-button" onClick={handleCopyInviteLink} edge="end">
                     <CopyIcon />
                   </IconButton>
                 </InputAdornment>
@@ -386,6 +411,7 @@ export const GroupMembers: FC = () => {
           />
 
           <Button
+            id="invite-regenerate-button"
             variant="outlined"
             startIcon={<RefreshIcon />}
             onClick={handleRegenerateToken}
@@ -398,12 +424,15 @@ export const GroupMembers: FC = () => {
           </Typography>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setInviteDialogOpen(false)}>Закрыть</Button>
+          <Button id="invite-close-button" onClick={() => setInviteDialogOpen(false)}>
+            Закрыть
+          </Button>
         </DialogActions>
       </Dialog>
 
       {/* Copy Success Snackbar */}
       <Snackbar
+        id="invite-copy-snackbar"
         open={copySuccess}
         autoHideDuration={3000}
         onClose={() => setCopySuccess(false)}

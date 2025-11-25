@@ -99,9 +99,7 @@ export const Groups: FC = () => {
   if (error) {
     return (
       <Container maxWidth="lg" sx={{ mt: 4 }}>
-        <Alert severity="error">
-          Ошибка загрузки групп: {error.message}
-        </Alert>
+        <Alert severity="error">Ошибка загрузки групп: {error.message}</Alert>
       </Container>
     )
   }
@@ -109,9 +107,9 @@ export const Groups: FC = () => {
   const groups = data?.getUserGroups || []
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 4, mb: 8 }}>
+    <Container id="groups-page" maxWidth="lg" sx={{ mt: 4, mb: 8 }}>
       <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" component="h1" gutterBottom>
+        <Typography id="groups-title" variant="h4" component="h1" gutterBottom>
           Мои группы
         </Typography>
         <Typography variant="body1" color="text.secondary">
@@ -135,6 +133,7 @@ export const Groups: FC = () => {
             Создайте свою первую группу для совместного управления задачами
           </Typography>
           <Button
+            id="groups-create-button"
             variant="contained"
             size="large"
             startIcon={<AddIcon />}
@@ -146,9 +145,10 @@ export const Groups: FC = () => {
         </Box>
       ) : (
         <Grid container spacing={3}>
-          {groups.map((group) => (
+          {groups.map(group => (
             <Grid size={{ xs: 12, sm: 6, md: 4 }} key={group.id}>
               <Card
+                id={`group-card-${group.id}`}
                 sx={{
                   height: '100%',
                   display: 'flex',
@@ -164,12 +164,13 @@ export const Groups: FC = () => {
               >
                 <CardContent sx={{ flexGrow: 1 }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-                    <Typography variant="h6" component="h2" noWrap>
+                    <Typography id={`group-name-${group.id}`} variant="h6" component="h2" noWrap>
                       {group.name}
                     </Typography>
                     <IconButton
+                      id={`group-card-menu-${group.id}`}
                       size="small"
-                      onClick={(e) => handleMenuOpen(e, group.id)}
+                      onClick={e => handleMenuOpen(e, group.id)}
                       sx={{ ml: 1 }}
                     >
                       <MoreVertIcon />
@@ -209,15 +210,13 @@ export const Groups: FC = () => {
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                       <GroupIcon fontSize="small" color="action" />
                       <Typography variant="body2" color="text.secondary">
-                        {/* TODO: Get actual member count */}
-                        - чел.
+                        {/* TODO: Get actual member count */}- чел.
                       </Typography>
                     </Box>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                       <TaskIcon fontSize="small" color="action" />
                       <Typography variant="body2" color="text.secondary">
-                        {/* TODO: Get actual task count */}
-                        - зад.
+                        {/* TODO: Get actual task count */}- зад.
                       </Typography>
                     </Box>
                   </Box>
@@ -237,10 +236,11 @@ export const Groups: FC = () => {
                 <CardActions>
                   <Button
                     size="small"
-                    onClick={(e) => {
+                    onClick={e => {
                       e.stopPropagation()
                       handleGroupClick(group.id)
                     }}
+                    id={`group-open-button-${group.id}`}
                   >
                     Открыть группу
                   </Button>
@@ -254,6 +254,7 @@ export const Groups: FC = () => {
       {/* Floating Action Button */}
       {groups.length > 0 && (
         <Fab
+          id="groups-create-fab"
           color="primary"
           aria-label="add"
           sx={{
@@ -272,17 +273,18 @@ export const Groups: FC = () => {
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}
         onClose={handleMenuClose}
-        onClick={(e) => e.stopPropagation()}
+        onClick={e => e.stopPropagation()}
       >
-        <MenuItem onClick={handleGroupSettings}>Настройки группы</MenuItem>
-        <MenuItem onClick={handleLeaveGroup}>Покинуть группу</MenuItem>
+        <MenuItem id="menuitem-group-settings" onClick={handleGroupSettings}>
+          Настройки группы
+        </MenuItem>
+        <MenuItem id="menuitem-group-leave" onClick={handleLeaveGroup}>
+          Покинуть группу
+        </MenuItem>
       </Menu>
 
       {/* Create Group Wizard */}
-      <CreateGroupWizard
-        open={createDialogOpen}
-        onClose={() => setCreateDialogOpen(false)}
-      />
+      <CreateGroupWizard open={createDialogOpen} onClose={() => setCreateDialogOpen(false)} />
     </Container>
   )
 }

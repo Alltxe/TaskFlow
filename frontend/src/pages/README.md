@@ -3,6 +3,7 @@
 This directory contains page-level components that correspond to routes.
 
 ## Pages
+
 - `Welcome.tsx` - Landing page
 - `Login.tsx` - Login page
 - `Register.tsx` - Registration page

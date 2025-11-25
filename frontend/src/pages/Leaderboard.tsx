@@ -19,9 +19,7 @@ import {
   Card,
   CardContent,
 } from '@mui/material'
-import {
-  EmojiEvents as TrophyIcon,
-} from '@mui/icons-material'
+import { EmojiEvents as TrophyIcon } from '@mui/icons-material'
 import { useQuery } from 'urql'
 import { GET_GROUP_LEADERBOARD_QUERY } from '@api/queries'
 import { useAuthStore } from '@store/authStore'
@@ -29,7 +27,7 @@ import { formatPoints } from '@lib/formatPoints'
 
 export const Leaderboard: FC = () => {
   const { groupId } = useParams<{ groupId: string }>()
-  const user = useAuthStore((state) => state.user)
+  const user = useAuthStore(state => state.user)
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
 
@@ -61,7 +59,9 @@ export const Leaderboard: FC = () => {
     return null
   }
 
-  const getRankBadgeColor = (rank: number): 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning' => {
+  const getRankBadgeColor = (
+    rank: number
+  ): 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning' => {
     if (rank === 1) return 'warning' // Gold
     if (rank === 2) return 'default' // Silver
     if (rank === 3) return 'error' // Bronze
@@ -70,7 +70,7 @@ export const Leaderboard: FC = () => {
 
   if (!groupId) {
     return (
-      <Container>
+      <Container maxWidth="md" sx={{ mt: 3, mb: 8 }}>
         <Alert severity="error">Группа не найдена</Alert>
       </Container>
     )
@@ -78,8 +78,15 @@ export const Leaderboard: FC = () => {
 
   if (fetching) {
     return (
-      <Container>
-        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+      <Container maxWidth="md" sx={{ mt: 3, mb: 8 }}>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            minHeight: '60vh',
+          }}
+        >
           <CircularProgress />
         </Box>
       </Container>
@@ -88,7 +95,7 @@ export const Leaderboard: FC = () => {
 
   if (error) {
     return (
-      <Container>
+      <Container maxWidth="md" sx={{ mt: 3, mb: 8 }}>
         <Alert severity="error">Ошибка загрузки рейтинга: {error.message}</Alert>
       </Container>
     )
@@ -98,7 +105,7 @@ export const Leaderboard: FC = () => {
 
   if (leaderboardEntries.length === 0) {
     return (
-      <Container maxWidth="md" sx={{ py: 4 }}>
+      <Container maxWidth="md" sx={{ mt: 3, mb: 8 }}>
         <Typography variant="h4" gutterBottom>
           Рейтинг группы
         </Typography>
@@ -114,7 +121,7 @@ export const Leaderboard: FC = () => {
   // Mobile view (cards)
   if (isMobile) {
     return (
-      <Container maxWidth="md" sx={{ py: 4 }}>
+      <Container id={`leaderboard-page-${groupId}`} maxWidth="md" sx={{ mt: 3, mb: 8 }}>
         <Typography variant="h4" gutterBottom>
           Рейтинг группы
         </Typography>
@@ -122,11 +129,12 @@ export const Leaderboard: FC = () => {
           Рейтинг основан на общем количестве заработанных баллов
         </Typography>
 
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+        <Box id="leaderboard-mobile-list" sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
           {leaderboardEntries.map((entry: any) => {
             const isCurrentUser = entry.user.id === user?.id
             return (
               <Card
+                id={`leaderboard-entry-card-${entry.user.id}`}
                 key={entry.user.id}
                 sx={{
                   border: isCurrentUser ? '2px solid' : '1px solid',
@@ -138,6 +146,7 @@ export const Leaderboard: FC = () => {
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                     {getTrophyIcon(entry.rank)}
                     <Chip
+                      id={`leaderboard-rank-${entry.user.id}`}
                       label={`#${entry.rank}`}
                       color={getRankBadgeColor(entry.rank)}
                       size="small"
@@ -147,7 +156,12 @@ export const Leaderboard: FC = () => {
                         {entry.user.username}
                         {isCurrentUser && ' (Вы)'}
                       </Typography>
-                      <Typography variant="body2" color="primary" fontWeight={600}>
+                      <Typography
+                        id={`leaderboard-points-${entry.user.id}`}
+                        variant="body2"
+                        color="primary"
+                        fontWeight={600}
+                      >
                         {formatPoints(entry.pointsEarned)}
                       </Typography>
                     </Box>
@@ -163,7 +177,7 @@ export const Leaderboard: FC = () => {
 
   // Desktop view (table)
   return (
-    <Container maxWidth="md" sx={{ py: 4 }}>
+    <Container id={`leaderboard-page-${groupId}`} maxWidth="md" sx={{ mt: 3, mb: 8 }}>
       <Typography variant="h4" gutterBottom>
         Рейтинг группы
       </Typography>
@@ -171,11 +185,13 @@ export const Leaderboard: FC = () => {
         Рейтинг основан на общем количестве заработанных баллов
       </Typography>
 
-      <TableContainer component={Paper}>
+      <TableContainer id="leaderboard-table" component={Paper}>
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell width="80px" align="center">Место</TableCell>
+              <TableCell width="80px" align="center">
+                Место
+              </TableCell>
               <TableCell width="80px"></TableCell>
               <TableCell>Пользователь</TableCell>
               <TableCell align="right">Баллы</TableCell>
@@ -186,6 +202,7 @@ export const Leaderboard: FC = () => {
               const isCurrentUser = entry.user.id === user?.id
               return (
                 <TableRow
+                  id={`leaderboard-row-${entry.user.id}`}
                   key={entry.user.id}
                   sx={{
                     bgcolor: isCurrentUser ? 'primary.50' : 'inherit',
@@ -198,22 +215,19 @@ export const Leaderboard: FC = () => {
                 >
                   <TableCell align="center">
                     <Chip
+                      id={`leaderboard-rank-${entry.user.id}`}
                       label={`#${entry.rank}`}
                       color={getRankBadgeColor(entry.rank)}
                       size="small"
                     />
                   </TableCell>
-                  <TableCell align="center">
-                    {getTrophyIcon(entry.rank)}
-                  </TableCell>
+                  <TableCell align="center">{getTrophyIcon(entry.rank)}</TableCell>
                   <TableCell>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                       <Typography variant="body1" fontWeight={isCurrentUser ? 600 : 400}>
                         {entry.user.username}
                       </Typography>
-                      {isCurrentUser && (
-                        <Chip label="Вы" size="small" color="primary" />
-                      )}
+                      {isCurrentUser && <Chip label="Вы" size="small" color="primary" />}
                     </Box>
                   </TableCell>
                   <TableCell align="right">

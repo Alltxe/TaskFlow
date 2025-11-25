@@ -34,7 +34,7 @@ interface GroupData {
 export const GroupSettings: FC = () => {
   const { groupId } = useParams<{ groupId: string }>()
   const navigate = useNavigate()
-  const user = useAuthStore((state) => state.user)
+  const user = useAuthStore(state => state.user)
 
   const [formData, setFormData] = useState<Partial<GroupData>>({
     name: '',
@@ -108,7 +108,7 @@ export const GroupSettings: FC = () => {
 
   if (fetching) {
     return (
-      <Container maxWidth="md" sx={{ mt: 6, mb: 8, display: 'flex', justifyContent: 'center' }}>
+      <Container maxWidth="md" sx={{ mt: 3, mb: 8, display: 'flex', justifyContent: 'center' }}>
         <CircularProgress />
       </Container>
     )
@@ -116,7 +116,7 @@ export const GroupSettings: FC = () => {
 
   if (error) {
     return (
-      <Container maxWidth="md" sx={{ mt: 20, mb: 8 }}>
+      <Container maxWidth="md" sx={{ mt: 3, mb: 8 }}>
         <Alert severity="error">Ошибка загрузки настроек: {error.message}</Alert>
       </Container>
     )
@@ -124,7 +124,7 @@ export const GroupSettings: FC = () => {
 
   if (!isAdmin) {
     return (
-      <Container maxWidth="md" sx={{ mt: 20, mb: 8 }}>
+      <Container maxWidth="md" sx={{ mt: 3, mb: 8 }}>
         <Alert severity="error">
           У вас нет прав для редактирования настроек этой группы. Только администратор может
           изменять настройки.
@@ -137,7 +137,7 @@ export const GroupSettings: FC = () => {
   }
 
   return (
-    <Container maxWidth="md" sx={{ mt: 20, mb: 8 }}>
+    <Container maxWidth="md" sx={{ mt: 3, mb: 8 }}>
       <Box sx={{ mb: 4 }}>
         <Typography variant="h4" component="h1" gutterBottom>
           Настройки группы
@@ -163,7 +163,7 @@ export const GroupSettings: FC = () => {
           fullWidth
           label="Название группы"
           value={formData.name}
-          onChange={(e) => {
+          onChange={e => {
             setFormData({ ...formData, name: e.target.value })
             setHasChanges(true)
           }}
@@ -175,7 +175,7 @@ export const GroupSettings: FC = () => {
           fullWidth
           label="Описание"
           value={formData.description}
-          onChange={(e) => {
+          onChange={e => {
             setFormData({ ...formData, description: e.target.value })
             setHasChanges(true)
           }}
@@ -193,7 +193,7 @@ export const GroupSettings: FC = () => {
           control={
             <Switch
               checked={formData.requiresApproval}
-              onChange={(e) => {
+              onChange={e => {
                 setFormData({ ...formData, requiresApproval: e.target.checked })
                 setHasChanges(true)
               }}
@@ -202,8 +202,7 @@ export const GroupSettings: FC = () => {
           label="Требуется проверка выполнения задач"
         />
         <Typography variant="body2" color="text.secondary" sx={{ ml: 4, mb: 3 }}>
-          Если включено, администратор должен одобрить выполненные задачи перед начислением
-          очков
+          Если включено, администратор должен одобрить выполненные задачи перед начислением очков
         </Typography>
 
         <Typography variant="h6" gutterBottom sx={{ mt: 4 }}>
@@ -214,7 +213,7 @@ export const GroupSettings: FC = () => {
         <FormControl component="fieldset">
           <RadioGroup
             value={formData.rotationType}
-            onChange={(e) => {
+            onChange={e => {
               setFormData({
                 ...formData,
                 rotationType: e.target.value as GroupData['rotationType'],
@@ -222,11 +221,7 @@ export const GroupSettings: FC = () => {
               setHasChanges(true)
             }}
           >
-            <FormControlLabel
-              value="ROUND_ROBIN"
-              control={<Radio />}
-              label="Циклическая ротация"
-            />
+            <FormControlLabel value="ROUND_ROBIN" control={<Radio />} label="Циклическая ротация" />
             <Typography variant="body2" color="text.secondary" sx={{ ml: 4, mb: 2 }}>
               Задачи распределяются по очереди среди участников
             </Typography>
@@ -261,7 +256,7 @@ export const GroupSettings: FC = () => {
           control={
             <Switch
               checked={formData.gamificationEnabled}
-              onChange={(e) => {
+              onChange={e => {
                 setFormData({ ...formData, gamificationEnabled: e.target.checked })
                 setHasChanges(true)
               }}

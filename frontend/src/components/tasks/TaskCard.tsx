@@ -86,14 +86,7 @@ const getPriorityLabel = (priority: string): string => {
 // Status colors
 const getStatusColor = (
   status: string
-):
-  | 'default'
-  | 'primary'
-  | 'secondary'
-  | 'error'
-  | 'info'
-  | 'success'
-  | 'warning' => {
+): 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning' => {
   switch (status) {
     case 'COMPLETED':
       return 'success'
@@ -147,6 +140,7 @@ export const TaskCard: FC<TaskCardProps> = ({
 
   return (
     <Card
+      id={`task-card-${task.id}`}
       sx={{
         cursor: onClick ? 'pointer' : 'default',
         '&:hover': onClick
@@ -165,11 +159,13 @@ export const TaskCard: FC<TaskCardProps> = ({
         {/* Header with status and priority */}
         <Box sx={{ display: 'flex', gap: 1, mb: 1.5, flexWrap: 'wrap' }}>
           <Chip
+            id={`task-status-${task.id}`}
             label={getStatusLabel(isOverdue ? 'OVERDUE' : task.status)}
             color={getStatusColor(isOverdue ? 'OVERDUE' : task.status)}
             size="small"
           />
           <Chip
+            id={`task-priority-${task.id}`}
             icon={<FlagIcon />}
             label={getPriorityLabel(task.priority)}
             color={getPriorityColor(task.priority)}
@@ -191,7 +187,7 @@ export const TaskCard: FC<TaskCardProps> = ({
         </Box>
 
         {/* Title */}
-        <Typography variant="h6" component="h3" gutterBottom>
+        <Typography id={`task-title-${task.id}`} variant="h6" component="h3" gutterBottom>
           {task.title}
         </Typography>
 
@@ -217,8 +213,16 @@ export const TaskCard: FC<TaskCardProps> = ({
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mt: 2 }}>
           {/* Deadline */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <ClockIcon fontSize="small" color={isOverdue ? 'error' : 'action'} />
-            <Typography variant="body2" color={isOverdue ? 'error' : 'text.secondary'}>
+            <ClockIcon
+              fontSize="small"
+              color={isOverdue ? 'error' : 'action'}
+              id={`task-deadline-icon-${task.id}`}
+            />
+            <Typography
+              id={`task-deadline-${task.id}`}
+              variant="body2"
+              color={isOverdue ? 'error' : 'text.secondary'}
+            >
               {format(deadlineDate, 'dd MMM yyyy, HH:mm', { locale: ru })}
               {' • '}
               {deadlineText}
@@ -230,6 +234,7 @@ export const TaskCard: FC<TaskCardProps> = ({
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <PersonIcon fontSize="small" color="action" />
               <Avatar
+                id={`task-assignee-avatar-${task.id}`}
                 src={task.assignee.avatarUrl || undefined}
                 sx={{ width: 24, height: 24 }}
               >
@@ -245,6 +250,7 @@ export const TaskCard: FC<TaskCardProps> = ({
           {/* Points */}
           <Box>
             <Chip
+              id={`task-points-${task.id}`}
               label={`${task.points} ${task.points === 1 ? 'балл' : task.points < 5 ? 'балла' : 'баллов'}${task.wasClaimedFromPool ? ' (+50% бонус)' : ''}`}
               color="primary"
               variant="outlined"
@@ -262,7 +268,8 @@ export const TaskCard: FC<TaskCardProps> = ({
               <IconButton
                 size="small"
                 color="success"
-                onClick={(e) => {
+                id={`task-action-complete-${task.id}`}
+                onClick={e => {
                   e.stopPropagation()
                   onComplete(task.id)
                 }}
@@ -275,7 +282,8 @@ export const TaskCard: FC<TaskCardProps> = ({
             <Tooltip title="Редактировать">
               <IconButton
                 size="small"
-                onClick={(e) => {
+                id={`task-action-edit-${task.id}`}
+                onClick={e => {
                   e.stopPropagation()
                   onEdit(task.id)
                 }}
@@ -289,7 +297,8 @@ export const TaskCard: FC<TaskCardProps> = ({
               <IconButton
                 size="small"
                 color="error"
-                onClick={(e) => {
+                id={`task-action-delete-${task.id}`}
+                onClick={e => {
                   e.stopPropagation()
                   onDelete(task.id)
                 }}

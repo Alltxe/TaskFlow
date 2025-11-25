@@ -61,11 +61,11 @@ export const CreateGroupWizard: FC<CreateGroupWizardProps> = ({ open, onClose })
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleNext = () => {
-    setActiveStep((prevActiveStep) => prevActiveStep + 1)
+    setActiveStep(prevActiveStep => prevActiveStep + 1)
   }
 
   const handleBack = () => {
-    setActiveStep((prevActiveStep) => prevActiveStep - 1)
+    setActiveStep(prevActiveStep => prevActiveStep - 1)
   }
 
   const handleReset = () => {
@@ -137,20 +137,22 @@ export const CreateGroupWizard: FC<CreateGroupWizardProps> = ({ open, onClose })
         return (
           <Box sx={{ pt: 2 }}>
             <TextField
+              id="create-group-name-input"
               fullWidth
               label="Название группы"
               value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              onChange={e => setFormData({ ...formData, name: e.target.value })}
               helperText="Минимум 3 символа"
               required
               autoFocus
               sx={{ mb: 3 }}
             />
             <TextField
+              id="create-group-desc-input"
               fullWidth
               label="Описание (необязательно)"
               value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              onChange={e => setFormData({ ...formData, description: e.target.value })}
               multiline
               rows={3}
               helperText="Краткое описание назначения группы"
@@ -166,19 +168,18 @@ export const CreateGroupWizard: FC<CreateGroupWizardProps> = ({ open, onClose })
                 Режим управления задачами
               </FormLabel>
               <FormControlLabel
+                id="create-group-requires-approval"
                 control={
                   <Switch
                     checked={formData.requiresApproval}
-                    onChange={(e) =>
-                      setFormData({ ...formData, requiresApproval: e.target.checked })
-                    }
+                    onChange={e => setFormData({ ...formData, requiresApproval: e.target.checked })}
                   />
                 }
                 label="Требуется проверка выполнения задач"
               />
               <Typography variant="body2" color="text.secondary" sx={{ mt: 1, ml: 4 }}>
-                Если включено, администратор должен одобрить выполненные задачи перед
-                начислением очков
+                Если включено, администратор должен одобрить выполненные задачи перед начислением
+                очков
               </Typography>
             </FormControl>
           </Box>
@@ -192,8 +193,9 @@ export const CreateGroupWizard: FC<CreateGroupWizardProps> = ({ open, onClose })
                 Режим ротации исполнителей
               </FormLabel>
               <RadioGroup
+                id="create-group-rotation-group"
                 value={formData.rotationType}
-                onChange={(e) =>
+                onChange={e =>
                   setFormData({
                     ...formData,
                     rotationType: e.target.value as GroupFormData['rotationType'],
@@ -201,6 +203,7 @@ export const CreateGroupWizard: FC<CreateGroupWizardProps> = ({ open, onClose })
                 }
               >
                 <FormControlLabel
+                  id="create-group-rotation-ROUND_ROBIN"
                   value="ROUND_ROBIN"
                   control={<Radio />}
                   label="Циклическая ротация"
@@ -210,6 +213,7 @@ export const CreateGroupWizard: FC<CreateGroupWizardProps> = ({ open, onClose })
                 </Typography>
 
                 <FormControlLabel
+                  id="create-group-rotation-RANDOM"
                   value="RANDOM"
                   control={<Radio />}
                   label="Случайная ротация"
@@ -219,6 +223,7 @@ export const CreateGroupWizard: FC<CreateGroupWizardProps> = ({ open, onClose })
                 </Typography>
 
                 <FormControlLabel
+                  id="create-group-rotation-LOAD_BALANCING"
                   value="LOAD_BALANCING"
                   control={<Radio />}
                   label="Балансировка нагрузки"
@@ -228,6 +233,7 @@ export const CreateGroupWizard: FC<CreateGroupWizardProps> = ({ open, onClose })
                 </Typography>
 
                 <FormControlLabel
+                  id="create-group-rotation-DISABLED"
                   value="DISABLED"
                   control={<Radio />}
                   label="Без ротации"
@@ -248,10 +254,11 @@ export const CreateGroupWizard: FC<CreateGroupWizardProps> = ({ open, onClose })
                 Система геймификации
               </FormLabel>
               <FormControlLabel
+                id="create-group-gamification"
                 control={
                   <Switch
                     checked={formData.gamificationEnabled}
-                    onChange={(e) =>
+                    onChange={e =>
                       setFormData({ ...formData, gamificationEnabled: e.target.checked })
                     }
                   />
@@ -259,8 +266,8 @@ export const CreateGroupWizard: FC<CreateGroupWizardProps> = ({ open, onClose })
                 label="Включить очки и награды"
               />
               <Typography variant="body2" color="text.secondary" sx={{ mt: 1, ml: 4 }}>
-                Участники будут получать очки за выполнение задач и смогут обменивать их на
-                награды. Также будет доступна таблица лидеров.
+                Участники будут получать очки за выполнение задач и смогут обменивать их на награды.
+                Также будет доступна таблица лидеров.
               </Typography>
             </FormControl>
           </Box>
@@ -275,47 +282,69 @@ export const CreateGroupWizard: FC<CreateGroupWizardProps> = ({ open, onClose })
               </Typography>
 
               <Box sx={{ mt: 3 }}>
-                <Typography variant="subtitle2" color="text.secondary">
+                <Typography
+                  id="create-group-review-name-label"
+                  variant="subtitle2"
+                  color="text.secondary"
+                >
                   Название
                 </Typography>
-                <Typography variant="body1" gutterBottom>
+                <Typography id="create-group-review-name" variant="body1" gutterBottom>
                   {formData.name}
                 </Typography>
 
                 {formData.description && (
                   <>
-                    <Typography variant="subtitle2" color="text.secondary" sx={{ mt: 2 }}>
+                    <Typography
+                      id="create-group-review-desc-label"
+                      variant="subtitle2"
+                      color="text.secondary"
+                      sx={{ mt: 2 }}
+                    >
                       Описание
                     </Typography>
-                    <Typography variant="body1" gutterBottom>
+                    <Typography id="create-group-review-desc" variant="body1" gutterBottom>
                       {formData.description}
                     </Typography>
                   </>
                 )}
 
-                <Typography variant="subtitle2" color="text.secondary" sx={{ mt: 2 }}>
+                <Typography
+                  id="create-group-review-requires-approval-label"
+                  variant="subtitle2"
+                  color="text.secondary"
+                  sx={{ mt: 2 }}
+                >
                   Режим управления
                 </Typography>
-                <Typography variant="body1" gutterBottom>
-                  {formData.requiresApproval
-                    ? 'С проверкой выполнения'
-                    : 'Без проверки выполнения'}
+                <Typography id="create-group-review-requires-approval" variant="body1" gutterBottom>
+                  {formData.requiresApproval ? 'С проверкой выполнения' : 'Без проверки выполнения'}
                 </Typography>
 
-                <Typography variant="subtitle2" color="text.secondary" sx={{ mt: 2 }}>
+                <Typography
+                  id="create-group-review-rotation-label"
+                  variant="subtitle2"
+                  color="text.secondary"
+                  sx={{ mt: 2 }}
+                >
                   Режим ротации
                 </Typography>
-                <Typography variant="body1" gutterBottom>
+                <Typography id="create-group-review-rotation" variant="body1" gutterBottom>
                   {formData.rotationType === 'ROUND_ROBIN' && 'Циклическая ротация'}
                   {formData.rotationType === 'RANDOM' && 'Случайная ротация'}
                   {formData.rotationType === 'LOAD_BALANCING' && 'Балансировка нагрузки'}
                   {formData.rotationType === 'DISABLED' && 'Без ротации'}
                 </Typography>
 
-                <Typography variant="subtitle2" color="text.secondary" sx={{ mt: 2 }}>
+                <Typography
+                  id="create-group-review-gamification-label"
+                  variant="subtitle2"
+                  color="text.secondary"
+                  sx={{ mt: 2 }}
+                >
                   Геймификация
                 </Typography>
-                <Typography variant="body1">
+                <Typography id="create-group-review-gamification" variant="body1">
                   {formData.gamificationEnabled ? 'Включена' : 'Выключена'}
                 </Typography>
               </Box>
@@ -336,16 +365,17 @@ export const CreateGroupWizard: FC<CreateGroupWizardProps> = ({ open, onClose })
 
   return (
     <Dialog
+      id="create-group-dialog"
       open={open}
       onClose={handleClose}
       maxWidth="sm"
       fullWidth
       disableEscapeKeyDown={isSubmitting}
     >
-      <DialogTitle>Создать новую группу</DialogTitle>
+      <DialogTitle id="create-group-dialog-title">Создать новую группу</DialogTitle>
       <DialogContent>
-        <Stepper activeStep={activeStep} sx={{ pt: 3, pb: 4 }}>
-          {steps.map((label) => (
+        <Stepper id="create-group-stepper" activeStep={activeStep} sx={{ pt: 3, pb: 4 }}>
+          {steps.map(label => (
             <Step key={label}>
               <StepLabel>{label}</StepLabel>
             </Step>
@@ -355,19 +385,33 @@ export const CreateGroupWizard: FC<CreateGroupWizardProps> = ({ open, onClose })
         {renderStepContent()}
       </DialogContent>
       <DialogActions sx={{ px: 3, pb: 3 }}>
-        <Button onClick={handleClose} disabled={isSubmitting}>
+        <Button id="create-group-cancel" onClick={handleClose} disabled={isSubmitting}>
           Отмена
         </Button>
         <Box sx={{ flex: '1 1 auto' }} />
-        <Button disabled={activeStep === 0 || isSubmitting} onClick={handleBack}>
+        <Button
+          id="create-group-back"
+          disabled={activeStep === 0 || isSubmitting}
+          onClick={handleBack}
+        >
           Назад
         </Button>
         {activeStep === steps.length - 1 ? (
-          <Button variant="contained" onClick={handleSubmit} disabled={isSubmitting}>
+          <Button
+            id="create-group-submit"
+            variant="contained"
+            onClick={handleSubmit}
+            disabled={isSubmitting}
+          >
             {isSubmitting ? 'Создание...' : 'Создать группу'}
           </Button>
         ) : (
-          <Button variant="contained" onClick={handleNext} disabled={!isStepValid()}>
+          <Button
+            id="create-group-next"
+            variant="contained"
+            onClick={handleNext}
+            disabled={!isStepValid()}
+          >
             Далее
           </Button>
         )}

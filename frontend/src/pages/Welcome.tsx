@@ -12,27 +12,32 @@ export function WelcomePage() {
     {
       icon: <GroupsIcon sx={{ fontSize: 48 }} color="primary" />,
       title: 'Управление группами',
-      description: 'Создавайте группы для семьи, соседей или команды. Приглашайте участников и управляйте задачами вместе.',
+      description:
+        'Создавайте группы для семьи, соседей или команды. Приглашайте участников и управляйте задачами вместе.',
     },
     {
       icon: <AutorenewIcon sx={{ fontSize: 48 }} color="primary" />,
       title: 'Автоматическая ротация',
-      description: 'Система автоматически распределяет задачи между участниками, учитывая загруженность и статус "Отсутствую".',
+      description:
+        'Система автоматически распределяет задачи между участниками, учитывая загруженность и статус "Отсутствую".',
     },
     {
       icon: <CheckCircleOutlineIcon sx={{ fontSize: 48 }} color="primary" />,
       title: 'Контроль выполнения',
-      description: 'Отслеживайте прогресс задач, утверждайте выполненные работы и получайте уведомления о дедлайнах.',
+      description:
+        'Отслеживайте прогресс задач, утверждайте выполненные работы и получайте уведомления о дедлайнах.',
     },
     {
       icon: <EmojiEventsIcon sx={{ fontSize: 48 }} color="primary" />,
       title: 'Геймификация',
-      description: 'Зарабатывайте баллы за выполненные задачи, соревнуйтесь в таблице лидеров и обменивайте баллы на награды.',
+      description:
+        'Зарабатывайте баллы за выполненные задачи, соревнуйтесь в таблице лидеров и обменивайте баллы на награды.',
     },
   ]
 
   return (
     <Box
+      id="welcome-page"
       sx={{
         minHeight: '100vh',
         width: '100%',
@@ -42,9 +47,17 @@ export function WelcomePage() {
       }}
     >
       {/* Hero Section */}
-      <Container maxWidth="lg" sx={{ flex: 1, display: 'flex', flexDirection: 'column', py: 8 }}>
-        <Box sx={{ textAlign: 'center', color: 'white', mb: 8 }}>
+      <Container
+        id="welcome-container"
+        maxWidth="lg"
+        sx={{ flex: 1, display: 'flex', flexDirection: 'column', py: { xs: 4, sm: 6, md: 8 } }}
+      >
+        <Box
+          id="welcome-hero"
+          sx={{ textAlign: 'center', color: 'white', mb: { xs: 4, sm: 6, md: 8 } }}
+        >
           <Typography
+            id="welcome-title"
             variant="h1"
             sx={{
               fontSize: { xs: '2.5rem', md: '3.5rem' },
@@ -55,6 +68,7 @@ export function WelcomePage() {
             TaskFlow
           </Typography>
           <Typography
+            id="welcome-subtitle"
             variant="h5"
             sx={{
               fontSize: { xs: '1.25rem', md: '1.5rem' },
@@ -65,8 +79,15 @@ export function WelcomePage() {
             Автоматизированное распределение задач
             <br />с геймификацией и ротацией исполнителей
           </Typography>
-          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} justifyContent="center">
+          <Stack
+            id="welcome-cta"
+            direction={{ xs: 'column', sm: 'row' }}
+            spacing={2}
+            justifyContent="center"
+          >
             <Button
+              id="welcome-register-button"
+              data-testid="welcome-register-button"
               variant="contained"
               size="large"
               onClick={() => navigate('/register')}
@@ -84,6 +105,8 @@ export function WelcomePage() {
               Начать работу
             </Button>
             <Button
+              id="welcome-login-button"
+              data-testid="welcome-login-button"
               variant="outlined"
               size="large"
               onClick={() => navigate('/login')}
@@ -106,6 +129,7 @@ export function WelcomePage() {
 
         {/* Features Grid */}
         <Box
+          id="welcome-features-grid"
           sx={{
             display: 'grid',
             gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
@@ -115,6 +139,7 @@ export function WelcomePage() {
         >
           {features.map((feature, index) => (
             <Paper
+              id={`welcome-feature-${index}`}
               key={index}
               elevation={3}
               sx={{
@@ -127,12 +152,18 @@ export function WelcomePage() {
               }}
             >
               <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
-                <Box sx={{ flexShrink: 0 }}>{feature.icon}</Box>
+                <Box id={`welcome-feature-icon-${index}`} sx={{ flexShrink: 0 }}>
+                  {feature.icon}
+                </Box>
                 <Box>
-                  <Typography variant="h6" gutterBottom>
+                  <Typography id={`welcome-feature-title-${index}`} variant="h6" gutterBottom>
                     {feature.title}
                   </Typography>
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography
+                    id={`welcome-feature-desc-${index}`}
+                    variant="body2"
+                    color="text.secondary"
+                  >
                     {feature.description}
                   </Typography>
                 </Box>
@@ -143,9 +174,7 @@ export function WelcomePage() {
 
         {/* Footer */}
         <Box sx={{ textAlign: 'center', color: 'white', opacity: 0.8, mt: 'auto' }}>
-          <Typography variant="body2">
-            © 2025 TaskFlow. Все права защищены.
-          </Typography>
+          <Typography variant="body2">© 2025 TaskFlow. Все права защищены.</Typography>
         </Box>
       </Container>
     </Box>

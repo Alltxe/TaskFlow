@@ -29,11 +29,7 @@ import { DatePicker } from '@mui/x-date-pickers'
 import { useAuthStore } from '@store/authStore'
 import { format } from 'date-fns'
 import { ru } from 'date-fns/locale'
-import {
-  UPDATE_USER_MUTATION,
-  SET_AWAY_STATUS_MUTATION,
-  MY_STATISTICS_QUERY,
-} from '@api/queries'
+import { UPDATE_USER_MUTATION, SET_AWAY_STATUS_MUTATION, MY_STATISTICS_QUERY } from '@api/queries'
 import { toast } from '@lib/toast'
 
 /**
@@ -95,11 +91,7 @@ export const Profile: FC = () => {
       console.error(result.error)
     } else if (result.data?.setUserAwayStatus) {
       updateAuthUser(result.data.setUserAwayStatus)
-      toast.success(
-        isAway
-          ? 'Статус "Отсутствует" установлен'
-          : 'Статус "Отсутствует" снят'
-      )
+      toast.success(isAway ? 'Статус "Отсутствует" установлен' : 'Статус "Отсутствует" снят')
       setAwayModalOpen(false)
     }
   }
@@ -127,11 +119,12 @@ export const Profile: FC = () => {
   const stats = statsData?.myStatistics
 
   return (
-    <Container maxWidth="md" sx={{ mt: 25, mb: 8 }}>
+    <Container id="profile-page" maxWidth="md" sx={{ mt: 25, mb: 8 }}>
       {/* Profile Header */}
       <Paper sx={{ p: 3, mb: 3 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
           <Avatar
+            id="profile-avatar"
             src={user.avatarUrl || undefined}
             alt={user.username}
             sx={{ width: 80, height: 80 }}
@@ -139,7 +132,7 @@ export const Profile: FC = () => {
             {user.username[0].toUpperCase()}
           </Avatar>
           <Box sx={{ flexGrow: 1 }}>
-            <Typography variant="h4" component="h1" gutterBottom>
+            <Typography id="profile-username" variant="h4" component="h1" gutterBottom>
               {user.username}
             </Typography>
             <Typography variant="body1" color="text.secondary" gutterBottom>
@@ -157,14 +150,19 @@ export const Profile: FC = () => {
               )}
             </Box>
           </Box>
-          <Button variant="outlined" startIcon={<EditIcon />} onClick={handleOpenEditModal}>
+          <Button
+            id="profile-edit-button"
+            variant="outlined"
+            startIcon={<EditIcon />}
+            onClick={handleOpenEditModal}
+          >
             Редактировать
           </Button>
         </Box>
       </Paper>
 
       {/* User Information */}
-      <Paper sx={{ p: 3, mb: 3 }}>
+      <Paper id="profile-info" sx={{ p: 3, mb: 3 }}>
         <Typography variant="h6" gutterBottom>
           Информация
         </Typography>
@@ -194,9 +192,7 @@ export const Profile: FC = () => {
             <Typography variant="caption" color="text.secondary">
               Статус
             </Typography>
-            <Typography variant="body1">
-              {user.isAway ? 'Отсутствует' : 'Активен'}
-            </Typography>
+            <Typography variant="body1">{user.isAway ? 'Отсутствует' : 'Активен'}</Typography>
           </Grid>
         </Grid>
       </Paper>
@@ -217,31 +213,31 @@ export const Profile: FC = () => {
 
       {/* Statistics Panel */}
       {stats && (
-        <Paper sx={{ p: 3 }}>
+        <Paper id="profile-stats" sx={{ p: 3 }}>
           <Typography variant="h6" gutterBottom>
             Статистика
           </Typography>
           <Divider sx={{ mb: 2 }} />
           <Grid container spacing={3}>
-            <Grid size={{ xs: 6, md: 3 }}>
+            <Grid id="profile-stat-balance" size={{ xs: 6, md: 3 }}>
               <Typography variant="caption" color="text.secondary">
                 Баланс баллов
               </Typography>
               <Typography variant="h5">{stats.currentPointBalance}</Typography>
             </Grid>
-            <Grid size={{ xs: 6, md: 3 }}>
+            <Grid id="profile-stat-completed" size={{ xs: 6, md: 3 }}>
               <Typography variant="caption" color="text.secondary">
                 Задач выполнено
               </Typography>
               <Typography variant="h5">{stats.tasksCompleted}</Typography>
             </Grid>
-            <Grid size={{ xs: 6, md: 3 }}>
+            <Grid id="profile-stat-completion-rate" size={{ xs: 6, md: 3 }}>
               <Typography variant="caption" color="text.secondary">
                 Процент выполнения
               </Typography>
               <Typography variant="h5">{Math.round(stats.completionRate)}%</Typography>
             </Grid>
-            <Grid size={{ xs: 6, md: 3 }}>
+            <Grid id="profile-stat-on-time" size={{ xs: 6, md: 3 }}>
               <Typography variant="caption" color="text.secondary">
                 Вовремя выполнено
               </Typography>
@@ -252,42 +248,71 @@ export const Profile: FC = () => {
       )}
 
       {/* Edit Profile Modal */}
-      <Dialog open={editModalOpen} onClose={() => setEditModalOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>Редактировать профиль</DialogTitle>
+      <Dialog
+        id="profile-edit-dialog"
+        open={editModalOpen}
+        onClose={() => setEditModalOpen(false)}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle id="profile-edit-dialog-title">Редактировать профиль</DialogTitle>
         <DialogContent>
           <TextField
+            id="profile-edit-username-input"
             fullWidth
             label="Имя пользователя"
             value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            onChange={e => setUsername(e.target.value)}
             sx={{ mt: 2, mb: 2 }}
             helperText="От 3 до 30 символов, только буквы, цифры и подчеркивание"
           />
           <TextField
+            id="profile-edit-avatar-input"
             fullWidth
             label="URL аватара"
             value={avatarUrl}
-            onChange={(e) => setAvatarUrl(e.target.value)}
+            onChange={e => setAvatarUrl(e.target.value)}
             placeholder="https://example.com/avatar.jpg"
             helperText="Необязательно. Введите URL вашего изображения"
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setEditModalOpen(false)} startIcon={<CancelIcon />}>
+          <Button
+            id="profile-edit-cancel"
+            onClick={() => setEditModalOpen(false)}
+            startIcon={<CancelIcon />}
+          >
             Отмена
           </Button>
-          <Button onClick={handleEditProfile} variant="contained" startIcon={<SaveIcon />}>
+          <Button
+            id="profile-edit-save"
+            onClick={handleEditProfile}
+            variant="contained"
+            startIcon={<SaveIcon />}
+          >
             Сохранить
           </Button>
         </DialogActions>
       </Dialog>
 
       {/* Away Status Modal */}
-      <Dialog open={awayModalOpen} onClose={() => setAwayModalOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>Управление статусом отсутствия</DialogTitle>
+      <Dialog
+        id="profile-away-dialog"
+        open={awayModalOpen}
+        onClose={() => setAwayModalOpen(false)}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle id="profile-away-dialog-title">Управление статусом отсутствия</DialogTitle>
         <DialogContent>
           <FormControlLabel
-            control={<Switch checked={isAway} onChange={(e) => setIsAway(e.target.checked)} />}
+            control={
+              <Switch
+                id="profile-away-switch"
+                checked={isAway}
+                onChange={e => setIsAway(e.target.checked)}
+              />
+            }
             label="Я отсутствую"
             sx={{ mt: 2, mb: 2 }}
           />
@@ -300,10 +325,11 @@ export const Profile: FC = () => {
               <DatePicker
                 label="Дата возвращения"
                 value={awayUntil}
-                onChange={(newValue) => setAwayUntil(newValue)}
+                onChange={newValue => setAwayUntil(newValue)}
                 minDate={new Date()}
                 slotProps={{
                   textField: {
+                    id: 'profile-away-date-input',
                     fullWidth: true,
                     helperText: 'Необязательно. Оставьте пустым для бессрочного отсутствия',
                   },
@@ -313,10 +339,19 @@ export const Profile: FC = () => {
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setAwayModalOpen(false)} startIcon={<CancelIcon />}>
+          <Button
+            id="profile-away-cancel"
+            onClick={() => setAwayModalOpen(false)}
+            startIcon={<CancelIcon />}
+          >
             Отмена
           </Button>
-          <Button onClick={handleSetAwayStatus} variant="contained" startIcon={<SaveIcon />}>
+          <Button
+            id="profile-away-save"
+            onClick={handleSetAwayStatus}
+            variant="contained"
+            startIcon={<SaveIcon />}
+          >
             Сохранить
           </Button>
         </DialogActions>

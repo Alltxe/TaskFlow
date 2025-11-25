@@ -78,14 +78,7 @@ const getPriorityLabel = (priority: string): string => {
 
 const getStatusColor = (
   status: string
-):
-  | 'default'
-  | 'primary'
-  | 'secondary'
-  | 'error'
-  | 'info'
-  | 'success'
-  | 'warning' => {
+): 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning' => {
   switch (status) {
     case 'COMPLETED':
       return 'success'
@@ -133,11 +126,17 @@ const formatRecurrenceRule = (rule: string | null): string => {
   const intervalMatch = rule.match(/INTERVAL=(\d+)/)
   if (intervalMatch && intervalMatch[1] !== '1') {
     freq = `Каждые ${intervalMatch[1]} ${
-      rule.includes('FREQ=HOURLY') ? 'часов' :
-      rule.includes('FREQ=DAILY') ? 'дней' :
-      rule.includes('FREQ=WEEKLY') ? 'недель' :
-      rule.includes('FREQ=MONTHLY') ? 'месяцев' :
-      rule.includes('FREQ=YEARLY') ? 'лет' : ''
+      rule.includes('FREQ=HOURLY')
+        ? 'часов'
+        : rule.includes('FREQ=DAILY')
+          ? 'дней'
+          : rule.includes('FREQ=WEEKLY')
+            ? 'недель'
+            : rule.includes('FREQ=MONTHLY')
+              ? 'месяцев'
+              : rule.includes('FREQ=YEARLY')
+                ? 'лет'
+                : ''
     }`
   }
 
@@ -148,16 +147,24 @@ const formatRecurrenceRule = (rule: string | null): string => {
   if (byDayMatch) {
     const days = byDayMatch[1]
       .split(',')
-      .map((day) => {
+      .map(day => {
         switch (day) {
-          case 'MO': return 'Пн'
-          case 'TU': return 'Вт'
-          case 'WE': return 'Ср'
-          case 'TH': return 'Чт'
-          case 'FR': return 'Пт'
-          case 'SA': return 'Сб'
-          case 'SU': return 'Вс'
-          default: return day
+          case 'MO':
+            return 'Пн'
+          case 'TU':
+            return 'Вт'
+          case 'WE':
+            return 'Ср'
+          case 'TH':
+            return 'Чт'
+          case 'FR':
+            return 'Пт'
+          case 'SA':
+            return 'Сб'
+          case 'SU':
+            return 'Вс'
+          default:
+            return day
         }
       })
       .join(', ')
@@ -177,11 +184,7 @@ const formatRecurrenceRule = (rule: string | null): string => {
 
     if (hours.length > 0 && minutes.length > 0 && seconds.length > 0) {
       // Full time specified
-      const times = hours.flatMap(h =>
-        minutes.flatMap(m =>
-          seconds.map(s => `${h}:${m}:${s}`)
-        )
-      )
+      const times = hours.flatMap(h => minutes.flatMap(m => seconds.map(s => `${h}:${m}:${s}`)))
       if (times.length <= 3) {
         parts.push(`[${times.join(', ')}]`)
       } else {
@@ -402,7 +405,8 @@ export const TaskDetailModal: FC<TaskDetailModalProps> = ({
                     </Typography>
                     <Typography variant="body2">
                       {task.points}
-                      {(task.wasClaimedFromPool || (!task.assigneeId && task.status === 'PENDING')) && (
+                      {(task.wasClaimedFromPool ||
+                        (!task.assigneeId && task.status === 'PENDING')) && (
                         <Chip
                           label="+50% бонус"
                           color="success"
@@ -522,7 +526,7 @@ export const TaskDetailModal: FC<TaskDetailModalProps> = ({
                   rows={3}
                   label="Причина отклонения"
                   value={rejectionReason}
-                  onChange={(e) => setRejectionReason(e.target.value)}
+                  onChange={e => setRejectionReason(e.target.value)}
                   placeholder="Укажите, что нужно исправить..."
                   required
                 />
@@ -584,6 +588,7 @@ export const TaskDetailModal: FC<TaskDetailModalProps> = ({
                 {canApprove && showRejectForm && (
                   <>
                     <Button
+                      id={`task-action-confirm-reject-${taskId}`}
                       variant="contained"
                       color="error"
                       onClick={handleReject}
@@ -592,6 +597,7 @@ export const TaskDetailModal: FC<TaskDetailModalProps> = ({
                       Подтвердить отклонение
                     </Button>
                     <Button
+                      id={`task-action-cancel-reject-${taskId}`}
                       variant="outlined"
                       onClick={() => {
                         setShowRejectForm(false)
@@ -608,12 +614,17 @@ export const TaskDetailModal: FC<TaskDetailModalProps> = ({
               {/* Right side actions */}
               <Box sx={{ display: 'flex', gap: 1, ml: 'auto' }}>
                 {canEdit && (
-                  <Button startIcon={<EditIcon />} disabled>
+                  <Button
+                    id={`task-action-edit-detail-${taskId}`}
+                    startIcon={<EditIcon />}
+                    disabled
+                  >
                     Редактировать
                   </Button>
                 )}
                 {canDelete && (
                   <Button
+                    id={`task-action-delete-detail-${taskId}`}
                     color="error"
                     startIcon={<DeleteIcon />}
                     onClick={handleDelete}
@@ -622,7 +633,9 @@ export const TaskDetailModal: FC<TaskDetailModalProps> = ({
                     Удалить
                   </Button>
                 )}
-                <Button onClick={onClose}>Закрыть</Button>
+                <Button id={`task-action-close-detail-${taskId}`} onClick={onClose}>
+                  Закрыть
+                </Button>
               </Box>
             </Box>
           </DialogActions>

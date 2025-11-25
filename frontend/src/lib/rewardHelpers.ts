@@ -156,7 +156,7 @@ export function filterRewardsByCost<T extends { cost: number }>(
   minCost?: number,
   maxCost?: number
 ): T[] {
-  return rewards.filter((reward) => {
+  return rewards.filter(reward => {
     if (minCost !== undefined && reward.cost < minCost) return false
     if (maxCost !== undefined && reward.cost > maxCost) return false
     return true

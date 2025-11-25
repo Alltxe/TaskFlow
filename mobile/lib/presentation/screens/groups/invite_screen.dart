@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mobile/core/config/app_config.dart';
 import 'package:mobile/data/models/group.dart';
 import 'package:mobile/data/providers/group_providers.dart';
 import 'package:mobile/l10n/app_localizations.dart';
@@ -45,8 +46,8 @@ class _InviteScreenState extends ConsumerState<InviteScreen> {
 
   String get _inviteLink {
     if (_group == null) return '';
-    // TODO: Update with actual app deep link scheme
-    return 'taskflow://invite/${_group!.inviteToken}';
+    // Use web frontend URL for invite links (works in browsers and can be shared)
+    return '${AppConfig.webBaseUrl}/join/${_group!.inviteToken}';
   }
 
   Future<void> _copyToClipboard() async {

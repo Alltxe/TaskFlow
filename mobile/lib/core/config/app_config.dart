@@ -14,11 +14,16 @@ class AppConfig {
   // For web/iOS, use localhost:3000
   static const String apiBaseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: 'http://10.0.2.2:3000', // Android emulator host IP
+    defaultValue: 'http://91.184.253.90:3000',
   );
 
   static const String graphqlEndpoint = '$apiBaseUrl/graphql';
-  static const String wsEndpoint = 'ws://10.0.2.2:3000/graphql';
+  static const String wsEndpoint = 'ws://91.184.253.90:3000/graphql';
+  // Web Frontend URL (for invite links)
+  static const String webBaseUrl = String.fromEnvironment(
+    'WEB_BASE_URL',
+    defaultValue: 'http://91.184.253.90:3000', // Replace with actual URL
+  );
 
   // Timeouts
   static const Duration connectionTimeout = Duration(seconds: 30);

@@ -14,9 +14,6 @@ import {
 import {
   Dashboard as DashboardIcon,
   Group as GroupIcon,
-  Assignment as TaskIcon,
-  EmojiEvents as RewardsIcon,
-  Leaderboard as LeaderboardIcon,
   Person as PersonIcon,
 } from '@mui/icons-material'
 import { useNavigate, useLocation } from 'react-router-dom'
@@ -29,9 +26,9 @@ export function Sidebar() {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
   const navigate = useNavigate()
   const location = useLocation()
-  
-  const sidebarOpen = useUIStore((state) => state.sidebarOpen)
-  const toggleSidebar = useUIStore((state) => state.toggleSidebar)
+
+  const sidebarOpen = useUIStore(state => state.sidebarOpen)
+  const toggleSidebar = useUIStore(state => state.toggleSidebar)
 
   const menuItems = [
     { text: 'Дашборд', icon: <DashboardIcon />, path: '/dashboard' },
@@ -51,7 +48,7 @@ export function Sidebar() {
 
   const drawerContent = (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      <Box sx={{ p: 2 }}>
+      <Box id="sidebar-brand" sx={{ p: 2 }}>
         <Typography variant="h6" fontWeight={600} color="primary">
           TaskFlow
         </Typography>
@@ -59,13 +56,14 @@ export function Sidebar() {
           Управление задачами
         </Typography>
       </Box>
-      
+
       <Divider />
-      
-      <List sx={{ flex: 1, pt: 2 }}>
-        {menuItems.map((item) => (
+
+      <List id="sidebar-menu" sx={{ flex: 1, pt: 2 }}>
+        {menuItems.map(item => (
           <ListItem key={item.path} disablePadding sx={{ mb: 0.5 }}>
             <ListItemButton
+              id={`sidebar-item-${item.path.replace('/', '')}`}
               selected={location.pathname === item.path}
               onClick={() => handleNavigate(item.path)}
               sx={{
@@ -83,9 +81,7 @@ export function Sidebar() {
                 },
               }}
             >
-              <ListItemIcon sx={{ minWidth: 40 }}>
-                {item.icon}
-              </ListItemIcon>
+              <ListItemIcon sx={{ minWidth: 40 }}>{item.icon}</ListItemIcon>
               <ListItemText primary={item.text} />
             </ListItemButton>
           </ListItem>
@@ -99,6 +95,7 @@ export function Sidebar() {
       {/* Mobile drawer */}
       {isMobile ? (
         <Drawer
+          id="sidebar-drawer"
           anchor="left"
           open={sidebarOpen}
           onClose={toggleSidebar}
@@ -114,6 +111,7 @@ export function Sidebar() {
       ) : (
         /* Desktop drawer */
         <Drawer
+          id="sidebar-drawer"
           variant="permanent"
           sx={{
             width: DRAWER_WIDTH,

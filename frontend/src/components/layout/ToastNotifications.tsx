@@ -11,7 +11,7 @@ export const ToastNotifications: FC = () => {
   const { notifications, removeNotification } = useNotificationStore()
 
   // Show only the most recent unread notification as a toast
-  const latestNotification = notifications.find((n) => !n.read)
+  const latestNotification = notifications.find(n => !n.read)
 
   const handleClose = () => {
     if (latestNotification) {
@@ -25,12 +25,14 @@ export const ToastNotifications: FC = () => {
 
   return (
     <Snackbar
+      id="toast-snackbar"
       open={true}
       autoHideDuration={6000}
       onClose={handleClose}
       anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
     >
       <Alert
+        id="toast-alert"
         onClose={handleClose}
         severity={latestNotification.type}
         variant="filled"

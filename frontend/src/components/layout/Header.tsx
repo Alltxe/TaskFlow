@@ -21,9 +21,6 @@ import {
   AccountCircle,
   Dashboard as DashboardIcon,
   Group as GroupIcon,
-  Assignment as TaskIcon,
-  EmojiEvents as RewardsIcon,
-  Leaderboard as LeaderboardIcon,
   Stars as StarsIcon,
 } from '@mui/icons-material'
 import { useState } from 'react'
@@ -40,9 +37,9 @@ export function Header() {
   const navigate = useNavigate()
   const location = useLocation()
 
-  const user = useAuthStore((state) => state.user)
-  const logout = useAuthStore((state) => state.logout)
-  const toggleSidebar = useUIStore((state) => state.toggleSidebar)
+  const user = useAuthStore(state => state.user)
+  const logout = useAuthStore(state => state.logout)
+  const toggleSidebar = useUIStore(state => state.toggleSidebar)
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const [notificationAnchor, setNotificationAnchor] = useState<null | HTMLElement>(null)
@@ -85,6 +82,7 @@ export function Header() {
 
   return (
     <AppBar
+      id="header-appbar"
       position="sticky"
       color="default"
       elevation={1}
@@ -98,6 +96,7 @@ export function Header() {
       <Toolbar>
         {isMobile && (
           <IconButton
+            id="header-toggle-sidebar"
             edge="start"
             onClick={toggleSidebar}
             sx={{ mr: 2 }}
@@ -106,14 +105,14 @@ export function Header() {
           </IconButton>
         )}
 
-        <Typography variant="h6" component="div" sx={{ mr: 4 }}>
+        <Typography id="header-title" variant="h6" component="div" sx={{ mr: 4 }}>
           TaskFlow
         </Typography>
 
         {/* Horizontal Navigation Menu - Desktop */}
         {!isMobile && (
-          <Box sx={{ display: 'flex', gap: 1, flexGrow: 1 }}>
-            {menuItems.map((item) => (
+          <Box id="header-nav" sx={{ display: 'flex', gap: 1, flexGrow: 1 }}>
+            {menuItems.map(item => (
               <Button
                 key={item.path}
                 startIcon={item.icon}
@@ -135,7 +134,11 @@ export function Header() {
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           {/* Notifications */}
-          <IconButton onClick={handleNotificationOpen} size="large">
+          <IconButton
+            id="header-notifications-button"
+            onClick={handleNotificationOpen}
+            size="large"
+          >
             <Badge badgeContent={3} color="error">
               <NotificationsIcon />
             </Badge>
@@ -171,6 +174,7 @@ export function Header() {
           ) : statisticsResult.data?.myStatistics ? (
             <Tooltip title="История транзакций баллов">
               <Chip
+                id="header-points-chip"
                 icon={<StarsIcon />}
                 label={formatPointsCompact(statisticsResult.data.myStatistics.currentPointBalance)}
                 color="primary"
@@ -188,7 +192,7 @@ export function Header() {
           ) : null}
 
           {/* Profile Menu */}
-          <IconButton onClick={handleProfileMenuOpen} size="large">
+          <IconButton id="header-profile-button" onClick={handleProfileMenuOpen} size="large">
             {user?.avatarUrl ? (
               <Avatar src={user.avatarUrl} sx={{ width: 32, height: 32 }} />
             ) : (
@@ -209,10 +213,18 @@ export function Header() {
               horizontal: 'right',
             }}
           >
-            <MenuItem onClick={() => { handleProfileMenuClose(); navigate('/profile') }}>
+            <MenuItem
+              id="menuitem-profile"
+              onClick={() => {
+                handleProfileMenuClose()
+                navigate('/profile')
+              }}
+            >
               Профиль
             </MenuItem>
-            <MenuItem onClick={handleLogout}>Выйти</MenuItem>
+            <MenuItem id="menuitem-logout" onClick={handleLogout}>
+              Выйти
+            </MenuItem>
           </Menu>
         </Box>
       </Toolbar>

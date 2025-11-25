@@ -1,13 +1,5 @@
 import { type FC, useEffect, useState } from 'react'
-import {
-  Container,
-  Typography,
-  Box,
-  Paper,
-  Button,
-  CircularProgress,
-  Alert,
-} from '@mui/material'
+import { Container, Typography, Box, Paper, Button, CircularProgress, Alert } from '@mui/material'
 import { Group as GroupIcon, Check as CheckIcon } from '@mui/icons-material'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useMutation } from 'urql'
@@ -58,12 +50,12 @@ export const JoinGroup: FC = () => {
   }
 
   return (
-    <Container maxWidth="sm" sx={{ mt: 8 }}>
-      <Paper sx={{ p: 4, textAlign: 'center' }}>
+    <Container id="join-group-page" maxWidth="sm" sx={{ mt: 8 }}>
+      <Paper id="join-group-paper" sx={{ p: 4, textAlign: 'center' }}>
         {success ? (
           <>
-            <CheckIcon sx={{ fontSize: 80, color: 'success.main', mb: 2 }} />
-            <Typography variant="h5" gutterBottom>
+            <CheckIcon id="join-success-icon" sx={{ fontSize: 80, color: 'success.main', mb: 2 }} />
+            <Typography id="join-success-title" variant="h5" gutterBottom>
               Вы успешно присоединились к группе!
             </Typography>
             <Typography variant="body1" color="text.secondary" paragraph>
@@ -72,26 +64,30 @@ export const JoinGroup: FC = () => {
           </>
         ) : (
           <>
-            <GroupIcon sx={{ fontSize: 80, color: 'primary.main', mb: 2 }} />
-            <Typography variant="h5" gutterBottom>
+            <GroupIcon id="join-icon" sx={{ fontSize: 80, color: 'primary.main', mb: 2 }} />
+            <Typography id="join-title" variant="h5" gutterBottom>
               Присоединиться к группе
             </Typography>
             <Typography variant="body1" color="text.secondary" paragraph>
-              Вас пригласили присоединиться к группе. Нажмите кнопку ниже, чтобы
-              подтвердить.
+              Вас пригласили присоединиться к группе. Нажмите кнопку ниже, чтобы подтвердить.
             </Typography>
 
             {error && (
-              <Alert severity="error" sx={{ mb: 3, textAlign: 'left' }}>
+              <Alert id="join-error" severity="error" sx={{ mb: 3, textAlign: 'left' }}>
                 {error}
               </Alert>
             )}
 
             <Box sx={{ mt: 4, display: 'flex', gap: 2, justifyContent: 'center' }}>
-              <Button variant="outlined" onClick={() => navigate('/groups')}>
+              <Button
+                id="join-cancel-button"
+                variant="outlined"
+                onClick={() => navigate('/groups')}
+              >
                 Отмена
               </Button>
               <Button
+                id="join-confirm-button"
                 variant="contained"
                 onClick={handleJoinGroup}
                 disabled={isJoining}
