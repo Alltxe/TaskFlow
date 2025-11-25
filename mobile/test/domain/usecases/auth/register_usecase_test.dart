@@ -1,10 +1,10 @@
-import 'package:flutter_test/flutter_test.dart';
-import 'package:mobile/data/models/auth_response.dart';
-import 'package:mobile/data/models/auth_tokens.dart';
-import 'package:mobile/data/models/register_request.dart';
-import 'package:mobile/data/models/user.dart';
-import 'package:mobile/data/repositories/auth_repository.dart';
-import 'package:mobile/domain/usecases/auth/register_usecase.dart';
+﻿import 'package:flutter_test/flutter_test.dart';
+import 'package:taskflow/data/models/auth_response.dart';
+import 'package:taskflow/data/models/auth_tokens.dart';
+import 'package:taskflow/data/models/register_request.dart';
+import 'package:taskflow/data/models/user.dart';
+import 'package:taskflow/data/repositories/auth_repository.dart';
+import 'package:taskflow/domain/usecases/auth/register_usecase.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 

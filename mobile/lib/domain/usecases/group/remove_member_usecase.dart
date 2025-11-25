@@ -1,6 +1,6 @@
-import 'package:dartz/dartz.dart';
-import 'package:mobile/core/errors/failure.dart';
-import 'package:mobile/data/repositories/group_repository.dart';
+﻿import 'package:dartz/dartz.dart';
+import 'package:taskflow/core/errors/failure.dart';
+import 'package:taskflow/data/repositories/group_repository.dart';
 
 class RemoveMemberUseCase {
   final GroupRepository repository;

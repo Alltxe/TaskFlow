@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mobile/data/models/reward.dart';
-import 'package:mobile/domain/usecases/reward/reward_usecase_providers.dart';
-import 'package:mobile/l10n/app_localizations.dart';
+import 'package:taskflow/data/models/reward.dart';
+import 'package:taskflow/domain/usecases/reward/reward_usecase_providers.dart';
+import 'package:taskflow/l10n/app_localizations.dart';
 
 class GroupRewardsScreen extends ConsumerStatefulWidget {
   final String groupId;

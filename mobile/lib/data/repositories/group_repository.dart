@@ -1,10 +1,10 @@
-import 'package:dartz/dartz.dart';
-import 'package:mobile/core/errors/failure.dart';
-import 'package:mobile/data/models/create_group_request.dart';
-import 'package:mobile/data/models/group.dart';
-import 'package:mobile/data/models/group_member.dart';
-import 'package:mobile/data/models/join_group_request.dart';
-import 'package:mobile/data/models/update_group_request.dart';
+﻿import 'package:dartz/dartz.dart';
+import 'package:taskflow/core/errors/failure.dart';
+import 'package:taskflow/data/models/create_group_request.dart';
+import 'package:taskflow/data/models/group.dart';
+import 'package:taskflow/data/models/group_member.dart';
+import 'package:taskflow/data/models/join_group_request.dart';
+import 'package:taskflow/data/models/update_group_request.dart';
 
 abstract class GroupRepository {
   Future<Either<Failure, List<Group>>> getUserGroups();

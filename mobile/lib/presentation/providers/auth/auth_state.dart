@@ -1,5 +1,5 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:mobile/data/models/user.dart';
+﻿import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:taskflow/data/models/user.dart';
 
 part 'auth_state.freezed.dart';
 

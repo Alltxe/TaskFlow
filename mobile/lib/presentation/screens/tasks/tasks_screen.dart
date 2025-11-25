@@ -1,12 +1,12 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mobile/data/models/task_enums.dart';
-import 'package:mobile/data/providers/auth_providers.dart';
-import 'package:mobile/data/providers/group_providers.dart';
-import 'package:mobile/l10n/app_localizations.dart';
-import 'package:mobile/presentation/providers/task_state_provider.dart';
-import 'package:mobile/presentation/widgets/task/task_list_widget.dart';
+import 'package:taskflow/data/models/task_enums.dart';
+import 'package:taskflow/data/providers/auth_providers.dart';
+import 'package:taskflow/data/providers/group_providers.dart';
+import 'package:taskflow/l10n/app_localizations.dart';
+import 'package:taskflow/presentation/providers/task_state_provider.dart';
+import 'package:taskflow/presentation/widgets/task/task_list_widget.dart';
 
 /// Tasks screen with tab views (PRD 3.4.1)
 class TasksScreen extends ConsumerStatefulWidget {

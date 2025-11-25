@@ -1,5 +1,5 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:mobile/data/models/group_member.dart';
+﻿import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:taskflow/data/models/group_member.dart';
 
 part 'task.freezed.dart';
 part 'task.g.dart';

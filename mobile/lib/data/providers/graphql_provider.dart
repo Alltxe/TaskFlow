@@ -1,11 +1,11 @@
-import 'dart:async';
+﻿import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
-import 'package:mobile/core/config/app_config.dart';
-import 'package:mobile/data/models/auth_tokens.dart';
+import 'package:taskflow/core/config/app_config.dart';
+import 'package:taskflow/data/models/auth_tokens.dart';
 
 /// StreamController for logout events
 final logoutEventController = StreamController<bool>.broadcast();

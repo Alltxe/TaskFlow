@@ -1,14 +1,14 @@
-import 'dart:async';
+﻿import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mobile/data/datasources/auth_local_datasource.dart';
-import 'package:mobile/data/datasources/auth_remote_datasource.dart';
-import 'package:mobile/data/models/login_request.dart';
-import 'package:mobile/data/models/register_request.dart';
-import 'package:mobile/data/models/user.dart';
-import 'package:mobile/data/providers/graphql_provider.dart';
-import 'package:mobile/data/repositories/auth_repository.dart';
-import 'package:mobile/data/repositories/auth_repository_impl.dart';
+import 'package:taskflow/data/datasources/auth_local_datasource.dart';
+import 'package:taskflow/data/datasources/auth_remote_datasource.dart';
+import 'package:taskflow/data/models/login_request.dart';
+import 'package:taskflow/data/models/register_request.dart';
+import 'package:taskflow/data/models/user.dart';
+import 'package:taskflow/data/providers/graphql_provider.dart';
+import 'package:taskflow/data/repositories/auth_repository.dart';
+import 'package:taskflow/data/repositories/auth_repository_impl.dart';
 
 /// Auth state enum
 enum AuthStatus { authenticated, unauthenticated, loading }

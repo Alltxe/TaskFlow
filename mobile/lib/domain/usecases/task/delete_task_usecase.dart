@@ -1,6 +1,6 @@
-import 'package:dartz/dartz.dart' show Either;
-import 'package:mobile/core/errors/failure.dart';
-import 'package:mobile/data/repositories/task_repository.dart';
+﻿import 'package:dartz/dartz.dart' show Either;
+import 'package:taskflow/core/errors/failure.dart';
+import 'package:taskflow/data/repositories/task_repository.dart';
 
 /// Delete a task (PRD 3.4.5)
 class DeleteTaskUseCase {

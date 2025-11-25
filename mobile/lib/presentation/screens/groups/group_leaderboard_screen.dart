@@ -1,9 +1,9 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mobile/data/models/leaderboard_entry.dart';
-import 'package:mobile/data/providers/auth_providers.dart';
-import 'package:mobile/domain/usecases/reward/reward_usecase_providers.dart';
-import 'package:mobile/l10n/app_localizations.dart';
+import 'package:taskflow/data/models/leaderboard_entry.dart';
+import 'package:taskflow/data/providers/auth_providers.dart';
+import 'package:taskflow/domain/usecases/reward/reward_usecase_providers.dart';
+import 'package:taskflow/l10n/app_localizations.dart';
 
 class GroupLeaderboardScreen extends ConsumerStatefulWidget {
   final String groupId;

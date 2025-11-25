@@ -1,6 +1,6 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mobile/data/providers/group_providers.dart';
-import 'package:mobile/presentation/providers/group_state.dart';
+﻿import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:taskflow/data/providers/group_providers.dart';
+import 'package:taskflow/presentation/providers/group_state.dart';
 
 class GroupNotifier extends StateNotifier<GroupState> {
   final Ref ref;

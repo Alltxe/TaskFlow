@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
-import 'package:mobile/core/theme/app_colors.dart';
-import 'package:mobile/core/theme/app_typography.dart';
+﻿import 'package:flutter/material.dart';
+import 'package:taskflow/core/theme/app_colors.dart';
+import 'package:taskflow/core/theme/app_typography.dart';
 
 /// Theme configuration for TaskFlow mobile app
 /// Provides Material Design 3 light and dark themes

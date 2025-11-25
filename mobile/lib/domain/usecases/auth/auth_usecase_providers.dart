@@ -1,11 +1,11 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mobile/data/providers/auth_providers.dart';
-import 'package:mobile/domain/usecases/auth/check_auth_status_usecase.dart';
-import 'package:mobile/domain/usecases/auth/get_current_user_usecase.dart';
-import 'package:mobile/domain/usecases/auth/login_usecase.dart';
-import 'package:mobile/domain/usecases/auth/logout_usecase.dart';
-import 'package:mobile/domain/usecases/auth/refresh_token_usecase.dart';
-import 'package:mobile/domain/usecases/auth/register_usecase.dart';
+﻿import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:taskflow/data/providers/auth_providers.dart';
+import 'package:taskflow/domain/usecases/auth/check_auth_status_usecase.dart';
+import 'package:taskflow/domain/usecases/auth/get_current_user_usecase.dart';
+import 'package:taskflow/domain/usecases/auth/login_usecase.dart';
+import 'package:taskflow/domain/usecases/auth/logout_usecase.dart';
+import 'package:taskflow/domain/usecases/auth/refresh_token_usecase.dart';
+import 'package:taskflow/domain/usecases/auth/register_usecase.dart';
 
 /// Provider for LoginUseCase
 final loginUseCaseProvider = Provider<LoginUseCase>((ref) {

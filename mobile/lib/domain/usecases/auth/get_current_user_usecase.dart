@@ -1,5 +1,5 @@
-import 'package:mobile/data/models/user.dart';
-import 'package:mobile/data/repositories/auth_repository.dart';
+﻿import 'package:taskflow/data/models/user.dart';
+import 'package:taskflow/data/repositories/auth_repository.dart';
 
 /// Use case for getting current user
 class GetCurrentUserUseCase {

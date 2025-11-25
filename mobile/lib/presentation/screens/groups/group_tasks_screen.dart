@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
-import 'package:mobile/presentation/screens/tasks/tasks_screen.dart';
+﻿import 'package:flutter/material.dart';
+import 'package:taskflow/presentation/screens/tasks/tasks_screen.dart';
 
 /// Minimal wrapper — reuse the centralized tasks screen to show group tasks.
 class GroupTasksScreen extends StatelessWidget {

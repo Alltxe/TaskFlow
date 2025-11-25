@@ -1,12 +1,12 @@
-// Import Right/Left/Either helpers from dartz only. Hide Task to avoid conflict with our model
+﻿// Import Right/Left/Either helpers from dartz only. Hide Task to avoid conflict with our model
 import 'package:dartz/dartz.dart' show Either, Left, Right;
-import 'package:mobile/core/errors/exceptions.dart';
-import 'package:mobile/core/errors/failure.dart';
-import 'package:mobile/data/datasources/task_remote_datasource.dart';
-import 'package:mobile/data/models/create_task_request.dart';
-import 'package:mobile/data/models/task.dart';
-import 'package:mobile/data/models/update_task_request.dart';
-import 'package:mobile/data/repositories/task_repository.dart';
+import 'package:taskflow/core/errors/exceptions.dart';
+import 'package:taskflow/core/errors/failure.dart';
+import 'package:taskflow/data/datasources/task_remote_datasource.dart';
+import 'package:taskflow/data/models/create_task_request.dart';
+import 'package:taskflow/data/models/task.dart';
+import 'package:taskflow/data/models/update_task_request.dart';
+import 'package:taskflow/data/repositories/task_repository.dart';
 
 class TaskRepositoryImpl implements TaskRepository {
   final TaskRemoteDataSource remoteDataSource;

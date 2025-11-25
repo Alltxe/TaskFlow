@@ -1,10 +1,10 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mobile/core/errors/exceptions.dart';
-import 'package:mobile/data/models/login_request.dart';
-import 'package:mobile/data/models/register_request.dart';
-import 'package:mobile/data/models/user.dart';
-import 'package:mobile/domain/usecases/auth/auth_usecase_providers.dart';
-import 'package:mobile/presentation/providers/auth/auth_state.dart';
+﻿import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:taskflow/core/errors/exceptions.dart';
+import 'package:taskflow/data/models/login_request.dart';
+import 'package:taskflow/data/models/register_request.dart';
+import 'package:taskflow/data/models/user.dart';
+import 'package:taskflow/domain/usecases/auth/auth_usecase_providers.dart';
+import 'package:taskflow/presentation/providers/auth/auth_state.dart';
 
 /// StateNotifier for authentication
 class AuthNotifier extends StateNotifier<AuthState> {
