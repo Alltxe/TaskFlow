@@ -34,7 +34,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         await ref.read(authStateProvider.notifier).login(email, password);
         // Navigation will be handled by router redirect
       } catch (e) {
-        // Error is already set in state, just show snackbar
+        // Show error snackbar
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -43,6 +43,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               duration: const Duration(seconds: 3),
             ),
           );
+
+          // Reset state to unauthenticated after showing error
+          // Delay to allow snackbar to be visible
+          Future.delayed(const Duration(milliseconds: 500), () {
+            if (mounted) {
+              ref.read(authStateProvider.notifier).resetToUnauthenticated(e.toString());
+            }
+          });
         }
       }
     }

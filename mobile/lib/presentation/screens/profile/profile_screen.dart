@@ -237,22 +237,38 @@ class ProfileScreen extends ConsumerWidget {
     IconData icon,
     Color color,
   ) {
+    // Make points card tappable
+    final isPointsCard = label == AppLocalizations.of(context)!.points;
+
     return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            Icon(icon, color: color, size: 32),
-            const SizedBox(height: 8),
-            Text(
-              value,
-              style: Theme.of(
-                context,
-              ).textTheme.headlineMedium?.copyWith(color: color, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 4),
-            Text(label, style: Theme.of(context).textTheme.bodySmall, textAlign: TextAlign.center),
-          ],
+      child: InkWell(
+        onTap: isPointsCard ? () => context.push('/points-detail') : null,
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            children: [
+              Icon(icon, color: color, size: 32),
+              const SizedBox(height: 8),
+              Text(
+                value,
+                style: Theme.of(
+                  context,
+                ).textTheme.headlineMedium?.copyWith(color: color, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 4),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(label, style: Theme.of(context).textTheme.bodySmall, textAlign: TextAlign.center),
+                  if (isPointsCard) ...[
+                    const SizedBox(width: 4),
+                    Icon(Icons.arrow_forward, size: 14, color: color),
+                  ],
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

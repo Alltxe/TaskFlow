@@ -1,10 +1,13 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:taskflow/data/models/create_task_request.dart';
+import 'package:taskflow/data/models/group_member.dart';
 import 'package:taskflow/data/models/task_enums.dart';
+import 'package:taskflow/data/providers/auth_providers.dart';
 import 'package:taskflow/domain/usecases/task/task_usecase_providers.dart';
 import 'package:taskflow/l10n/app_localizations.dart';
+import 'package:taskflow/data/providers/group_providers.dart';
 import 'package:taskflow/presentation/providers/task_state_provider.dart';
 
 /// Create/Edit Task Screen with form and validation (PRD 3.4.4, 3.4.5)
@@ -26,9 +29,13 @@ class _CreateTaskScreenState extends ConsumerState<CreateTaskScreen> {
 
   DateTime? _selectedDeadline;
   TaskPriority _selectedPriority = TaskPriority.medium;
-  RotationType _selectedRotationType = RotationType.roundRobin;
+  RotationType? _selectedRotationType;
   bool _requiresApproval = true;
   bool _isSubmitting = false;
+
+  // Admin-only fields
+  String _assigneeType = 'auto'; // 'auto', 'upForGrabs', or userId
+  int _weight = 1;
 
   @override
   void dispose() {
@@ -101,6 +108,30 @@ class _CreateTaskScreenState extends ConsumerState<CreateTaskScreen> {
 
     setState(() => _isSubmitting = true);
 
+    // Build request based on user role
+    String? assigneeId;
+    String? rotationType;
+    int? weight;
+
+    if (_assigneeType == 'upForGrabs') {
+      // Up-for-Grabs task (no assignee, rotation disabled)
+      assigneeId = null;
+      rotationType = 'DISABLED';
+    } else if (_assigneeType != 'auto') {
+      // Specific user assigned
+      assigneeId = _assigneeType;
+      rotationType = null; // Use group default when specific user assigned
+    } else {
+      // Auto assignment (use rotation)
+      assigneeId = null;
+      rotationType = _selectedRotationType?.value;
+
+      // Include weight if load balancing
+      if (_selectedRotationType == RotationType.loadBalancing) {
+        weight = _weight;
+      }
+    }
+
     final request = CreateTaskRequest(
       title: _titleController.text.trim(),
       description: _descriptionController.text.trim().isEmpty
@@ -111,7 +142,9 @@ class _CreateTaskScreenState extends ConsumerState<CreateTaskScreen> {
       points: int.parse(_pointsController.text),
       requiresApproval: _requiresApproval,
       groupId: widget.groupId,
-      rotationType: _selectedRotationType.value,
+      assigneeId: assigneeId,
+      rotationType: rotationType,
+      weight: weight,
       isRecurring: false,
     );
 
@@ -121,7 +154,9 @@ class _CreateTaskScreenState extends ConsumerState<CreateTaskScreen> {
     debugPrint('  - priority: ${request.priority}');
     debugPrint('  - points: ${request.points}');
     debugPrint('  - requiresApproval: ${request.requiresApproval}');
+    debugPrint('  - assigneeId: ${request.assigneeId}');
     debugPrint('  - rotationType: ${request.rotationType}');
+    debugPrint('  - weight: ${request.weight}');
 
     final useCase = ref.read(createTaskUseCaseProvider);
     final result = await useCase(request);
@@ -157,6 +192,39 @@ class _CreateTaskScreenState extends ConsumerState<CreateTaskScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final authState = ref.watch(authStateProvider);
+
+    // Fetch group members
+    final getMembersUseCase = ref.watch(getGroupMembersUseCaseProvider);
+
+    return FutureBuilder(
+      future: getMembersUseCase(widget.groupId),
+      builder: (context, snapshot) {
+        // Determine if user is admin and get members list
+        bool isAdmin = false;
+        List<GroupMember> members = [];
+
+        if (snapshot.hasData) {
+          final result = snapshot.data!;
+          result.fold(
+            (failure) {}, // Ignore errors, treat as non-admin
+            (membersList) {
+              members = membersList;
+              final currentMember = membersList.firstWhere(
+                (m) => m.userId == authState.user?.id,
+                orElse: () => membersList.first,
+              );
+              isAdmin = currentMember.role == 'ADMIN';
+            },
+          );
+        }
+
+        return _buildForm(context, l10n, isAdmin, members);
+      },
+    );
+  }
+
+  Widget _buildForm(BuildContext context, AppLocalizations l10n, bool isAdmin, List<GroupMember> members) {
 
     return Scaffold(
       appBar: AppBar(
@@ -242,28 +310,6 @@ class _CreateTaskScreenState extends ConsumerState<CreateTaskScreen> {
 
             const SizedBox(height: 16),
 
-            // Rotation Type
-            DropdownButtonFormField<RotationType>(
-              initialValue: _selectedRotationType,
-              decoration: InputDecoration(
-                labelText: l10n.rotationTypeLabel,
-                border: const OutlineInputBorder(),
-              ),
-              items: RotationType.values.map((rotationType) {
-                return DropdownMenuItem(
-                  value: rotationType,
-                  child: Text(_getRotationTypeLabel(context, rotationType)),
-                );
-              }).toList(),
-              onChanged: (value) {
-                if (value != null) {
-                  setState(() => _selectedRotationType = value);
-                }
-              },
-            ),
-
-            const SizedBox(height: 16),
-
             // Points
             TextFormField(
               controller: _pointsController,
@@ -287,6 +333,92 @@ class _CreateTaskScreenState extends ConsumerState<CreateTaskScreen> {
             ),
 
             const SizedBox(height: 16),
+
+            // ADMIN-ONLY FIELDS
+            if (isAdmin) ...[
+              // Assignment Type
+              DropdownButtonFormField<String>(
+                initialValue: _assigneeType,
+                decoration: const InputDecoration(
+                  labelText: 'Assign to',
+                  border: OutlineInputBorder(),
+                ),
+                items: [
+                  const DropdownMenuItem(
+                    value: 'auto',
+                    child: Text('Auto (by rotation)'),
+                  ),
+                  const DropdownMenuItem(
+                    value: 'upForGrabs',
+                    child: Text('Up-for-Grabs (+50% bonus)'),
+                  ),
+                  ...members.map((member) {
+                    return DropdownMenuItem(
+                      value: member.userId,
+                      child: Text(member.user.username),
+                    );
+                  }),
+                ],
+                onChanged: (value) {
+                  if (value != null) {
+                    setState(() {
+                      _assigneeType = value;
+                      // Reset rotation type if not auto
+                      if (value != 'auto') {
+                        _selectedRotationType = null;
+                      }
+                    });
+                  }
+                },
+              ),
+
+              const SizedBox(height: 16),
+
+              // Rotation Type (only if auto assignment)
+              if (_assigneeType == 'auto') ...[
+                DropdownButtonFormField<RotationType>(
+                  initialValue: _selectedRotationType,
+                  decoration: InputDecoration(
+                    labelText: l10n.rotationTypeLabel,
+                    border: const OutlineInputBorder(),
+                  ),
+                  items: [
+                    DropdownMenuItem(
+                      value: null,
+                      child: Text('Use group default'),
+                    ),
+                    ...RotationType.values.map((rotationType) {
+                      return DropdownMenuItem(
+                        value: rotationType,
+                        child: Text(_getRotationTypeLabel(context, rotationType)),
+                      );
+                    }),
+                  ],
+                  onChanged: (value) {
+                    setState(() => _selectedRotationType = value);
+                  },
+                ),
+
+                const SizedBox(height: 16),
+              ],
+
+              // Weight (only if load balancing)
+              if (_assigneeType == 'auto' &&
+                  _selectedRotationType == RotationType.loadBalancing) ...[
+                Text('Task Weight: $_weight'),
+                Slider(
+                  value: _weight.toDouble(),
+                  min: 1,
+                  max: 10,
+                  divisions: 9,
+                  label: '$_weight',
+                  onChanged: (value) {
+                    setState(() => _weight = value.toInt());
+                  },
+                ),
+                const SizedBox(height: 16),
+              ],
+            ],
 
             // Requires Approval
             SwitchListTile(

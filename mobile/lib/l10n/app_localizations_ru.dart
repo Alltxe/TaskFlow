@@ -691,6 +691,31 @@ class AppLocalizationsRu extends AppLocalizations {
   String get bonusPoints => '+50% бонус';
 
   @override
+  String get requestRewardTitle => 'Request Reward';
+
+  @override
+  String requestRewardMessage(Object rewardName, Object points) {
+    return 'Would you like to request \"$rewardName\" for $points points?';
+  }
+
+  @override
+  String get rewardRequestedSuccess =>
+      'Reward requested successfully! Awaiting approval.';
+
+  @override
+  String insufficientPoints(Object required, Object available) {
+    return 'Insufficient points. You need $required points but only have $available.';
+  }
+
+  @override
+  String get availableBalance => 'Available Balance';
+
+  @override
+  String yourBalance(Object points) {
+    return 'Your balance: $points pts';
+  }
+
+  @override
   String get createdBy => 'Создал';
 
   @override
@@ -928,4 +953,180 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get pleaseSelectDeadline => 'Пожалуйста, выберите срок';
+
+  @override
+  String get pointsHistory => 'Points History';
+
+  @override
+  String get totalEarned => 'Total Earned';
+
+  @override
+  String get totalSpent => 'Total Spent';
+
+  @override
+  String get reservedPending => 'Reserved (Pending)';
+
+  @override
+  String get availablePoints => 'Available Points';
+
+  @override
+  String get transactionHistory => 'Transaction History';
+
+  @override
+  String get noTransactionsYet => 'No Transactions Yet';
+
+  @override
+  String get startCompletingTasks => 'Start completing tasks to earn points';
+
+  @override
+  String get earned => 'Earned';
+
+  @override
+  String get spent => 'Spent';
+
+  @override
+  String get taskCompleted => 'Task Completed';
+
+  @override
+  String get rewardRequested => 'Reward Requested';
+
+  @override
+  String get adminRewardsManagement => 'Rewards Management (Admin)';
+
+  @override
+  String get createReward => 'Create Reward';
+
+  @override
+  String get editReward => 'Edit Reward';
+
+  @override
+  String get deleteReward => 'Delete Reward';
+
+  @override
+  String get rewardName => 'Reward Name';
+
+  @override
+  String get rewardDescription => 'Description (Optional)';
+
+  @override
+  String get rewardCost => 'Cost (in points)';
+
+  @override
+  String get rewardImageUrl => 'Image URL (Optional)';
+
+  @override
+  String get enterRewardName => 'Enter reward name';
+
+  @override
+  String get enterRewardDescription => 'Describe the reward...';
+
+  @override
+  String get enterRewardCost => 'Enter cost in points';
+
+  @override
+  String get enterImageUrl => 'Enter image URL';
+
+  @override
+  String get rewardNameRequired => 'Reward name is required';
+
+  @override
+  String get rewardNameMinLength => 'Name must be at least 3 characters';
+
+  @override
+  String get rewardCostRequired => 'Cost is required';
+
+  @override
+  String get rewardCostMustBePositive => 'Cost must be a positive number';
+
+  @override
+  String get rewardCreatedSuccess => 'Reward created successfully!';
+
+  @override
+  String get rewardUpdatedSuccess => 'Reward updated successfully!';
+
+  @override
+  String get rewardDeletedSuccess => 'Reward deleted successfully!';
+
+  @override
+  String get confirmDeleteReward =>
+      'Are you sure you want to delete this reward?';
+
+  @override
+  String get confirmDeleteRewardMessage =>
+      'This action cannot be undone. Users who requested this reward will keep their requests.';
+
+  @override
+  String get rewardRequestsQueue => 'Reward Requests (Admin)';
+
+  @override
+  String get noPendingRequests => 'No Pending Requests';
+
+  @override
+  String get noRequestsDescription => 'All reward requests have been processed';
+
+  @override
+  String get approveRequest => 'Approve';
+
+  @override
+  String get rejectRequest => 'Reject';
+
+  @override
+  String get requestedBy => 'Requested by';
+
+  @override
+  String get requestedAt => 'Requested at';
+
+  @override
+  String get pointsWillBeDeducted => 'Points will be deducted';
+
+  @override
+  String get pointsWillBeReturned => 'Points will be returned';
+
+  @override
+  String get confirmApprove => 'Approve Request';
+
+  @override
+  String get confirmReject => 'Reject Request';
+
+  @override
+  String approveRequestMessage(Object points) {
+    return 'Approve this reward request? $points points will be deducted from the user.';
+  }
+
+  @override
+  String rejectRequestMessage(Object points) {
+    return 'Reject this reward request? $points points will be returned to the user.';
+  }
+
+  @override
+  String get requestApprovedSuccess =>
+      'Request approved! Points deducted from user.';
+
+  @override
+  String get requestRejectedSuccess =>
+      'Request rejected. Points returned to user.';
+
+  @override
+  String get statusReserved => 'Awaiting Approval';
+
+  @override
+  String get statusApproved => 'Approved';
+
+  @override
+  String get statusRejected => 'Rejected';
+
+  @override
+  String get manageRewards => 'Manage Rewards';
+
+  @override
+  String get viewRequests => 'View Requests';
+
+  @override
+  String get insufficientPointsShort => 'Not enough';
+
+  @override
+  String get create => 'Create';
+
+  @override
+  String get delete => 'Delete';
 }

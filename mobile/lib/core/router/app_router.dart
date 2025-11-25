@@ -14,7 +14,9 @@ import 'package:taskflow/presentation/screens/groups/groups_screen.dart';
 import 'package:taskflow/presentation/screens/groups/invite_screen.dart';
 import 'package:taskflow/presentation/screens/groups/join_group_screen.dart';
 import 'package:taskflow/presentation/screens/main_navigation_screen.dart';
+import 'package:taskflow/presentation/screens/profile/points_detail_screen.dart';
 import 'package:taskflow/presentation/screens/profile/profile_screen.dart';
+import 'package:taskflow/presentation/screens/rewards/my_reward_requests_screen.dart';
 import 'package:taskflow/presentation/screens/settings/settings_screen.dart';
 import 'package:taskflow/presentation/screens/tasks/create_task_screen.dart';
 import 'package:taskflow/presentation/screens/tasks/task_detail_screen.dart';
@@ -147,6 +149,22 @@ final routerProvider = Provider<GoRouter>((ref) {
           final taskId = state.pathParameters['taskId']!;
           final groupId = state.uri.queryParameters['groupId'] ?? '';
           return CreateTaskScreen(taskId: taskId, groupId: groupId);
+        },
+      ),
+
+      // Reward routes
+      GoRoute(
+        path: '/points-detail',
+        builder: (context, state) {
+          final groupId = state.uri.queryParameters['groupId'];
+          return PointsDetailScreen(groupId: groupId);
+        },
+      ),
+      GoRoute(
+        path: '/my-reward-requests',
+        builder: (context, state) {
+          final groupId = state.uri.queryParameters['groupId'];
+          return MyRewardRequestsScreen(groupId: groupId);
         },
       ),
     ],

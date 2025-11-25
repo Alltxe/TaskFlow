@@ -257,6 +257,32 @@
     "reward": "Reward",
     "pts": "pts",
     "bonusPoints": "+50% bonus",
+    "requestRewardTitle": "Request Reward",
+    "requestRewardMessage": "Would you like to request \"{rewardName}\" for {points} points?",
+    "@requestRewardMessage": {
+        "description": "Confirm reward request dialog",
+        "placeholders": {
+            "rewardName": {},
+            "points": {}
+        }
+    },
+    "rewardRequestedSuccess": "Reward requested successfully! Awaiting approval.",
+    "insufficientPoints": "Insufficient points. You need {required} points but only have {available}.",
+    "@insufficientPoints": {
+        "description": "Error when user doesn't have enough points",
+        "placeholders": {
+            "required": {},
+            "available": {}
+        }
+    },
+    "availableBalance": "Available Balance",
+    "yourBalance": "Your balance: {points} pts",
+    "@yourBalance": {
+        "description": "User's current point balance",
+        "placeholders": {
+            "points": {}
+        }
+    },
     "createdBy": "Created By",
     "rejectionReason": "Rejection Reason",
     "markAsComplete": "Mark as Complete",
@@ -374,5 +400,74 @@
     "rotationTypeRandom": "Random",
     "rotationTypeLoadBalancing": "Load Balancing",
     "rotationTypeDisabled": "Disabled (Manual)",
-    "pleaseSelectDeadline": "Please select a deadline"
+    "pleaseSelectDeadline": "Please select a deadline",
+    "pointsHistory": "Points History",
+    "totalEarned": "Total Earned",
+    "totalSpent": "Total Spent",
+    "reservedPending": "Reserved (Pending)",
+    "availablePoints": "Available Points",
+    "transactionHistory": "Transaction History",
+    "noTransactionsYet": "No Transactions Yet",
+    "startCompletingTasks": "Start completing tasks to earn points",
+    "earned": "Earned",
+    "spent": "Spent",
+    "taskCompleted": "Task Completed",
+    "rewardRequested": "Reward Requested",
+    "adminRewardsManagement": "Rewards Management (Admin)",
+    "createReward": "Create Reward",
+    "editReward": "Edit Reward",
+    "deleteReward": "Delete Reward",
+    "rewardName": "Reward Name",
+    "rewardDescription": "Description (Optional)",
+    "rewardCost": "Cost (in points)",
+    "rewardImageUrl": "Image URL (Optional)",
+    "enterRewardName": "Enter reward name",
+    "enterRewardDescription": "Describe the reward...",
+    "enterRewardCost": "Enter cost in points",
+    "enterImageUrl": "Enter image URL",
+    "rewardNameRequired": "Reward name is required",
+    "rewardNameMinLength": "Name must be at least 3 characters",
+    "rewardCostRequired": "Cost is required",
+    "rewardCostMustBePositive": "Cost must be a positive number",
+    "rewardCreatedSuccess": "Reward created successfully!",
+    "rewardUpdatedSuccess": "Reward updated successfully!",
+    "rewardDeletedSuccess": "Reward deleted successfully!",
+    "confirmDeleteReward": "Are you sure you want to delete this reward?",
+    "confirmDeleteRewardMessage": "This action cannot be undone. Users who requested this reward will keep their requests.",
+    "rewardRequestsQueue": "Reward Requests (Admin)",
+    "noPendingRequests": "No Pending Requests",
+    "noRequestsDescription": "All reward requests have been processed",
+    "approveRequest": "Approve",
+    "rejectRequest": "Reject",
+    "requestedBy": "Requested by",
+    "requestedAt": "Requested at",
+    "pointsWillBeDeducted": "Points will be deducted",
+    "pointsWillBeReturned": "Points will be returned",
+    "confirmApprove": "Approve Request",
+    "confirmReject": "Reject Request",
+    "approveRequestMessage": "Approve this reward request? {points} points will be deducted from the user.",
+    "@approveRequestMessage": {
+        "description": "Confirm approve reward request",
+        "placeholders": {
+            "points": {}
+        }
+    },
+    "rejectRequestMessage": "Reject this reward request? {points} points will be returned to the user.",
+    "@rejectRequestMessage": {
+        "description": "Confirm reject reward request",
+        "placeholders": {
+            "points": {}
+        }
+    },
+    "requestApprovedSuccess": "Request approved! Points deducted from user.",
+    "requestRejectedSuccess": "Request rejected. Points returned to user.",
+    "statusReserved": "Awaiting Approval",
+    "statusApproved": "Approved",
+    "statusRejected": "Rejected",
+    "manageRewards": "Manage Rewards",
+    "viewRequests": "View Requests",
+    "insufficientPointsShort": "Not enough",
+    "create": "Create",
+    "save": "Save",
+    "delete": "Delete"
 }
