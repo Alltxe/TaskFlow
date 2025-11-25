@@ -15,10 +15,7 @@ import {
   CircularProgress,
   Alert,
 } from '@mui/material'
-import {
-  Check as CheckIcon,
-  Close as CloseIcon,
-} from '@mui/icons-material'
+import { Check as CheckIcon, Close as CloseIcon } from '@mui/icons-material'
 import { useQuery, useMutation } from 'urql'
 import { GET_GROUP_REWARD_REQUESTS_QUERY, APPROVE_REWARD_REQUEST_MUTATION } from '@api/queries'
 import { formatPoints } from '@lib/formatPoints'
@@ -32,7 +29,6 @@ export interface RequestReviewQueueProps {
 }
 
 export const RequestReviewQueue: FC<RequestReviewQueueProps> = ({ groupId }) => {
-
   const [selectedRequestId, setSelectedRequestId] = useState<string | null>(null)
 
   const [requestsResult, reexecuteQuery] = useQuery({
@@ -95,11 +91,7 @@ export const RequestReviewQueue: FC<RequestReviewQueueProps> = ({ groupId }) => 
   }
 
   if (error) {
-    return (
-      <Alert severity="error">
-        Ошибка загрузки запросов наград: {error.message}
-      </Alert>
-    )
+    return <Alert severity="error">Ошибка загрузки запросов наград: {error.message}</Alert>
   }
 
   const requests = data?.getGroupRewardRequests || []
@@ -117,7 +109,7 @@ export const RequestReviewQueue: FC<RequestReviewQueueProps> = ({ groupId }) => 
 
   return (
     <>
-      <TableContainer component={Paper}>
+      <TableContainer id="reward-requests-table" component={Paper}>
         <Table>
           <TableHead>
             <TableRow>
@@ -131,11 +123,12 @@ export const RequestReviewQueue: FC<RequestReviewQueueProps> = ({ groupId }) => 
           </TableHead>
           <TableBody>
             {pendingRequests.map((request: any) => (
-              <TableRow key={request.id}>
+              <TableRow id={`reward-request-row-${request.id}`} key={request.id}>
                 <TableCell>ID: {request.userId}</TableCell>
                 <TableCell>ID награды: {request.rewardId}</TableCell>
                 <TableCell>
                   <Chip
+                    id={`reward-request-row-cost-${request.id}`}
                     label={formatPoints(request.pointsSpent)}
                     size="small"
                     color="primary"
@@ -147,6 +140,7 @@ export const RequestReviewQueue: FC<RequestReviewQueueProps> = ({ groupId }) => 
                 </TableCell>
                 <TableCell>
                   <Chip
+                    id={`reward-request-row-status-${request.id}`}
                     label={getRewardStatusLabel(request.status)}
                     color={getRewardStatusColor(request.status)}
                     size="small"
@@ -155,6 +149,7 @@ export const RequestReviewQueue: FC<RequestReviewQueueProps> = ({ groupId }) => 
                 <TableCell align="right">
                   <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
                     <Button
+                      id={`reward-request-approve-${request.id}`}
                       size="small"
                       variant="contained"
                       color="success"
@@ -164,6 +159,7 @@ export const RequestReviewQueue: FC<RequestReviewQueueProps> = ({ groupId }) => 
                       Одобрить
                     </Button>
                     <Button
+                      id={`reward-request-reject-${request.id}`}
                       size="small"
                       variant="outlined"
                       color="error"

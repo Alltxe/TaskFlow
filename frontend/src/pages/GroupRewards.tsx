@@ -41,7 +41,7 @@ type SortOption = 'cost-asc' | 'cost-desc' | 'name' | 'newest'
 
 export const GroupRewards: FC = () => {
   const { groupId } = useParams<{ groupId: string }>()
-  const user = useAuthStore((state) => state.user)
+  const user = useAuthStore(state => state.user)
 
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [updateModalOpen, setUpdateModalOpen] = useState(false)
@@ -79,9 +79,7 @@ export const GroupRewards: FC = () => {
   // Determine if current user is admin
   const isAdmin = useMemo(() => {
     if (!user || !membersResult.data?.getGroupMembers) return false
-    const currentMember = membersResult.data.getGroupMembers.find(
-      (m: any) => m.userId === user.id
-    )
+    const currentMember = membersResult.data.getGroupMembers.find((m: any) => m.userId === user.id)
     return currentMember?.role === 'ADMIN'
   }, [user, membersResult.data])
 
@@ -150,7 +148,7 @@ export const GroupRewards: FC = () => {
 
   if (!groupId) {
     return (
-      <Container>
+      <Container maxWidth="lg" sx={{ mt: 3, mb: 8 }}>
         <Alert severity="error">Группа не найдена</Alert>
       </Container>
     )
@@ -158,8 +156,15 @@ export const GroupRewards: FC = () => {
 
   if (rewardsResult.fetching || balanceResult.fetching || membersResult.fetching) {
     return (
-      <Container>
-        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+      <Container maxWidth="lg" sx={{ mt: 3, mb: 8 }}>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            minHeight: '60vh',
+          }}
+        >
           <CircularProgress />
         </Box>
       </Container>
@@ -168,7 +173,7 @@ export const GroupRewards: FC = () => {
 
   if (rewardsResult.error) {
     return (
-      <Container>
+      <Container maxWidth="lg" sx={{ mt: 3, mb: 8 }}>
         <Alert severity="error">Ошибка загрузки наград: {rewardsResult.error.message}</Alert>
       </Container>
     )
@@ -177,8 +182,8 @@ export const GroupRewards: FC = () => {
   const availableBalance = balanceResult.data?.getPointBalance?.availableBalance || 0
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Typography variant="h4" gutterBottom>
+    <Container id={`group-rewards-page-${groupId}`} maxWidth="lg" sx={{ mt: 3, mb: 8 }}>
+      <Typography id="group-rewards-title" variant="h4" gutterBottom>
         Каталог наград
       </Typography>
 
@@ -203,11 +208,12 @@ export const GroupRewards: FC = () => {
         <Stack direction="row" spacing={2} flexWrap="wrap" useFlexGap>
           <Box sx={{ flex: '1 1 300px', minWidth: { xs: '100%', sm: '300px' } }}>
             <TextField
+              id="group-rewards-search-input"
               fullWidth
               size="small"
               label="Поиск наград"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={e => setSearchQuery(e.target.value)}
               placeholder="Название или описание..."
               InputProps={{
                 startAdornment: <SearchIcon sx={{ mr: 1, color: 'text.secondary' }} />,
@@ -216,12 +222,13 @@ export const GroupRewards: FC = () => {
           </Box>
           <Box sx={{ flex: '0 1 200px', minWidth: { xs: '100%', sm: '150px' } }}>
             <TextField
+              id="group-rewards-sort-select"
               fullWidth
               size="small"
               select
               label="Сортировка"
               value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as SortOption)}
+              onChange={e => setSortBy(e.target.value as SortOption)}
             >
               <MenuItem value="newest">Новые</MenuItem>
               <MenuItem value="cost-asc">Цена: по возрастанию</MenuItem>
@@ -231,23 +238,25 @@ export const GroupRewards: FC = () => {
           </Box>
           <Box sx={{ flex: '0 1 120px', minWidth: '100px' }}>
             <TextField
+              id="group-rewards-min-cost"
               fullWidth
               size="small"
               type="number"
               label="Мин. цена"
               value={minCost}
-              onChange={(e) => setMinCost(e.target.value === '' ? '' : parseInt(e.target.value, 10))}
+              onChange={e => setMinCost(e.target.value === '' ? '' : parseInt(e.target.value, 10))}
               inputProps={{ min: 0 }}
             />
           </Box>
           <Box sx={{ flex: '0 1 120px', minWidth: '100px' }}>
             <TextField
+              id="group-rewards-max-cost"
               fullWidth
               size="small"
               type="number"
               label="Макс. цена"
               value={maxCost}
-              onChange={(e) => setMaxCost(e.target.value === '' ? '' : parseInt(e.target.value, 10))}
+              onChange={e => setMaxCost(e.target.value === '' ? '' : parseInt(e.target.value, 10))}
               inputProps={{ min: 0 }}
             />
           </Box>
@@ -267,6 +276,7 @@ export const GroupRewards: FC = () => {
         </Paper>
       ) : (
         <Box
+          id="group-rewards-grid"
           sx={{
             display: 'grid',
             gridTemplateColumns: {
@@ -294,6 +304,7 @@ export const GroupRewards: FC = () => {
       {/* FAB for creating rewards (admin only) */}
       {isAdmin && (
         <Fab
+          id="group-create-reward-fab"
           color="primary"
           aria-label="Создать награду"
           sx={{ position: 'fixed', bottom: 24, right: 24 }}

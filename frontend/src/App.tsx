@@ -11,11 +11,11 @@ import { ToastNotifications } from './components/layout'
 
 function App() {
   const [error, setError] = useState<Error | null>(null)
-  const initialize = useAuthStore((state) => state.initialize)
+  const initialize = useAuthStore(state => state.initialize)
 
   useEffect(() => {
     // Initialize auth state on app load
-    initialize().catch((error) => {
+    initialize().catch(error => {
       console.error('Failed to initialize auth:', error)
       // Don't block the app if auth initialization fails
     })

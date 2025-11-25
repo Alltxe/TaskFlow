@@ -100,7 +100,7 @@ export const CreateTaskModal: FC<CreateTaskModalProps> = ({
       const minutes = new Set<number>()
       const seconds = new Set<number>()
 
-      specificTimes.forEach((time) => {
+      specificTimes.forEach(time => {
         hours.add(time.getHours())
         minutes.add(time.getMinutes())
         seconds.add(time.getSeconds())
@@ -108,13 +108,25 @@ export const CreateTaskModal: FC<CreateTaskModalProps> = ({
 
       // Only add if user specified times (not default)
       if (hours.size > 0 && hours.size < 24) {
-        parts.push(`BYHOUR=${Array.from(hours).sort((a, b) => a - b).join(',')}`)
+        parts.push(
+          `BYHOUR=${Array.from(hours)
+            .sort((a, b) => a - b)
+            .join(',')}`
+        )
       }
       if (minutes.size > 0 && minutes.size < 60) {
-        parts.push(`BYMINUTE=${Array.from(minutes).sort((a, b) => a - b).join(',')}`)
+        parts.push(
+          `BYMINUTE=${Array.from(minutes)
+            .sort((a, b) => a - b)
+            .join(',')}`
+        )
       }
       if (seconds.size > 0 && seconds.size < 60) {
-        parts.push(`BYSECOND=${Array.from(seconds).sort((a, b) => a - b).join(',')}`)
+        parts.push(
+          `BYSECOND=${Array.from(seconds)
+            .sort((a, b) => a - b)
+            .join(',')}`
+        )
       }
     }
 
@@ -194,11 +206,11 @@ export const CreateTaskModal: FC<CreateTaskModalProps> = ({
 
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ru}>
-      <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
-        <DialogTitle>Создать новую задачу</DialogTitle>
+      <Dialog id="create-task-dialog" open={open} onClose={handleClose} maxWidth="md" fullWidth>
+        <DialogTitle id="create-task-title">Создать новую задачу</DialogTitle>
         <DialogContent>
           {error && (
-            <Alert severity="error" sx={{ mb: 2 }}>
+            <Alert id="create-task-error" severity="error" sx={{ mb: 2 }}>
               Ошибка создания задачи: {error.message}
             </Alert>
           )}
@@ -207,11 +219,12 @@ export const CreateTaskModal: FC<CreateTaskModalProps> = ({
             {/* Title */}
             <Grid size={{ xs: 12 }}>
               <TextField
+                id="create-task-title-input"
                 fullWidth
                 required
                 label="Название задачи"
                 value={title}
-                onChange={(e) => setTitle(e.target.value)}
+                onChange={e => setTitle(e.target.value)}
                 placeholder="Например: Помыть посуду"
               />
             </Grid>
@@ -219,12 +232,13 @@ export const CreateTaskModal: FC<CreateTaskModalProps> = ({
             {/* Description */}
             <Grid size={{ xs: 12 }}>
               <TextField
+                id="create-task-desc-input"
                 fullWidth
                 multiline
                 rows={3}
                 label="Описание"
                 value={description}
-                onChange={(e) => setDescription(e.target.value)}
+                onChange={e => setDescription(e.target.value)}
                 placeholder="Подробности задачи (необязательно)"
               />
             </Grid>
@@ -234,9 +248,10 @@ export const CreateTaskModal: FC<CreateTaskModalProps> = ({
               <DateTimePicker
                 label="Срок выполнения *"
                 value={deadline}
-                onChange={(newValue) => setDeadline(newValue)}
+                onChange={newValue => setDeadline(newValue)}
                 slotProps={{
                   textField: {
+                    id: 'create-task-deadline-input',
                     fullWidth: true,
                     required: true,
                   },
@@ -249,9 +264,10 @@ export const CreateTaskModal: FC<CreateTaskModalProps> = ({
               <FormControl fullWidth required>
                 <InputLabel>Приоритет</InputLabel>
                 <Select
+                  id="create-task-priority-select"
                   value={priority}
                   label="Приоритет"
-                  onChange={(e) => setPriority(e.target.value)}
+                  onChange={e => setPriority(e.target.value)}
                 >
                   <MenuItem value="LOW">Низкий</MenuItem>
                   <MenuItem value="MEDIUM">Средний</MenuItem>
@@ -264,6 +280,7 @@ export const CreateTaskModal: FC<CreateTaskModalProps> = ({
             <Grid size={{ xs: 12 }}>
               <Typography gutterBottom>Баллы за выполнение: {points}</Typography>
               <Slider
+                id="create-task-points-slider"
                 value={points}
                 onChange={(_, value) => setPoints(value as number)}
                 min={1}
@@ -285,9 +302,10 @@ export const CreateTaskModal: FC<CreateTaskModalProps> = ({
               <FormControl fullWidth>
                 <InputLabel>Назначить исполнителя</InputLabel>
                 <Select
+                  id="create-task-assignee-select"
                   value={assigneeId}
                   label="Назначить исполнителя"
-                  onChange={(e) => setAssigneeId(e.target.value)}
+                  onChange={e => setAssigneeId(e.target.value)}
                 >
                   <MenuItem value="auto">Автоматически (по ротации)</MenuItem>
                   <MenuItem value="upForGrabs">Доступна для выбора (бонус +50%)</MenuItem>
@@ -306,9 +324,10 @@ export const CreateTaskModal: FC<CreateTaskModalProps> = ({
                 <FormControl fullWidth>
                   <InputLabel>Тип ротации</InputLabel>
                   <Select
+                    id="create-task-rotation-select"
                     value={rotationType}
                     label="Тип ротации"
-                    onChange={(e) => setRotationType(e.target.value)}
+                    onChange={e => setRotationType(e.target.value)}
                   >
                     <MenuItem value="group">Использовать настройку группы</MenuItem>
                     <MenuItem value="ROUND_ROBIN">Циклическая</MenuItem>
@@ -320,11 +339,11 @@ export const CreateTaskModal: FC<CreateTaskModalProps> = ({
             )}
 
             {/* Weight (for load balancing) */}
-            {(rotationType === 'LOAD_BALANCING' ||
-              rotationType === 'group') && (
+            {(rotationType === 'LOAD_BALANCING' || rotationType === 'group') && (
               <Grid size={{ xs: 12 }}>
                 <Typography gutterBottom>Вес задачи (для балансировки): {weight}</Typography>
                 <Slider
+                  id="create-task-weight-slider"
                   value={weight}
                   onChange={(_, value) => setWeight(value as number)}
                   min={1}
@@ -341,8 +360,9 @@ export const CreateTaskModal: FC<CreateTaskModalProps> = ({
               <FormControlLabel
                 control={
                   <Checkbox
+                    id="create-task-requires-approval-checkbox"
                     checked={requiresApproval}
-                    onChange={(e) => setRequiresApproval(e.target.checked)}
+                    onChange={e => setRequiresApproval(e.target.checked)}
                   />
                 }
                 label="Требует проверки администратором"
@@ -407,7 +427,7 @@ export const CreateTaskModal: FC<CreateTaskModalProps> = ({
                     type="number"
                     label={`Каждые N ${recurrenceType === 'HOURLY' ? 'часов' : recurrenceType === 'DAILY' ? 'дней' : recurrenceType === 'WEEKLY' ? 'недель' : 'месяцев'}`}
                     value={interval}
-                    onChange={(e) => setInterval(Math.max(1, parseInt(e.target.value) || 1))}
+                    onChange={e => setInterval(Math.max(1, parseInt(e.target.value) || 1))}
                     inputProps={{ min: 1, max: recurrenceType === 'HOURLY' ? 24 : 365 }}
                     size="small"
                   />
@@ -430,14 +450,14 @@ export const CreateTaskModal: FC<CreateTaskModalProps> = ({
                     { label: 'Пт', value: 'FR' },
                     { label: 'Сб', value: 'SA' },
                     { label: 'Вс', value: 'SU' },
-                  ].map((day) => (
+                  ].map(day => (
                     <Chip
                       key={day.value}
                       label={day.label}
                       onClick={() => {
-                        setWeekDays((prev) =>
+                        setWeekDays(prev =>
                           prev.includes(day.value)
-                            ? prev.filter((d) => d !== day.value)
+                            ? prev.filter(d => d !== day.value)
                             : [...prev, day.value]
                         )
                       }}
@@ -447,7 +467,11 @@ export const CreateTaskModal: FC<CreateTaskModalProps> = ({
                   ))}
                 </Box>
                 {weekDays.length === 0 && (
-                  <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: 'block' }}>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{ mt: 0.5, display: 'block' }}
+                  >
                     Если не выбрано, повторяется каждую неделю
                   </Typography>
                 )}
@@ -482,7 +506,7 @@ export const CreateTaskModal: FC<CreateTaskModalProps> = ({
                   type="number"
                   label="Количество повторений"
                   value={endCount}
-                  onChange={(e) => setEndCount(Math.max(1, parseInt(e.target.value) || 1))}
+                  onChange={e => setEndCount(Math.max(1, parseInt(e.target.value) || 1))}
                   inputProps={{ min: 1, max: 999 }}
                   size="small"
                 />
@@ -495,7 +519,7 @@ export const CreateTaskModal: FC<CreateTaskModalProps> = ({
                 <DateTimePicker
                   label="Дата окончания"
                   value={endDate}
-                  onChange={(newValue) => setEndDate(newValue)}
+                  onChange={newValue => setEndDate(newValue)}
                   slotProps={{
                     textField: {
                       fullWidth: true,
@@ -513,10 +537,14 @@ export const CreateTaskModal: FC<CreateTaskModalProps> = ({
                   Конкретное время (опционально):
                 </Typography>
                 <Alert severity="info" sx={{ mb: 2 }}>
-                  {recurrenceType === 'HOURLY' && 'Задача будет создаваться каждый час в указанные минуты/секунды'}
-                  {recurrenceType === 'DAILY' && 'Задача будет создаваться каждый день в указанное время'}
-                  {recurrenceType === 'WEEKLY' && 'Задача будет создаваться в выбранные дни недели в указанное время'}
-                  {recurrenceType === 'MONTHLY' && 'Задача будет создаваться каждый месяц в указанное время'}
+                  {recurrenceType === 'HOURLY' &&
+                    'Задача будет создаваться каждый час в указанные минуты/секунды'}
+                  {recurrenceType === 'DAILY' &&
+                    'Задача будет создаваться каждый день в указанное время'}
+                  {recurrenceType === 'WEEKLY' &&
+                    'Задача будет создаваться в выбранные дни недели в указанное время'}
+                  {recurrenceType === 'MONTHLY' &&
+                    'Задача будет создаваться каждый месяц в указанное время'}
                 </Alert>
                 <Stack spacing={1}>
                   {specificTimes.map((time, index) => (
@@ -524,7 +552,7 @@ export const CreateTaskModal: FC<CreateTaskModalProps> = ({
                       <TimePicker
                         label={`Время ${index + 1}`}
                         value={time}
-                        onChange={(newValue) => {
+                        onChange={newValue => {
                           if (newValue) {
                             const updated = [...specificTimes]
                             updated[index] = newValue
@@ -565,9 +593,14 @@ export const CreateTaskModal: FC<CreateTaskModalProps> = ({
                     + Добавить время
                   </Button>
                 </Stack>
-                <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  sx={{ mt: 1, display: 'block' }}
+                >
                   {specificTimes.length === 0 && 'Оставьте пустым для повторения в любое время'}
-                  {specificTimes.length > 0 && `Задач будет создано: ${specificTimes.length} раз за ${recurrenceType === 'HOURLY' ? 'час' : recurrenceType === 'DAILY' ? 'день' : recurrenceType === 'WEEKLY' ? 'неделю' : 'месяц'}`}
+                  {specificTimes.length > 0 &&
+                    `Задач будет создано: ${specificTimes.length} раз за ${recurrenceType === 'HOURLY' ? 'час' : recurrenceType === 'DAILY' ? 'день' : recurrenceType === 'WEEKLY' ? 'неделю' : 'месяц'}`}
                 </Typography>
               </Grid>
             )}
@@ -575,10 +608,11 @@ export const CreateTaskModal: FC<CreateTaskModalProps> = ({
         </DialogContent>
 
         <DialogActions>
-          <Button onClick={handleClose} disabled={fetching}>
+          <Button id="create-task-cancel" onClick={handleClose} disabled={fetching}>
             Отмена
           </Button>
           <Button
+            id="create-task-submit"
             onClick={handleSubmit}
             variant="contained"
             disabled={fetching || !title || !deadline}

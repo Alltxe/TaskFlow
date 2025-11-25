@@ -12,19 +12,20 @@ export function AppShell({ children }: AppShellProps) {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
 
   return (
-    <Box sx={{ display: 'flex', minHeight: '100vh' }}>
+    <Box id="app-shell" sx={{ display: 'flex', minHeight: '100vh' }}>
       {/* Show Sidebar only on mobile */}
       {isMobile && <Sidebar />}
       <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
         <Header />
         <Box
+          id="main-content"
           component="main"
           sx={{
             flex: 1,
             bgcolor: 'background.default',
-            pt: 3,
-            px: 3,
-            pb: 3,
+            pt: { xs: 3, sm: 3 },
+            px: { xs: 2, sm: 3 },
+            pb: { xs: 2, sm: 3 },
           }}
         >
           {children}
@@ -33,5 +34,3 @@ export function AppShell({ children }: AppShellProps) {
     </Box>
   )
 }
-
-

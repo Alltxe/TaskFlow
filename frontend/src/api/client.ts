@@ -2,9 +2,9 @@ import { createClient, fetchExchange, subscriptionExchange } from 'urql'
 import { cacheExchange } from '@urql/exchange-graphcache'
 import { createClient as createWSClient } from 'graphql-ws'
 
-// Get API URLs from environment variables
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/graphql'
-const WS_URL = import.meta.env.VITE_WS_URL || 'ws://localhost:3000/graphql'
+// API URLs
+const API_URL = 'http://91.184.253.90:3000/graphql'
+const WS_URL = 'ws://91.184.253.90:3000/graphql'
 
 // Function to get access token from localStorage
 // We'll use authStore's persisted state
@@ -26,7 +26,10 @@ const wsClient = createWSClient({
   url: WS_URL,
   connectionParams: () => {
     const token = getAccessToken()
-    return token ? { authorization: `Bearer ${token}` } : {}
+    return {
+      authorization: token ? `Bearer ${token}` : '',
+      'ngrok-skip-browser-warning': 'true',
+    }
   },
 })
 
@@ -37,10 +40,10 @@ export const client = createClient({
     cacheExchange({
       // Cache configuration
       keys: {
-        UserType: (data) => data.id as string,
-        GroupType: (data) => data.id as string,
-        GroupMemberType: (data) => data.id as string,
-        TaskType: (data) => data.id as string,
+        UserType: data => data.id as string,
+        GroupType: data => data.id as string,
+        GroupMemberType: data => data.id as string,
+        TaskType: data => data.id as string,
         UserStatistics: () => null, // Don't cache statistics
       },
       updates: {
@@ -77,6 +80,7 @@ export const client = createClient({
     return {
       headers: {
         authorization: token ? `Bearer ${token}` : '',
+        'ngrok-skip-browser-warning': 'true',
       },
     }
   },
@@ -99,4 +103,3 @@ export const setAuthToken = (token: string | null) => {
 export const getAuthToken = (): string | null => {
   return getAccessToken()
 }
-

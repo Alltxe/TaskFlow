@@ -8,8 +8,8 @@ import { LoginPage } from './Login'
 const { mockLogin, mockLogout, mockAuthStore } = vi.hoisted(() => {
   const mockLogin = vi.fn()
   const mockLogout = vi.fn()
-  
-  const mockAuthStore = vi.fn((selector) => {
+
+  const mockAuthStore = vi.fn(selector => {
     const store = {
       login: mockLogin,
       logout: mockLogout,
@@ -24,7 +24,7 @@ const { mockLogin, mockLogout, mockAuthStore } = vi.hoisted(() => {
     }
     return selector ? selector(store) : store
   })
-  
+
   return { mockLogin, mockLogout, mockAuthStore }
 })
 
@@ -172,7 +172,7 @@ describe('LoginPage', () => {
 
   it('should disable form during submission', async () => {
     const user = userEvent.setup()
-    mockLogin.mockImplementation(() => new Promise((resolve) => setTimeout(resolve, 1000)))
+    mockLogin.mockImplementation(() => new Promise(resolve => setTimeout(resolve, 1000)))
     renderLogin()
 
     const emailInput = screen.getByLabelText(/email/i)

@@ -3,6 +3,7 @@
 This directory contains GraphQL operations and API client configuration.
 
 ## Contents
+
 - `client.ts` - GraphQL client setup (urql/Apollo)
 - `queries/` - GraphQL queries
 - `mutations/` - GraphQL mutations

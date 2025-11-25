@@ -21,10 +21,7 @@ import {
   Paper,
   Chip,
 } from '@mui/material'
-import {
-  Add as AddIcon,
-  Search as SearchIcon,
-} from '@mui/icons-material'
+import { Add as AddIcon, Search as SearchIcon } from '@mui/icons-material'
 import { TaskCard, CreateTaskModal, TaskDetailModal } from '@components/tasks'
 import {
   GET_GROUP_TASKS_QUERY,
@@ -93,13 +90,13 @@ export const GroupTasks: FC = () => {
     // Tab filtering
     switch (activeTab) {
       case 'my':
-        tasks = tasks.filter((task) => task.assigneeId === user?.id)
+        tasks = tasks.filter(task => task.assigneeId === user?.id)
         break
       case 'upForGrabs':
-        tasks = tasks.filter((task) => !task.assigneeId)
+        tasks = tasks.filter(task => !task.assigneeId)
         break
       case 'review':
-        tasks = tasks.filter((task) => task.status === 'AWAITING_APPROVAL')
+        tasks = tasks.filter(task => task.status === 'AWAITING_APPROVAL')
         break
       case 'all':
       default:
@@ -108,19 +105,19 @@ export const GroupTasks: FC = () => {
 
     // Priority filtering
     if (priorityFilter !== 'all') {
-      tasks = tasks.filter((task) => task.priority === priorityFilter)
+      tasks = tasks.filter(task => task.priority === priorityFilter)
     }
 
     // Status filtering
     if (statusFilter !== 'all') {
-      tasks = tasks.filter((task) => task.status === statusFilter)
+      tasks = tasks.filter(task => task.status === statusFilter)
     }
 
     // Search filtering
     if (searchQuery) {
       const query = searchQuery.toLowerCase()
       tasks = tasks.filter(
-        (task) =>
+        task =>
           task.title.toLowerCase().includes(query) ||
           task.description?.toLowerCase().includes(query)
       )
@@ -132,12 +129,12 @@ export const GroupTasks: FC = () => {
       const bCompleted = b.status === 'COMPLETED'
       if (aCompleted && !bCompleted) return 1
       if (!aCompleted && bCompleted) return -1
-      
+
       // For Up-for-Grabs tab, sort by points (high to low)
       if (activeTab === 'upForGrabs') {
         return b.points - a.points
       }
-      
+
       // Otherwise, sort by deadline
       return new Date(a.deadline).getTime() - new Date(b.deadline).getTime()
     })
@@ -169,7 +166,7 @@ export const GroupTasks: FC = () => {
 
   if (!groupId) {
     return (
-      <Container maxWidth="lg" sx={{ mt: 4 }}>
+      <Container maxWidth="lg" sx={{ mt: 3, mb: 8 }}>
         <Alert severity="error">Группа не найдена</Alert>
       </Container>
     )
@@ -177,17 +174,17 @@ export const GroupTasks: FC = () => {
 
   if (error) {
     return (
-      <Container maxWidth="lg" sx={{ mt: 4 }}>
+      <Container maxWidth="lg" sx={{ mt: 3, mb: 8 }}>
         <Alert severity="error">Ошибка загрузки задач: {error.message}</Alert>
       </Container>
     )
   }
 
   return (
-    <Container maxWidth="xl" sx={{ mt: 3, mb: 8 }}>
+    <Container id={`group-tasks-page-${groupId}`} maxWidth="lg" sx={{ mt: 3, mb: 8 }}>
       {/* Header */}
       <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography variant="h4" component="h1">
+        <Typography id="group-tasks-title" variant="h4" component="h1">
           Задачи группы
         </Typography>
         {isAdmin && (
@@ -196,6 +193,7 @@ export const GroupTasks: FC = () => {
             startIcon={<AddIcon />}
             size="large"
             onClick={() => setCreateModalOpen(true)}
+            id="group-create-task-button"
           >
             Создать задачу
           </Button>
@@ -272,10 +270,11 @@ export const GroupTasks: FC = () => {
 
           {/* Search */}
           <TextField
+            id="group-tasks-search-input"
             size="small"
             placeholder="Поиск по названию или описанию..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={e => setSearchQuery(e.target.value)}
             sx={{ flexGrow: 1, minWidth: 200 }}
             slotProps={{
               input: {
@@ -292,9 +291,10 @@ export const GroupTasks: FC = () => {
           <FormControl size="small" sx={{ minWidth: 140 }}>
             <InputLabel>Приоритет</InputLabel>
             <Select
+              id="group-tasks-priority-select"
               value={priorityFilter}
               label="Приоритет"
-              onChange={(e) => setPriorityFilter(e.target.value)}
+              onChange={e => setPriorityFilter(e.target.value)}
             >
               <MenuItem value="all">Все</MenuItem>
               <MenuItem value="HIGH">Высокий</MenuItem>
@@ -307,9 +307,10 @@ export const GroupTasks: FC = () => {
           <FormControl size="small" sx={{ minWidth: 140 }}>
             <InputLabel>Статус</InputLabel>
             <Select
+              id="group-tasks-status-select"
               value={statusFilter}
               label="Статус"
-              onChange={(e) => setStatusFilter(e.target.value)}
+              onChange={e => setStatusFilter(e.target.value)}
             >
               <MenuItem value="all">Все</MenuItem>
               <MenuItem value="PENDING">В ожидании</MenuItem>
@@ -331,7 +332,7 @@ export const GroupTasks: FC = () => {
             {filteredTasks.length === 0 ? (
               <Alert severity="info">Задачи не найдены</Alert>
             ) : (
-              <Grid container spacing={2}>
+              <Grid id="group-tasks-list" container spacing={2}>
                 {filteredTasks.map((task: any) => (
                   <Grid size={{ xs: 12, md: 6, lg: 4 }} key={task.id}>
                     <TaskCard
@@ -339,7 +340,7 @@ export const GroupTasks: FC = () => {
                       currentUserId={user?.id}
                       isAdmin={isAdmin}
                       onComplete={handleCompleteTask}
-                      onClick={(taskId) => setSelectedTaskId(taskId)}
+                      onClick={taskId => setSelectedTaskId(taskId)}
                     />
                   </Grid>
                 ))}
@@ -359,7 +360,7 @@ export const GroupTasks: FC = () => {
                       currentUserId={user?.id}
                       isAdmin={isAdmin}
                       onComplete={handleCompleteTask}
-                      onClick={(taskId) => setSelectedTaskId(taskId)}
+                      onClick={taskId => setSelectedTaskId(taskId)}
                     />
                   </Grid>
                 ))}
@@ -384,7 +385,7 @@ export const GroupTasks: FC = () => {
                         task={task}
                         currentUserId={user?.id}
                         isAdmin={isAdmin}
-                        onClick={(taskId) => setSelectedTaskId(taskId)}
+                        onClick={taskId => setSelectedTaskId(taskId)}
                       />
                     </Grid>
                   ))}
@@ -404,7 +405,7 @@ export const GroupTasks: FC = () => {
                       task={task}
                       currentUserId={user?.id}
                       isAdmin={isAdmin}
-                      onClick={(taskId) => setSelectedTaskId(taskId)}
+                      onClick={taskId => setSelectedTaskId(taskId)}
                     />
                   </Grid>
                 ))}
@@ -417,6 +418,7 @@ export const GroupTasks: FC = () => {
       {/* Floating Action Button for mobile */}
       {isAdmin && (
         <Fab
+          id="group-create-task-fab"
           color="primary"
           aria-label="add task"
           onClick={() => setCreateModalOpen(true)}

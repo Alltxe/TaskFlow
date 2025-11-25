@@ -5,9 +5,11 @@ import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 import helmet from 'helmet';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
+import { join } from 'path';
+import { NestExpressApplication } from '@nestjs/platform-express';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   // Use Winston logger
   app.useLogger(app.get(WINSTON_MODULE_NEST_PROVIDER));
@@ -18,15 +20,18 @@ async function bootstrap() {
   // Security Headers (Helmet) - PRD 4.2
   app.use(
     helmet({
-      contentSecurityPolicy: {
-        directives: {
-          defaultSrc: ["'self'"],
-          styleSrc: ["'self'", "'unsafe-inline'"], // GraphQL playground needs inline styles
-          scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"], // GraphQL playground needs eval
-          imgSrc: ["'self'", 'data:', 'https:'],
-        },
-      },
-      crossOriginEmbedderPolicy: false, // GraphQL playground compatibility
+      contentSecurityPolicy: process.env.NODE_ENV === 'production'
+        ? {
+            directives: {
+              defaultSrc: ["'self'"],
+              styleSrc: ["'self'", "'unsafe-inline'"],
+              scriptSrc: ["'self'"],
+              imgSrc: ["'self'", 'data:', 'https:'],
+              connectSrc: ["'self'", 'ws:', 'wss:'],
+            },
+          }
+        : false, // Отключаем CSP в development для удобства разработки
+      crossOriginEmbedderPolicy: false,
     }),
   );
 
@@ -36,12 +41,12 @@ async function bootstrap() {
     : ['http://localhost:5173', 'http://localhost:4173'];
 
   app.enableCors({
-    origin: process.env.NODE_ENV === 'production' 
-      ? allowedOrigins 
+    origin: process.env.NODE_ENV === 'production'
+      ? allowedOrigins
       : true, // Allow all origins in development
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'ngrok-skip-browser-warning'],
     maxAge: 3600, // Cache preflight requests for 1 hour
   });
 
@@ -60,6 +65,24 @@ async function bootstrap() {
       },
     }),
   );
+
+  // Serve static frontend files from dist folder
+  const frontendPath = join(__dirname, '..', '..', 'frontend', 'dist');
+  app.useStaticAssets(frontendPath);
+
+  // SPA fallback: все неизвестные routes отправляются на index.html
+  app.use((req, res, next) => {
+    // Пропускаем GraphQL и API запросы
+    if (req.path.startsWith('/graphql') || req.path.startsWith('/api')) {
+      return next();
+    }
+    // Пропускаем запросы к статическим файлам (с расширением)
+    if (req.path.match(/\.\w+$/)) {
+      return next();
+    }
+    // Остальные запросы - отдаем index.html для SPA роутинга
+    res.sendFile(join(frontendPath, 'index.html'));
+  });
 
   // Глобальный фильтр исключений (убирает stacktrace из ответов)
   app.useGlobalFilters(new AllExceptionsFilter());

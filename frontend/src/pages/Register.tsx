@@ -18,8 +18,8 @@ import { useAuthStore } from '../store/authStore'
 
 export function RegisterPage() {
   const navigate = useNavigate()
-  const register = useAuthStore((state) => state.register)
-  
+  const register = useAuthStore(state => state.register)
+
   const [email, setEmail] = useState('')
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
@@ -28,7 +28,7 @@ export function RegisterPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  
+
   const [emailError, setEmailError] = useState('')
   const [usernameError, setUsernameError] = useState('')
   const [passwordError, setPasswordError] = useState('')
@@ -122,6 +122,7 @@ export function RegisterPage() {
 
   return (
     <Box
+      id="register-page"
       sx={{
         minHeight: '100vh',
         background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
@@ -131,10 +132,16 @@ export function RegisterPage() {
         py: 4,
       }}
     >
-      <Container maxWidth="sm">
-        <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
-          <Box sx={{ mb: 3, textAlign: 'center' }}>
-            <Typography variant="h4" component="h1" gutterBottom fontWeight={600}>
+      <Container id="register-container" maxWidth="sm">
+        <Paper id="register-paper" elevation={3} sx={{ p: 4, borderRadius: 2 }}>
+          <Box id="register-header" sx={{ mb: 3, textAlign: 'center' }}>
+            <Typography
+              id="register-title"
+              variant="h4"
+              component="h1"
+              gutterBottom
+              fontWeight={600}
+            >
               Регистрация в TaskFlow
             </Typography>
             <Typography variant="body2" color="text.secondary">
@@ -148,13 +155,14 @@ export function RegisterPage() {
             </Alert>
           )}
 
-          <form onSubmit={handleSubmit}>
+          <form id="register-form" onSubmit={handleSubmit}>
             <TextField
+              id="register-email-input"
               fullWidth
               label="Email"
               type="email"
               value={email}
-              onChange={(e) => {
+              onChange={e => {
                 setEmail(e.target.value)
                 if (emailError) validateEmail(e.target.value)
               }}
@@ -168,11 +176,12 @@ export function RegisterPage() {
             />
 
             <TextField
+              id="register-username-input"
               fullWidth
               label="Имя пользователя"
               type="text"
               value={username}
-              onChange={(e) => {
+              onChange={e => {
                 setUsername(e.target.value)
                 if (usernameError) validateUsername(e.target.value)
               }}
@@ -185,11 +194,12 @@ export function RegisterPage() {
             />
 
             <TextField
+              id="register-password-input"
               fullWidth
               label="Пароль"
               type={showPassword ? 'text' : 'password'}
               value={password}
-              onChange={(e) => {
+              onChange={e => {
                 setPassword(e.target.value)
                 if (passwordError) validatePassword(e.target.value)
                 if (confirmPassword && confirmPasswordError) {
@@ -218,11 +228,12 @@ export function RegisterPage() {
             />
 
             <TextField
+              id="register-confirm-password-input"
               fullWidth
               label="Подтверждение пароля"
               type={showConfirmPassword ? 'text' : 'password'}
               value={confirmPassword}
-              onChange={(e) => {
+              onChange={e => {
                 setConfirmPassword(e.target.value)
                 if (confirmPasswordError) validateConfirmPassword(e.target.value)
               }}
@@ -248,6 +259,7 @@ export function RegisterPage() {
             />
 
             <Button
+              id="register-submit-button"
               type="submit"
               fullWidth
               variant="contained"
@@ -261,7 +273,7 @@ export function RegisterPage() {
             <Box sx={{ textAlign: 'center', mt: 2 }}>
               <Typography variant="body2" color="text.secondary">
                 Уже есть аккаунт?{' '}
-                <Link component={RouterLink} to="/login" underline="hover">
+                <Link id="register-login-link" component={RouterLink} to="/login" underline="hover">
                   Войти
                 </Link>
               </Typography>

@@ -110,15 +110,22 @@ export const UpdateRewardModal: FC<UpdateRewardModalProps> = ({
   if (!reward) return null
 
   return (
-    <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
-      <DialogTitle>Редактировать награду</DialogTitle>
+    <Dialog
+      id={`update-reward-dialog-${reward.id}`}
+      open={open}
+      onClose={handleClose}
+      maxWidth="sm"
+      fullWidth
+    >
+      <DialogTitle id={`update-reward-title-${reward.id}`}>Редактировать награду</DialogTitle>
 
       <DialogContent>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
           <TextField
+            id={`update-reward-name-input-${reward.id}`}
             label="Название награды"
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={e => setName(e.target.value)}
             error={!!errors.name}
             helperText={errors.name}
             fullWidth
@@ -127,9 +134,10 @@ export const UpdateRewardModal: FC<UpdateRewardModalProps> = ({
           />
 
           <TextField
+            id={`update-reward-desc-input-${reward.id}`}
             label="Описание"
             value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            onChange={e => setDescription(e.target.value)}
             fullWidth
             multiline
             rows={3}
@@ -137,9 +145,10 @@ export const UpdateRewardModal: FC<UpdateRewardModalProps> = ({
           />
 
           <TextField
+            id={`update-reward-cost-input-${reward.id}`}
             label="Стоимость (в баллах)"
             value={cost}
-            onChange={(e) => {
+            onChange={e => {
               const value = e.target.value
               if (value === '') {
                 setCost('')
@@ -159,9 +168,10 @@ export const UpdateRewardModal: FC<UpdateRewardModalProps> = ({
           />
 
           <TextField
+            id={`update-reward-image-input-${reward.id}`}
             label="URL изображения"
             value={imageUrl}
-            onChange={(e) => setImageUrl(e.target.value)}
+            onChange={e => setImageUrl(e.target.value)}
             fullWidth
             placeholder="https://example.com/image.jpg (необязательно)"
           />
@@ -169,8 +179,11 @@ export const UpdateRewardModal: FC<UpdateRewardModalProps> = ({
       </DialogContent>
 
       <DialogActions sx={{ px: 3, pb: 2 }}>
-        <Button onClick={handleClose}>Отмена</Button>
+        <Button id={`update-reward-cancel-${reward.id}`} onClick={handleClose}>
+          Отмена
+        </Button>
         <Button
+          id={`update-reward-submit-${reward.id}`}
           onClick={handleSubmit}
           variant="contained"
           disabled={!name.trim() || cost === '' || cost === 0}

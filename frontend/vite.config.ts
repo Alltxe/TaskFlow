@@ -5,15 +5,6 @@ import path from 'path'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-  build: {
-    minify: false
-  },
-  css: {
-    modules: {
-      // Это предотвратит хэширование имен в ваших файлах .module.css
-      generateScopedName: '[local]', 
-    },
-  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
@@ -50,5 +41,10 @@ export default defineConfig({
     host: '0.0.0.0', // То же для preview сервера
     port: 4173,
     strictPort: false,
+  },
+  build: {
+    minify: false,
+    outDir: 'dist',
+    emptyOutDir: true,
   },
 })

@@ -66,18 +66,32 @@ export const RewardRequestModal: FC<RewardRequestModalProps> = ({
   const newBalance = calculateNewBalance(availableBalance, reward.cost)
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>Подтвердите запрос награды</DialogTitle>
+    <Dialog
+      id={reward ? `reward-request-dialog-${reward.id}` : 'reward-request-dialog'}
+      open={open}
+      onClose={onClose}
+      maxWidth="sm"
+      fullWidth
+    >
+      <DialogTitle id="reward-request-title">Подтвердите запрос награды</DialogTitle>
 
       <DialogContent>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Typography
+            id={reward ? `reward-request-name-${reward.id}` : 'reward-request-name'}
+            variant="h6"
+            sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
+          >
             <StarsIcon color="primary" />
             {reward.name}
           </Typography>
 
           {reward.description && (
-            <Typography variant="body2" color="text.secondary">
+            <Typography
+              id={reward ? `reward-request-desc-${reward.id}` : 'reward-request-desc'}
+              variant="body2"
+              color="text.secondary"
+            >
               {reward.description}
             </Typography>
           )}
@@ -94,36 +108,48 @@ export const RewardRequestModal: FC<RewardRequestModalProps> = ({
             <Typography variant="body2" color="text.secondary" gutterBottom>
               Стоимость награды:
             </Typography>
-            <Typography variant="h6" color="primary" gutterBottom>
+            <Typography
+              id={reward ? `reward-request-cost-${reward.id}` : 'reward-request-cost'}
+              variant="h6"
+              color="primary"
+              gutterBottom
+            >
               {formatPoints(reward.cost)}
             </Typography>
 
             <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }} gutterBottom>
               Текущий доступный баланс:
             </Typography>
-            <Typography variant="body1" gutterBottom>
+            <Typography id="reward-request-current-balance" variant="body1" gutterBottom>
               {formatPoints(availableBalance)}
             </Typography>
 
             <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }} gutterBottom>
               Новый доступный баланс:
             </Typography>
-            <Typography variant="body1" fontWeight={600}>
+            <Typography id="reward-request-new-balance" variant="body1" fontWeight={600}>
               {formatPoints(newBalance)}
             </Typography>
           </Box>
 
-          <Alert severity="info" icon={<WarningIcon />}>
-            После запроса баллы будут зарезервированы до тех пор, пока администратор не одобрит
-            или не отклонит ваш запрос. Зарезервированные баллы нельзя использовать для других
-            наград.
+          <Alert id="reward-request-alert" severity="info" icon={<WarningIcon />}>
+            После запроса баллы будут зарезервированы до тех пор, пока администратор не одобрит или
+            не отклонит ваш запрос. Зарезервированные баллы нельзя использовать для других наград.
           </Alert>
         </Box>
       </DialogContent>
 
       <DialogActions sx={{ px: 3, pb: 2 }}>
-        <Button onClick={onClose}>Отмена</Button>
-        <Button onClick={handleConfirm} variant="contained" color="primary" startIcon={<StarsIcon />}>
+        <Button id="reward-request-cancel" onClick={onClose}>
+          Отмена
+        </Button>
+        <Button
+          id={reward ? `reward-request-confirm-${reward.id}` : 'reward-request-confirm'}
+          onClick={handleConfirm}
+          variant="contained"
+          color="primary"
+          startIcon={<StarsIcon />}
+        >
           Подтвердить запрос
         </Button>
       </DialogActions>

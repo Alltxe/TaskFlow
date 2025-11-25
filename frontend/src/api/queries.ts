@@ -697,4 +697,3 @@ export const GET_GROUP_LEADERBOARD_QUERY = gql`
     }
   }
 `
-

@@ -3,6 +3,7 @@
 This directory contains TypeScript type definitions and interfaces.
 
 ## Contents
+
 - `api.ts` - API response types
 - `models.ts` - Domain model types
 - `enums.ts` - Enumerations

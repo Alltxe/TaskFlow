@@ -12,10 +12,7 @@ interface CustomRenderOptions extends Omit<RenderOptions, 'wrapper'> {
 }
 
 // Custom render function that includes providers
-export function renderWithProviders(
-  ui: ReactElement,
-  options?: CustomRenderOptions
-) {
+export function renderWithProviders(ui: ReactElement, options?: CustomRenderOptions) {
   const { urqlClient: customUrqlClient, routerProps, ...renderOptions } = options || {}
 
   function Wrapper({ children }: { children: React.ReactNode }) {

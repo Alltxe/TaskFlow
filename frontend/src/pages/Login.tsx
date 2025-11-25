@@ -18,14 +18,14 @@ import { useAuthStore } from '../store/authStore'
 
 export function LoginPage() {
   const navigate = useNavigate()
-  const login = useAuthStore((state) => state.login)
-  
+  const login = useAuthStore(state => state.login)
+
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  
+
   const [emailError, setEmailError] = useState('')
   const [passwordError, setPasswordError] = useState('')
 
@@ -81,6 +81,7 @@ export function LoginPage() {
 
   return (
     <Box
+      id="login-page"
       sx={{
         minHeight: '100vh',
         background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
@@ -90,10 +91,10 @@ export function LoginPage() {
         py: 4,
       }}
     >
-      <Container maxWidth="sm">
-        <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
-          <Box sx={{ mb: 3, textAlign: 'center' }}>
-            <Typography variant="h4" component="h1" gutterBottom fontWeight={600}>
+      <Container id="login-container" maxWidth="sm">
+        <Paper id="login-paper" elevation={3} sx={{ p: 4, borderRadius: 2 }}>
+          <Box id="login-header" sx={{ mb: 3, textAlign: 'center' }}>
+            <Typography id="login-title" variant="h4" component="h1" gutterBottom fontWeight={600}>
               Вход в TaskFlow
             </Typography>
             <Typography variant="body2" color="text.secondary">
@@ -107,14 +108,15 @@ export function LoginPage() {
             </Alert>
           )}
 
-          <form onSubmit={handleSubmit} data-testid="login-form">
+          <form id="login-form" onSubmit={handleSubmit} data-testid="login-form">
             <TextField
+              id="login-email-input"
               data-testid="login-email-input"
               fullWidth
               label="Email"
               type="email"
               value={email}
-              onChange={(e) => {
+              onChange={e => {
                 setEmail(e.target.value)
                 if (emailError) validateEmail(e.target.value)
               }}
@@ -128,12 +130,13 @@ export function LoginPage() {
             />
 
             <TextField
+              id="login-password-input"
               data-testid="login-password-input"
               fullWidth
               label="Пароль"
               type={showPassword ? 'text' : 'password'}
               value={password}
-              onChange={(e) => {
+              onChange={e => {
                 setPassword(e.target.value)
                 if (passwordError) validatePassword(e.target.value)
               }}
@@ -147,6 +150,7 @@ export function LoginPage() {
                 endAdornment: (
                   <InputAdornment position="end">
                     <IconButton
+                      id="login-password-toggle"
                       data-testid="login-password-toggle"
                       onClick={() => setShowPassword(!showPassword)}
                       edge="end"
@@ -160,6 +164,7 @@ export function LoginPage() {
             />
 
             <Button
+              id="login-submit-button"
               data-testid="login-submit-button"
               type="submit"
               fullWidth
@@ -174,7 +179,13 @@ export function LoginPage() {
             <Box sx={{ textAlign: 'center', mt: 2 }}>
               <Typography variant="body2" color="text.secondary">
                 Нет аккаунта?{' '}
-                <Link data-testid="login-register-link" component={RouterLink} to="/register" underline="hover">
+                <Link
+                  id="login-register-link"
+                  data-testid="login-register-link"
+                  component={RouterLink}
+                  to="/register"
+                  underline="hover"
+                >
                   Зарегистрироваться
                 </Link>
               </Typography>

@@ -41,6 +41,7 @@ export const RewardCard: FC<RewardCardProps> = ({
 
   return (
     <Card
+      id={`reward-card-${reward.id}`}
       sx={{
         height: '100%',
         display: 'flex',
@@ -65,8 +66,10 @@ export const RewardCard: FC<RewardCardProps> = ({
       )}
 
       <CardContent sx={{ flexGrow: 1 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
-          <Typography variant="h6" component="h3" gutterBottom>
+        <Box
+          sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}
+        >
+          <Typography id={`reward-title-${reward.id}`} variant="h6" component="h3" gutterBottom>
             {reward.name}
           </Typography>
           {isAdmin && (
@@ -75,6 +78,7 @@ export const RewardCard: FC<RewardCardProps> = ({
                 size="small"
                 onClick={() => onEdit?.(reward.id)}
                 aria-label="Редактировать награду"
+                id={`reward-action-edit-${reward.id}`}
               >
                 <EditIcon fontSize="small" />
               </IconButton>
@@ -83,6 +87,7 @@ export const RewardCard: FC<RewardCardProps> = ({
                 onClick={() => onDelete?.(reward.id)}
                 color="error"
                 aria-label="Удалить награду"
+                id={`reward-action-delete-${reward.id}`}
               >
                 <DeleteIcon fontSize="small" />
               </IconButton>
@@ -109,6 +114,7 @@ export const RewardCard: FC<RewardCardProps> = ({
 
         <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', mt: 'auto' }}>
           <Chip
+            id={`reward-cost-${reward.id}`}
             icon={<StarsIcon />}
             label={formatPoints(reward.cost)}
             color={affordable ? 'success' : 'default'}
@@ -117,6 +123,7 @@ export const RewardCard: FC<RewardCardProps> = ({
           />
           {affordable && (
             <Chip
+              id={`reward-available-${reward.id}`}
               label="Доступно"
               color="success"
               size="small"
@@ -129,6 +136,7 @@ export const RewardCard: FC<RewardCardProps> = ({
       {!isAdmin && (
         <CardActions sx={{ p: 2, pt: 0 }}>
           <Button
+            id={`reward-action-request-${reward.id}`}
             variant="contained"
             fullWidth
             disabled={!affordable}
