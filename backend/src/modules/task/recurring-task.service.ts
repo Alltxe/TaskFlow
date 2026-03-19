@@ -32,6 +32,23 @@ export class RecurringTaskService {
    */
   @Cron(CronExpression.EVERY_HOUR)
   async generateRecurringTasks() {
+    await this.runRecurringGenerationCycle('hourly');
+  }
+
+  /**
+   * Временный тестовый запуск каждую минуту.
+   * Включается только при ENABLE_RECURRING_TEST_CRON=true.
+   */
+  @Cron(CronExpression.EVERY_MINUTE)
+  async generateRecurringTasksForTesting() {
+    if (process.env.ENABLE_RECURRING_TEST_CRON !== 'true') {
+      return;
+    }
+
+    await this.runRecurringGenerationCycle('minutely-test');
+  }
+
+  private async runRecurringGenerationCycle(mode: 'hourly' | 'minutely-test') {
     this.logger.log('Starting recurring task generation check...');
 
     try {
@@ -58,7 +75,9 @@ export class RecurringTaskService {
         },
       });
 
-      this.logger.log(`Found ${recurringTasks.length} recurring task templates`);
+      this.logger.log(
+        `Found ${recurringTasks.length} recurring task templates (${mode})`,
+      );
 
       for (const template of recurringTasks) {
         try {
@@ -88,17 +107,34 @@ export class RecurringTaskService {
     const lastChild = template.childTasks[0];
     const now = new Date();
 
-    // Определяем следующий deadline на основе правила повторения
-    const nextDeadline = this.calculateNextDeadline(
-      template.recurrenceRule,
-      lastChild?.deadline || template.deadline,
-    );
+    // Первый экземпляр должен соответствовать якорному deadline шаблона.
+    // Далее используем deadline последнего дочернего инстанса.
+    let nextDeadline = lastChild
+      ? this.calculateNextDeadline(template.recurrenceRule, lastChild.deadline)
+      : this.calculateFirstDeadline(template.recurrenceRule, template.deadline);
 
     if (!nextDeadline) {
       this.logger.warn(
         `Could not calculate next deadline for task ${template.id}`,
       );
       return;
+    }
+
+    // Если scheduler пропустил окно, двигаемся к ближайшему будущему вхождению,
+    // чтобы не генерировать просроченные задачи.
+    if (nextDeadline.getTime() <= now.getTime()) {
+      nextDeadline = this.calculateNextUpcomingDeadline(
+        template.recurrenceRule,
+        nextDeadline,
+        now,
+      );
+
+      if (!nextDeadline) {
+        this.logger.debug(
+          `No upcoming occurrences left for recurring template ${template.id}`,
+        );
+        return;
+      }
     }
 
     // Проверяем, пора ли создавать новую задачу (за 24 часа до deadline - PRD 3.3.3)
@@ -127,6 +163,53 @@ export class RecurringTaskService {
 
     // Создаем новую задачу из шаблона
     await this.createTaskFromTemplate(template, nextDeadline);
+  }
+
+  private calculateFirstDeadline(
+    recurrenceRule: string,
+    templateDeadline: Date,
+  ): Date | null {
+    try {
+      // Для RFC 5545 можно включить текущую дату, чтобы не пропускать 1-е вхождение.
+      if (recurrenceRule.includes('FREQ=')) {
+        const rule = this.parseRecurrenceRule(recurrenceRule, templateDeadline);
+        if (rule.type === 'RRULE' && rule.rrule) {
+          return rule.rrule.after(templateDeadline, true);
+        }
+      }
+
+      // Для legacy-форматов считаем якорную дату первым дедлайном.
+      return templateDeadline;
+    } catch {
+      return null;
+    }
+  }
+
+  private calculateNextUpcomingDeadline(
+    recurrenceRule: string,
+    fromDeadline: Date,
+    now: Date,
+  ): Date | null {
+    let candidate = fromDeadline;
+    const maxIterations = 1000;
+
+    for (let i = 0; i < maxIterations; i += 1) {
+      if (candidate.getTime() > now.getTime()) {
+        return candidate;
+      }
+
+      const next = this.calculateNextDeadline(recurrenceRule, candidate);
+      if (!next) {
+        return null;
+      }
+
+      candidate = next;
+    }
+
+    this.logger.warn(
+      `Exceeded max iterations while calculating next upcoming deadline for rule: ${recurrenceRule}`,
+    );
+    return null;
   }
 
   /**
@@ -305,6 +388,20 @@ export class RecurringTaskService {
   }
 
   /**
+   * Валидация правила повторения при создании/редактировании шаблона.
+   */
+  validateRecurrenceRule(recurrenceRule: string, templateDeadline: Date): void {
+    const firstDeadline = this.calculateFirstDeadline(
+      recurrenceRule,
+      templateDeadline,
+    );
+
+    if (!firstDeadline) {
+      throw new Error('Invalid recurrence rule');
+    }
+  }
+
+  /**
    * Парсит строку правила повторения
    * Поддерживает два формата:
    * 
@@ -410,10 +507,9 @@ export class RecurringTaskService {
     }
 
     const lastChild = template.childTasks[0];
-    const nextDeadline = this.calculateNextDeadline(
-      template.recurrenceRule!,
-      lastChild?.deadline || template.deadline,
-    );
+    const nextDeadline = lastChild
+      ? this.calculateNextDeadline(template.recurrenceRule!, lastChild.deadline)
+      : this.calculateFirstDeadline(template.recurrenceRule!, template.deadline);
 
     if (!nextDeadline) {
       throw new Error('Could not calculate next deadline');

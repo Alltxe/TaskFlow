@@ -52,6 +52,7 @@ describe('DeadlineService', () => {
 
       expect(prisma.task.findMany).toHaveBeenCalledWith({
         where: {
+          isRecurring: false,
           deadline: {
             lt: expect.any(Date),
           },
@@ -109,6 +110,38 @@ describe('DeadlineService', () => {
       await service.sendDeadlineReminders();
 
       expect(prisma.task.findMany).toHaveBeenCalledTimes(2);
+      expect(prisma.task.findMany).toHaveBeenNthCalledWith(1, {
+        where: {
+          isRecurring: false,
+          deadline: {
+            gte: expect.any(Date),
+            lte: expect.any(Date),
+          },
+          status: {
+            in: ['PENDING', 'IN_PROGRESS'],
+          },
+        },
+        include: {
+          assignee: true,
+          group: true,
+        },
+      });
+      expect(prisma.task.findMany).toHaveBeenNthCalledWith(2, {
+        where: {
+          isRecurring: false,
+          deadline: {
+            gte: expect.any(Date),
+            lte: expect.any(Date),
+          },
+          status: {
+            in: ['PENDING', 'IN_PROGRESS'],
+          },
+        },
+        include: {
+          assignee: true,
+          group: true,
+        },
+      });
     });
 
     it('should handle errors in reminder sending', async () => {

@@ -33,8 +33,24 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     }
   }
 
+  String _mapAuthError(String rawMessage, AppLocalizations l10n) {
+    final normalized = rawMessage.toLowerCase();
+
+    if (normalized.contains('incorrect email or password') ||
+        normalized.contains('invalid credentials')) {
+      return l10n.invalidCredentialsError;
+    }
+
+    if (normalized.contains('unauthorized') || normalized.contains('unauthenticated')) {
+      return l10n.authError;
+    }
+
+    return rawMessage;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final authState = ref.watch(authStateProvider);
     final isLoading = authState.status == AuthStatus.loading;
 
@@ -45,7 +61,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           previous?.status == AuthStatus.loading) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(next.error!),
+            content: Text(_mapAuthError(next.error!, l10n)),
             backgroundColor: Theme.of(context).colorScheme.error,
             duration: const Duration(seconds: 4),
           ),

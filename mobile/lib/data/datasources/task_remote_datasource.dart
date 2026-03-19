@@ -122,6 +122,41 @@ class TaskRemoteDataSource {
     }
   }
 
+  Future<List<Task>> getRecurringTemplates(String groupId) async {
+    const query = r'''
+      query GetRecurringTemplates($groupId: String!) {
+        getRecurringTemplates(groupId: $groupId) {
+          ...TaskFields
+        }
+      }
+    ''';
+
+    try {
+      final gqlRequest = Request(
+        operation: Operation(
+          document: gql_lang.parseString(query + _taskFragment + _userFragment),
+          operationName: 'GetRecurringTemplates',
+        ),
+        variables: {'groupId': groupId},
+      );
+
+      final response = await GraphQLClientConfig.request(gqlRequest);
+
+      if (response.errors != null && response.errors!.isNotEmpty) {
+        _handleGraphQLErrors(response.errors!);
+      }
+
+      final List<dynamic> tasksData =
+          response.data?['getRecurringTemplates'] ?? [];
+      return tasksData.map((json) => Task.fromJson(json)).toList();
+    } catch (e) {
+      if (e is app_exceptions.AppException) rethrow;
+      throw app_exceptions.NetworkException(
+        message: 'Failed to fetch recurring templates: ${e.toString()}',
+      );
+    }
+  }
+
   Future<Task> getTask(String taskId) async {
     const query = r'''
       query GetTask($taskId: String!) {

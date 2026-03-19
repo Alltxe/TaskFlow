@@ -7,6 +7,7 @@ import {
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { TaskService } from './task.service';
 import { RotationService } from './rotation.service';
+import { RecurringTaskService } from './recurring-task.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuditLogService } from '../audit-log/audit-log.service';
 import {
@@ -120,6 +121,13 @@ describe('TaskService', () => {
         TaskService,
         RotationService,
         {
+          provide: RecurringTaskService,
+          useValue: {
+            validateRecurrenceRule: jest.fn(),
+            forceGenerateNextTask: jest.fn().mockResolvedValue({ id: 'child-task' }),
+          },
+        },
+        {
           provide: PrismaService,
           useValue: mockPrismaService,
         },
@@ -212,6 +220,34 @@ describe('TaskService', () => {
       await expect(
         service.createTask(mockMemberUserId, input),
       ).rejects.toThrow(ForbiddenException);
+    });
+
+    it('should trigger immediate first task generation for recurring template', async () => {
+      const input: CreateTaskInput = {
+        title: 'Recurring Template',
+        description: 'Template description',
+        deadline: '2026-03-20T19:41:00.000Z',
+        priority: TaskPriority.MEDIUM,
+        points: 50,
+        requiresApproval: true,
+        isRecurring: true,
+        recurrenceRule: 'FREQ=DAILY',
+        groupId: mockGroupId,
+      };
+
+      mockPrismaService.groupMember.findFirst.mockResolvedValue({ role: 'ADMIN' });
+      mockPrismaService.task.create.mockResolvedValue({
+        ...mockTask,
+        id: 'template-1',
+        isRecurring: true,
+        recurrenceRule: 'FREQ=DAILY',
+      });
+
+      const recurringService = (service as any).recurringTaskService;
+
+      await service.createTask(mockAdminUserId, input);
+
+      expect(recurringService.forceGenerateNextTask).toHaveBeenCalledWith('template-1');
     });
 
     it('should throw BadRequestException if assignee is not group member', async () => {
@@ -359,7 +395,7 @@ describe('TaskService', () => {
       expect(result).toEqual([mockTask]);
       expect(mockPrismaService.task.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: { groupId: mockGroupId },
+          where: { groupId: mockGroupId, isRecurring: false },
         }),
       );
     });
@@ -377,6 +413,7 @@ describe('TaskService', () => {
         expect.objectContaining({
           where: {
             groupId: mockGroupId,
+            isRecurring: false,
             status: 'PENDING',
           },
         }),
@@ -401,7 +438,7 @@ describe('TaskService', () => {
       expect(result).toEqual([mockTask]);
       expect(mockPrismaService.task.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: { assigneeId: mockMemberUserId },
+          where: { assigneeId: mockMemberUserId, isRecurring: false },
         }),
       );
     });
@@ -415,7 +452,36 @@ describe('TaskService', () => {
         expect.objectContaining({
           where: {
             assigneeId: mockMemberUserId,
+            isRecurring: false,
             status: 'COMPLETED',
+          },
+        }),
+      );
+    });
+  });
+
+  describe('getRecurringTemplates', () => {
+    it('should return recurring templates for group member', async () => {
+      mockPrismaService.groupMember.findFirst.mockResolvedValue({
+        userId: mockMemberUserId,
+      });
+
+      mockPrismaService.task.findMany.mockResolvedValue([
+        { ...mockTask, isRecurring: true, recurrenceRule: 'FREQ=DAILY' },
+      ]);
+
+      const result = await service.getRecurringTemplates(
+        mockGroupId,
+        mockMemberUserId,
+      );
+
+      expect(result).toHaveLength(1);
+      expect(mockPrismaService.task.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: {
+            groupId: mockGroupId,
+            isRecurring: true,
+            parentTaskId: null,
           },
         }),
       );

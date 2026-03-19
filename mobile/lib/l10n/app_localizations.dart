@@ -1268,6 +1268,12 @@ abstract class AppLocalizations {
   /// **'Deadline'**
   String get deadlineLabel;
 
+  /// No description provided for @templateAnchorDeadlineLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Recurring deadline interval'**
+  String get templateAnchorDeadlineLabel;
+
   /// No description provided for @assignedToLabel.
   ///
   /// In en, this message translates to:
@@ -1531,6 +1537,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Pending Approval'**
   String get pendingApprovalTab;
+
+  /// No description provided for @recurringTemplatesTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Templates'**
+  String get recurringTemplatesTab;
+
+  /// No description provided for @noRecurringTemplates.
+  ///
+  /// In en, this message translates to:
+  /// **'No recurring templates yet'**
+  String get noRecurringTemplates;
+
+  /// No description provided for @recurringTemplatesInfoTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How templates work'**
+  String get recurringTemplatesInfoTitle;
+
+  /// No description provided for @recurringTemplatesInfoBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Templates are not executable tasks. They generate regular tasks by RRULE. Deadline for generated tasks is configured as a relative interval (for example, 1 day or 1 week).'**
+  String get recurringTemplatesInfoBody;
 
   /// No description provided for @noTasksAssigned.
   ///
@@ -1819,6 +1849,276 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Please select a deadline'**
   String get pleaseSelectDeadline;
+
+  /// No description provided for @recurrenceTemplateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Recurring template'**
+  String get recurrenceTemplateLabel;
+
+  /// No description provided for @recurrenceTemplateSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Generate future tasks automatically using RRULE'**
+  String get recurrenceTemplateSubtitle;
+
+  /// No description provided for @recurringTemplateChip.
+  ///
+  /// In en, this message translates to:
+  /// **'Template'**
+  String get recurringTemplateChip;
+
+  /// No description provided for @templateAnchorDeadlineHint.
+  ///
+  /// In en, this message translates to:
+  /// **'For templates, this sets the relative deadline interval for generated tasks'**
+  String get templateAnchorDeadlineHint;
+
+  /// No description provided for @templateAnchorDeadlineShortHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Generated tasks use configured deadline interval'**
+  String get templateAnchorDeadlineShortHint;
+
+  /// No description provided for @recurringDeadlineAutoHint.
+  ///
+  /// In en, this message translates to:
+  /// **'For recurring templates, choose a relative deadline interval (day/week/month)'**
+  String get recurringDeadlineAutoHint;
+
+  /// No description provided for @recurringDeadlineSelectorLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Deadline for each generated task'**
+  String get recurringDeadlineSelectorLabel;
+
+  /// No description provided for @recurringDeadlineIntervalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Value'**
+  String get recurringDeadlineIntervalLabel;
+
+  /// No description provided for @recurringDeadlineUnitLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Unit'**
+  String get recurringDeadlineUnitLabel;
+
+  /// No description provided for @recurringDeadlineUnitDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Day'**
+  String get recurringDeadlineUnitDay;
+
+  /// No description provided for @recurringDeadlineUnitWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Week'**
+  String get recurringDeadlineUnitWeek;
+
+  /// No description provided for @recurringDeadlineUnitMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Month'**
+  String get recurringDeadlineUnitMonth;
+
+  /// No description provided for @recurringDeadlineSelectorHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Example: 1 week means each generated task is due one week after creation'**
+  String get recurringDeadlineSelectorHint;
+
+  /// No description provided for @recurrenceFrequencyLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Frequency'**
+  String get recurrenceFrequencyLabel;
+
+  /// No description provided for @recurrenceFrequencyDaily.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily'**
+  String get recurrenceFrequencyDaily;
+
+  /// No description provided for @recurrenceFrequencyWeekly.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly'**
+  String get recurrenceFrequencyWeekly;
+
+  /// No description provided for @recurrenceFrequencyMonthly.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly'**
+  String get recurrenceFrequencyMonthly;
+
+  /// No description provided for @recurrenceIntervalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Interval'**
+  String get recurrenceIntervalLabel;
+
+  /// No description provided for @recurrenceEveryPeriod.
+  ///
+  /// In en, this message translates to:
+  /// **'Every period'**
+  String get recurrenceEveryPeriod;
+
+  /// Recurrence interval label for N periods
+  ///
+  /// In en, this message translates to:
+  /// **'Every {count} periods'**
+  String recurrenceEveryNPeriods(Object count);
+
+  /// No description provided for @recurrenceWeekdaysLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Week days'**
+  String get recurrenceWeekdaysLabel;
+
+  /// No description provided for @recurrenceSelectWeekday.
+  ///
+  /// In en, this message translates to:
+  /// **'Select at least one weekday'**
+  String get recurrenceSelectWeekday;
+
+  /// Selected day of month for recurring monthly tasks
+  ///
+  /// In en, this message translates to:
+  /// **'Day of month: {day}'**
+  String recurrenceDayOfMonth(Object day);
+
+  /// No description provided for @recurrenceEndsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Ends'**
+  String get recurrenceEndsLabel;
+
+  /// No description provided for @recurrenceEndNever.
+  ///
+  /// In en, this message translates to:
+  /// **'Never'**
+  String get recurrenceEndNever;
+
+  /// No description provided for @recurrenceEndAfterCount.
+  ///
+  /// In en, this message translates to:
+  /// **'After number of occurrences'**
+  String get recurrenceEndAfterCount;
+
+  /// No description provided for @recurrenceEndUntilDate.
+  ///
+  /// In en, this message translates to:
+  /// **'On date'**
+  String get recurrenceEndUntilDate;
+
+  /// No description provided for @recurrenceOccurrencesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Occurrences'**
+  String get recurrenceOccurrencesLabel;
+
+  /// Recurrence occurrences count
+  ///
+  /// In en, this message translates to:
+  /// **'{count} occurrences'**
+  String recurrenceOccurrencesValue(Object count);
+
+  /// No description provided for @recurrenceUntilDateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Until date'**
+  String get recurrenceUntilDateLabel;
+
+  /// No description provided for @recurrenceSelectUntilDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to select end date'**
+  String get recurrenceSelectUntilDate;
+
+  /// No description provided for @recurrenceRuleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'RRULE'**
+  String get recurrenceRuleLabel;
+
+  /// No description provided for @recurrenceRuleInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Please configure a valid recurrence rule'**
+  String get recurrenceRuleInvalid;
+
+  /// No description provided for @recurrenceRuleInvalidShort.
+  ///
+  /// In en, this message translates to:
+  /// **'invalid'**
+  String get recurrenceRuleInvalidShort;
+
+  /// No description provided for @recurrenceTestRuleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Temporary test RRULE (optional)'**
+  String get recurrenceTestRuleLabel;
+
+  /// No description provided for @recurrenceTestRuleHint.
+  ///
+  /// In en, this message translates to:
+  /// **'FREQ=MINUTELY;INTERVAL=1'**
+  String get recurrenceTestRuleHint;
+
+  /// No description provided for @recurrenceTestRuleDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'If filled, this value overrides the visual builder. Use for testing only.'**
+  String get recurrenceTestRuleDescription;
+
+  /// No description provided for @recurrenceTestRuleInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Test RRULE must include FREQ='**
+  String get recurrenceTestRuleInvalid;
+
+  /// No description provided for @weekdayShortMon.
+  ///
+  /// In en, this message translates to:
+  /// **'Mon'**
+  String get weekdayShortMon;
+
+  /// No description provided for @weekdayShortTue.
+  ///
+  /// In en, this message translates to:
+  /// **'Tue'**
+  String get weekdayShortTue;
+
+  /// No description provided for @weekdayShortWed.
+  ///
+  /// In en, this message translates to:
+  /// **'Wed'**
+  String get weekdayShortWed;
+
+  /// No description provided for @weekdayShortThu.
+  ///
+  /// In en, this message translates to:
+  /// **'Thu'**
+  String get weekdayShortThu;
+
+  /// No description provided for @weekdayShortFri.
+  ///
+  /// In en, this message translates to:
+  /// **'Fri'**
+  String get weekdayShortFri;
+
+  /// No description provided for @weekdayShortSat.
+  ///
+  /// In en, this message translates to:
+  /// **'Sat'**
+  String get weekdayShortSat;
+
+  /// No description provided for @weekdayShortSun.
+  ///
+  /// In en, this message translates to:
+  /// **'Sun'**
+  String get weekdayShortSun;
 
   /// No description provided for @pointsHistory.
   ///
@@ -2185,6 +2485,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Authentication failed. Please log in again.'**
   String get authError;
+
+  /// No description provided for @invalidCredentialsError.
+  ///
+  /// In en, this message translates to:
+  /// **'Incorrect email or password.'**
+  String get invalidCredentialsError;
 
   /// No description provided for @validationError.
   ///

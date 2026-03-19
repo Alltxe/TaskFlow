@@ -399,6 +399,7 @@ type Query {
   getMyAuditLogs(limit: Float = 100): [AuditLogType!]!
   getTask(taskId: String!): TaskType!
   getGroupTasks(groupId: String!, status: String): [TaskType!]!
+  getRecurringTemplates(groupId: String!): [TaskType!]!
   getUserTasks(status: String): [TaskType!]!
 
   """

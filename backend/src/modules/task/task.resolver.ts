@@ -61,6 +61,18 @@ export class TaskResolver {
   }
 
   /**
+   * Получить шаблоны повторяющихся задач группы
+   */
+  @Query(() => [TaskType])
+  @UseGuards(JwtAuthGuard)
+  async getRecurringTemplates(
+    @Args('groupId') groupId: string,
+    @CurrentUser() user: User,
+  ) {
+    return this.taskService.getRecurringTemplates(groupId, user.id);
+  }
+
+  /**
    * Получить задачи пользователя
    */
   @Query(() => [TaskType])

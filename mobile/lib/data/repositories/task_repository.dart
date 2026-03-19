@@ -9,6 +9,9 @@ abstract class TaskRepository {
   /// Get all tasks for a group (PRD 3.4.1)
   Future<Either<Failure, List<Task>>> getGroupTasks(String groupId, {String? status});
 
+  /// Get recurring task templates for a group
+  Future<Either<Failure, List<Task>>> getRecurringTemplates(String groupId);
+
   /// Get all tasks assigned to current user (PRD 3.4.1)
   Future<Either<Failure, List<Task>>> getUserTasks({String? status});
 

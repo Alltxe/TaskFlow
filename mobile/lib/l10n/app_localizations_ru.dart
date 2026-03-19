@@ -400,7 +400,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get members => 'Участники';
 
   @override
-  String get approval => 'Утверждение';
+  String get approval => 'Проверка';
 
   @override
   String get removeLabel => 'Удалить';
@@ -654,6 +654,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deadlineLabel => 'Срок';
 
   @override
+  String get templateAnchorDeadlineLabel => 'Интервал срока';
+
+  @override
   String get assignedToLabel => 'Назначено';
 
   @override
@@ -794,6 +797,19 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get pendingApprovalTab => 'Ожидают одобрения';
+
+  @override
+  String get recurringTemplatesTab => 'Шаблоны';
+
+  @override
+  String get noRecurringTemplates => 'Пока нет повторяющихся шаблонов';
+
+  @override
+  String get recurringTemplatesInfoTitle => 'Как работают шаблоны';
+
+  @override
+  String get recurringTemplatesInfoBody =>
+      'Шаблоны не являются исполняемыми задачами. Они создают обычные задачи по RRULE. Срок для сгенерированных задач задается как относительный интервал (например, 1 день или 1 неделя).';
 
   @override
   String get noTasksAssigned => 'Вам не назначены задачи';
@@ -953,6 +969,158 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get pleaseSelectDeadline => 'Пожалуйста, выберите срок';
+
+  @override
+  String get recurrenceTemplateLabel => 'Повторяющийся шаблон';
+
+  @override
+  String get recurrenceTemplateSubtitle =>
+      'Автоматически создаёт будущие задачи через RRULE';
+
+  @override
+  String get recurringTemplateChip => 'Шаблон';
+
+  @override
+  String get templateAnchorDeadlineHint =>
+      'Для шаблона здесь задается относительный интервал срока для сгенерированных задач';
+
+  @override
+  String get templateAnchorDeadlineShortHint =>
+      'Сгенерированные задачи используют выбранный интервал срока';
+
+  @override
+  String get recurringDeadlineAutoHint =>
+      'Для повторяющихся шаблонов выберите относительный интервал срока (день/неделя/месяц)';
+
+  @override
+  String get recurringDeadlineSelectorLabel =>
+      'Срок для каждой сгенерированной задачи';
+
+  @override
+  String get recurringDeadlineIntervalLabel => 'Значение';
+
+  @override
+  String get recurringDeadlineUnitLabel => 'Единица';
+
+  @override
+  String get recurringDeadlineUnitDay => 'День';
+
+  @override
+  String get recurringDeadlineUnitWeek => 'Неделя';
+
+  @override
+  String get recurringDeadlineUnitMonth => 'Месяц';
+
+  @override
+  String get recurringDeadlineSelectorHint =>
+      'Пример: 1 неделя означает, что срок каждой сгенерированной задачи — через неделю после создания';
+
+  @override
+  String get recurrenceFrequencyLabel => 'Частота';
+
+  @override
+  String get recurrenceFrequencyDaily => 'Ежедневно';
+
+  @override
+  String get recurrenceFrequencyWeekly => 'Еженедельно';
+
+  @override
+  String get recurrenceFrequencyMonthly => 'Ежемесячно';
+
+  @override
+  String get recurrenceIntervalLabel => 'Интервал';
+
+  @override
+  String get recurrenceEveryPeriod => 'Каждый период';
+
+  @override
+  String recurrenceEveryNPeriods(Object count) {
+    return 'Каждые $count периодов';
+  }
+
+  @override
+  String get recurrenceWeekdaysLabel => 'Дни недели';
+
+  @override
+  String get recurrenceSelectWeekday => 'Выберите хотя бы один день недели';
+
+  @override
+  String recurrenceDayOfMonth(Object day) {
+    return 'День месяца: $day';
+  }
+
+  @override
+  String get recurrenceEndsLabel => 'Окончание';
+
+  @override
+  String get recurrenceEndNever => 'Никогда';
+
+  @override
+  String get recurrenceEndAfterCount => 'После количества повторений';
+
+  @override
+  String get recurrenceEndUntilDate => 'В дату';
+
+  @override
+  String get recurrenceOccurrencesLabel => 'Количество повторений';
+
+  @override
+  String recurrenceOccurrencesValue(Object count) {
+    return '$count повторений';
+  }
+
+  @override
+  String get recurrenceUntilDateLabel => 'До даты';
+
+  @override
+  String get recurrenceSelectUntilDate =>
+      'Нажмите, чтобы выбрать дату окончания';
+
+  @override
+  String get recurrenceRuleLabel => 'RRULE';
+
+  @override
+  String get recurrenceRuleInvalid =>
+      'Пожалуйста, настройте корректное правило повторения';
+
+  @override
+  String get recurrenceRuleInvalidShort => 'некорректно';
+
+  @override
+  String get recurrenceTestRuleLabel =>
+      'Временный тестовый RRULE (необязательно)';
+
+  @override
+  String get recurrenceTestRuleHint => 'FREQ=MINUTELY;INTERVAL=1';
+
+  @override
+  String get recurrenceTestRuleDescription =>
+      'Если заполнено, это значение переопределяет визуальный редактор. Используйте только для тестирования.';
+
+  @override
+  String get recurrenceTestRuleInvalid =>
+      'Тестовый RRULE должен содержать FREQ=';
+
+  @override
+  String get weekdayShortMon => 'Пн';
+
+  @override
+  String get weekdayShortTue => 'Вт';
+
+  @override
+  String get weekdayShortWed => 'Ср';
+
+  @override
+  String get weekdayShortThu => 'Чт';
+
+  @override
+  String get weekdayShortFri => 'Пт';
+
+  @override
+  String get weekdayShortSat => 'Сб';
+
+  @override
+  String get weekdayShortSun => 'Вс';
 
   @override
   String get pointsHistory => 'Points History';
@@ -1145,6 +1313,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get authError => 'Ошибка авторизации. Войдите снова.';
+
+  @override
+  String get invalidCredentialsError => 'Неверный email или пароль.';
 
   @override
   String get validationError => 'Некорректные данные. Проверьте ввод.';

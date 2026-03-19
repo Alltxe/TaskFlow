@@ -21,21 +21,33 @@ import 'package:taskflow/presentation/screens/settings/settings_screen.dart';
 import 'package:taskflow/presentation/screens/tasks/create_task_screen.dart';
 import 'package:taskflow/presentation/screens/tasks/task_detail_screen.dart';
 
+class _RouterRefreshNotifier extends ChangeNotifier {
+  void refresh() => notifyListeners();
+}
+
 /// Router configuration for the app
 final routerProvider = Provider<GoRouter>((ref) {
-  final authState = ref.watch(authStateProvider);
+  final refreshNotifier = _RouterRefreshNotifier();
+
+  ref.onDispose(refreshNotifier.dispose);
+  ref.listen<AuthState>(authStateProvider, (_, __) {
+    refreshNotifier.refresh();
+  });
 
   return GoRouter(
     initialLocation: '/',
+    refreshListenable: refreshNotifier,
     redirect: (context, state) {
+      final authState = ref.read(authStateProvider);
       final isAuthenticated = authState.status == AuthStatus.authenticated;
       final isLoading = authState.status == AuthStatus.loading;
       final isOnSplash = state.matchedLocation == '/';
       final isOnAuth = state.matchedLocation == '/login' || state.matchedLocation == '/register';
       final isOnJoin = state.matchedLocation.startsWith('/join/');
 
-      // If loading, stay on splash
-      if (isLoading && !isOnSplash) {
+      // If loading, stay on splash except when user is already on auth pages.
+      // This keeps login/register visible during failed auth attempts so UI can show errors.
+      if (isLoading && !isOnSplash && !isOnAuth) {
         return '/';
       }
 

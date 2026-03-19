@@ -646,6 +646,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deadlineLabel => 'Deadline';
 
   @override
+  String get templateAnchorDeadlineLabel => 'Recurring deadline interval';
+
+  @override
   String get assignedToLabel => 'Assigned to';
 
   @override
@@ -785,6 +788,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pendingApprovalTab => 'Pending Approval';
+
+  @override
+  String get recurringTemplatesTab => 'Templates';
+
+  @override
+  String get noRecurringTemplates => 'No recurring templates yet';
+
+  @override
+  String get recurringTemplatesInfoTitle => 'How templates work';
+
+  @override
+  String get recurringTemplatesInfoBody =>
+      'Templates are not executable tasks. They generate regular tasks by RRULE. Deadline for generated tasks is configured as a relative interval (for example, 1 day or 1 week).';
 
   @override
   String get noTasksAssigned => 'No tasks assigned to you';
@@ -944,6 +960,155 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pleaseSelectDeadline => 'Please select a deadline';
+
+  @override
+  String get recurrenceTemplateLabel => 'Recurring template';
+
+  @override
+  String get recurrenceTemplateSubtitle =>
+      'Generate future tasks automatically using RRULE';
+
+  @override
+  String get recurringTemplateChip => 'Template';
+
+  @override
+  String get templateAnchorDeadlineHint =>
+      'For templates, this sets the relative deadline interval for generated tasks';
+
+  @override
+  String get templateAnchorDeadlineShortHint =>
+      'Generated tasks use configured deadline interval';
+
+  @override
+  String get recurringDeadlineAutoHint =>
+      'For recurring templates, choose a relative deadline interval (day/week/month)';
+
+  @override
+  String get recurringDeadlineSelectorLabel =>
+      'Deadline for each generated task';
+
+  @override
+  String get recurringDeadlineIntervalLabel => 'Value';
+
+  @override
+  String get recurringDeadlineUnitLabel => 'Unit';
+
+  @override
+  String get recurringDeadlineUnitDay => 'Day';
+
+  @override
+  String get recurringDeadlineUnitWeek => 'Week';
+
+  @override
+  String get recurringDeadlineUnitMonth => 'Month';
+
+  @override
+  String get recurringDeadlineSelectorHint =>
+      'Example: 1 week means each generated task is due one week after creation';
+
+  @override
+  String get recurrenceFrequencyLabel => 'Frequency';
+
+  @override
+  String get recurrenceFrequencyDaily => 'Daily';
+
+  @override
+  String get recurrenceFrequencyWeekly => 'Weekly';
+
+  @override
+  String get recurrenceFrequencyMonthly => 'Monthly';
+
+  @override
+  String get recurrenceIntervalLabel => 'Interval';
+
+  @override
+  String get recurrenceEveryPeriod => 'Every period';
+
+  @override
+  String recurrenceEveryNPeriods(Object count) {
+    return 'Every $count periods';
+  }
+
+  @override
+  String get recurrenceWeekdaysLabel => 'Week days';
+
+  @override
+  String get recurrenceSelectWeekday => 'Select at least one weekday';
+
+  @override
+  String recurrenceDayOfMonth(Object day) {
+    return 'Day of month: $day';
+  }
+
+  @override
+  String get recurrenceEndsLabel => 'Ends';
+
+  @override
+  String get recurrenceEndNever => 'Never';
+
+  @override
+  String get recurrenceEndAfterCount => 'After number of occurrences';
+
+  @override
+  String get recurrenceEndUntilDate => 'On date';
+
+  @override
+  String get recurrenceOccurrencesLabel => 'Occurrences';
+
+  @override
+  String recurrenceOccurrencesValue(Object count) {
+    return '$count occurrences';
+  }
+
+  @override
+  String get recurrenceUntilDateLabel => 'Until date';
+
+  @override
+  String get recurrenceSelectUntilDate => 'Tap to select end date';
+
+  @override
+  String get recurrenceRuleLabel => 'RRULE';
+
+  @override
+  String get recurrenceRuleInvalid =>
+      'Please configure a valid recurrence rule';
+
+  @override
+  String get recurrenceRuleInvalidShort => 'invalid';
+
+  @override
+  String get recurrenceTestRuleLabel => 'Temporary test RRULE (optional)';
+
+  @override
+  String get recurrenceTestRuleHint => 'FREQ=MINUTELY;INTERVAL=1';
+
+  @override
+  String get recurrenceTestRuleDescription =>
+      'If filled, this value overrides the visual builder. Use for testing only.';
+
+  @override
+  String get recurrenceTestRuleInvalid => 'Test RRULE must include FREQ=';
+
+  @override
+  String get weekdayShortMon => 'Mon';
+
+  @override
+  String get weekdayShortTue => 'Tue';
+
+  @override
+  String get weekdayShortWed => 'Wed';
+
+  @override
+  String get weekdayShortThu => 'Thu';
+
+  @override
+  String get weekdayShortFri => 'Fri';
+
+  @override
+  String get weekdayShortSat => 'Sat';
+
+  @override
+  String get weekdayShortSun => 'Sun';
 
   @override
   String get pointsHistory => 'Points History';
@@ -1136,6 +1301,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get authError => 'Authentication failed. Please log in again.';
+
+  @override
+  String get invalidCredentialsError => 'Incorrect email or password.';
 
   @override
   String get validationError => 'Invalid data. Please check your input.';

@@ -4,6 +4,7 @@ import {
   ForbiddenException,
   BadRequestException,
   Inject,
+  Logger,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import {
@@ -14,6 +15,7 @@ import {
   ClaimTaskInput,
 } from './dto/task.input';
 import { RotationService } from './rotation.service';
+import { RecurringTaskService } from './recurring-task.service';
 import { AuditLogService } from '../audit-log/audit-log.service';
 import { NotificationService } from '../notification/notification.service';
 import { NotificationType as NotificationTypeEnum } from '@prisma/client';
@@ -22,9 +24,12 @@ import { Cache } from 'cache-manager';
 
 @Injectable()
 export class TaskService {
+  private readonly logger = new Logger(TaskService.name);
+
   constructor(
     private prisma: PrismaService,
     private rotationService: RotationService,
+    private recurringTaskService: RecurringTaskService,
     private auditLogService: AuditLogService,
     private notificationService: NotificationService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
@@ -51,6 +56,30 @@ export class TaskService {
       groupId,
       assigneeId,
     } = input;
+
+    const deadlineDate = new Date(deadline);
+    if (Number.isNaN(deadlineDate.getTime())) {
+      throw new BadRequestException('Некорректный формат deadline');
+    }
+
+    if (isRecurring && (!recurrenceRule || recurrenceRule.trim().length === 0)) {
+      throw new BadRequestException(
+        'Для шаблона повторяющейся задачи требуется recurrenceRule',
+      );
+    }
+
+    if (isRecurring && recurrenceRule) {
+      try {
+        this.recurringTaskService.validateRecurrenceRule(
+          recurrenceRule,
+          deadlineDate,
+        );
+      } catch (error) {
+        throw new BadRequestException(
+          `Некорректный recurrenceRule: ${error.message}`,
+        );
+      }
+    }
 
     // Проверяем, что пользователь - админ группы
     const member = await this.prisma.groupMember.findFirst({
@@ -86,7 +115,7 @@ export class TaskService {
     // Если assignee не указан, назначаем по алгоритму ротации
     // ИСКЛЮЧЕНИЕ: если rotationType = DISABLED, оставляем задачу в Up-for-Grabs
     let finalAssigneeId: string | null | undefined = assigneeId;
-    if (!finalAssigneeId) {
+    if (!finalAssigneeId && !isRecurring) {
       const group = await this.prisma.group.findUnique({
         where: { id: groupId },
         select: { rotationType: true },
@@ -105,7 +134,7 @@ export class TaskService {
       data: {
         title,
         description,
-        deadline: new Date(deadline),
+        deadline: deadlineDate,
         priority,
         points,
         requiresApproval: requiresApproval ?? true,
@@ -125,7 +154,7 @@ export class TaskService {
     });
 
     // Phase 8: Notify assignee on assignment (PRD 3.6.3)
-    if (task.assigneeId) {
+    if (task.assigneeId && !task.isRecurring) {
       await this.notificationService.notify({
         userId: task.assigneeId,
         title: 'Task assigned',
@@ -135,6 +164,16 @@ export class TaskService {
         relatedEntityId: task.id,
         sentById: userId,
       });
+    }
+
+    if (task.isRecurring) {
+      try {
+        await this.recurringTaskService.forceGenerateNextTask(task.id);
+      } catch (error) {
+        this.logger.warn(
+          `Recurring template ${task.id} created, but first child generation failed: ${error.message}`,
+        );
+      }
     }
 
     return task;
@@ -186,6 +225,7 @@ export class TaskService {
     }
 
     const whereClause: any = { groupId };
+    whereClause.isRecurring = false;
     if (status) {
       whereClause.status = status;
     }
@@ -207,6 +247,7 @@ export class TaskService {
    */
   async getUserTasks(userId: string, status?: string) {
     const whereClause: any = { assigneeId: userId };
+    whereClause.isRecurring = false;
     if (status) {
       whereClause.status = status;
     }
@@ -222,6 +263,34 @@ export class TaskService {
     });
 
     return tasks;
+  }
+
+  /**
+   * Получить шаблоны повторяющихся задач группы
+   */
+  async getRecurringTemplates(groupId: string, userId: string) {
+    const member = await this.prisma.groupMember.findFirst({
+      where: { groupId, userId },
+    });
+
+    if (!member) {
+      throw new ForbiddenException('Вы не являетесь членом группы');
+    }
+
+    const templates = await this.prisma.task.findMany({
+      where: {
+        groupId,
+        isRecurring: true,
+        parentTaskId: null,
+      },
+      include: {
+        assignee: true,
+        createdBy: true,
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return templates;
   }
 
   /**

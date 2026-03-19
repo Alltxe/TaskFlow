@@ -274,6 +274,35 @@ describe('GroupService', () => {
         service.updateGroup(mockGroup.id, mockUser2.id, input),
       ).rejects.toThrow(ForbiddenException);
     });
+
+    it('should ignore null values for non-nullable update fields', async () => {
+      const input: UpdateGroupInput = {
+        name: null as any,
+        description: 'Updated Description',
+        requiresApproval: null as any,
+        rotationType: null as any,
+        gamificationEnabled: null as any,
+      };
+
+      const updatedGroup = {
+        ...mockGroup,
+        description: 'Updated Description',
+      };
+
+      mockPrismaService.group.findUnique.mockResolvedValue(mockGroup);
+      mockPrismaService.group.update.mockResolvedValue(updatedGroup);
+
+      await service.updateGroup(mockGroup.id, mockUser.id, input);
+
+      expect(mockPrismaService.group.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: mockGroup.id },
+          data: {
+            description: 'Updated Description',
+          },
+        }),
+      );
+    });
   });
 
   describe('deleteGroup', () => {

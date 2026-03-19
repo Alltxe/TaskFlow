@@ -73,6 +73,10 @@ class _FakeTaskRepository implements TaskRepository {
   }
 
   @override
+  Future<dartz.Either<Failure, List<Task>>> getRecurringTemplates(String groupId) =>
+      Future.value(const dartz.Left(UnknownFailure(message: 'Not implemented')));
+
+  @override
   Future<dartz.Either<Failure, List<Task>>> getUserTasks({String? status}) =>
       Future.value(const dartz.Left(UnknownFailure(message: 'Not implemented')));
 

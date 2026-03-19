@@ -36,6 +36,22 @@ class TaskRepositoryImpl implements TaskRepository {
   }
 
   @override
+  Future<Either<Failure, List<Task>>> getRecurringTemplates(String groupId) async {
+    try {
+      final templates = await remoteDataSource.getRecurringTemplates(groupId);
+      return Right(templates);
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(message: e.message));
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message));
+    } on AuthException catch (e) {
+      return Left(AuthFailure(message: e.message));
+    } catch (e) {
+      return Left(UnknownFailure(message: e.toString()));
+    }
+  }
+
+  @override
   Future<Either<Failure, List<Task>>> getUserTasks({String? status}) async {
     try {
       final tasks = await remoteDataSource.getUserTasks(status: status);

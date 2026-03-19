@@ -6,6 +6,7 @@ import 'package:taskflow/domain/usecases/task/complete_task_usecase.dart';
 import 'package:taskflow/domain/usecases/task/create_task_usecase.dart';
 import 'package:taskflow/domain/usecases/task/delete_task_usecase.dart';
 import 'package:taskflow/domain/usecases/task/get_group_tasks_usecase.dart';
+import 'package:taskflow/domain/usecases/task/get_recurring_templates_usecase.dart';
 import 'package:taskflow/domain/usecases/task/get_task_usecase.dart';
 import 'package:taskflow/domain/usecases/task/get_user_tasks_usecase.dart';
 import 'package:taskflow/domain/usecases/task/update_task_usecase.dart';
@@ -16,6 +17,12 @@ final getGroupTasksUseCaseProvider = Provider<GetGroupTasksUseCase>((ref) {
   final repository = ref.watch(taskRepositoryProvider);
   return GetGroupTasksUseCase(repository);
 });
+
+final getRecurringTemplatesUseCaseProvider =
+    Provider<GetRecurringTemplatesUseCase>((ref) {
+      final repository = ref.watch(taskRepositoryProvider);
+      return GetRecurringTemplatesUseCase(repository);
+    });
 
 final getUserTasksUseCaseProvider = Provider<GetUserTasksUseCase>((ref) {
   final repository = ref.watch(taskRepositoryProvider);

@@ -13,6 +13,7 @@ import {
   UpdateMemberRoleInput,
   MemberRole,
 } from './dto/group.input';
+import { Prisma } from '@prisma/client';
 import { randomBytes } from 'crypto';
 import { AuditLogService } from '../audit-log/audit-log.service';
 
@@ -158,11 +159,32 @@ export class GroupService {
       throw new ForbiddenException('Только администраторы могут обновлять группу');
     }
 
+    // Ignore null/undefined for non-nullable DB fields while still allowing description = null.
+    const updateData: Prisma.GroupUpdateInput = {};
+
+    if (input.name != null) {
+      updateData.name = input.name;
+    }
+
+    if (input.description !== undefined) {
+      updateData.description = input.description;
+    }
+
+    if (input.requiresApproval != null) {
+      updateData.requiresApproval = input.requiresApproval;
+    }
+
+    if (input.rotationType != null) {
+      updateData.rotationType = input.rotationType as any;
+    }
+
+    if (input.gamificationEnabled != null) {
+      updateData.gamificationEnabled = input.gamificationEnabled;
+    }
+
     const updatedGroup = await this.prisma.group.update({
       where: { id: groupId },
-      data: {
-        ...input,
-      },
+      data: updateData,
       include: {
         creator: true,
         members: {

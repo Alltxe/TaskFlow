@@ -29,6 +29,7 @@ export class DeadlineService {
       // Находим все задачи с истекшим сроком и статусом не COMPLETED/OVERDUE/CANCELLED
       const overdueTasks = await this.prisma.task.findMany({
         where: {
+          isRecurring: false,
           deadline: {
             lt: now,
           },
@@ -87,6 +88,7 @@ export class DeadlineService {
       // Задачи с дедлайном через 24 часа
       const tasks24h = await this.prisma.task.findMany({
         where: {
+          isRecurring: false,
           deadline: {
             gte: now,
             lte: in24Hours,
@@ -104,6 +106,7 @@ export class DeadlineService {
       // Задачи с дедлайном через 1 час
       const tasks1h = await this.prisma.task.findMany({
         where: {
+          isRecurring: false,
           deadline: {
             gte: now,
             lte: in1Hour,

@@ -19,6 +19,17 @@ final groupTasksProvider = FutureProvider.family<List<Task>, String>((ref, group
   );
 });
 
+/// Recurring templates for a specific group
+final recurringTemplatesProvider =
+    FutureProvider.family<List<Task>, String>((ref, groupId) async {
+      final useCase = ref.watch(getRecurringTemplatesUseCaseProvider);
+      final result = await useCase(groupId);
+      return result.fold(
+        (failure) => throw Exception(failure.message),
+        (tasks) => tasks,
+      );
+    });
+
 /// Tasks assigned to current user
 final userTasksProvider = FutureProvider<List<Task>>((ref) async {
   final useCase = ref.watch(getUserTasksUseCaseProvider);
@@ -99,6 +110,7 @@ class TaskActionsNotifier extends StateNotifier<AsyncValue<void>> {
     // Invalidate to refresh
     ref.invalidate(userTasksProvider);
     if (groupId != null) ref.invalidate(groupTasksProvider(groupId));
+    if (groupId != null) ref.invalidate(recurringTemplatesProvider(groupId));
   }
 }
 

@@ -29,7 +29,7 @@ class _TasksScreenState extends ConsumerState<TasksScreen>
     super.initState();
     _tabsCount = widget.groupId == null
         ? 3
-        : 4; // hide 'My tasks' for top-level Tasks
+        : 5; // include dedicated recurring templates tab in group scope
     _tabController = TabController(length: _tabsCount, vsync: this);
   }
 
@@ -60,6 +60,7 @@ class _TasksScreenState extends ConsumerState<TasksScreen>
             Tab(text: l10n.groupTasksTab),
             Tab(text: l10n.upForGrabsTab),
             Tab(text: l10n.pendingApprovalTab),
+            if (widget.groupId != null) Tab(text: l10n.recurringTemplatesTab),
           ],
         ),
         actions: [
@@ -81,6 +82,9 @@ class _TasksScreenState extends ConsumerState<TasksScreen>
           _UpForGrabsTab(groupId: widget.groupId),
 
           _PendingApprovalTab(groupId: widget.groupId),
+
+          if (widget.groupId != null)
+            _RecurringTemplatesTab(groupId: widget.groupId!),
         ],
       ),
       floatingActionButton: isAdminAsync.when(
@@ -98,6 +102,77 @@ class _TasksScreenState extends ConsumerState<TasksScreen>
             : null,
         loading: () => null,
         error: (_, __) => null,
+      ),
+    );
+  }
+}
+
+class _RecurringTemplatesTab extends ConsumerWidget {
+  final String groupId;
+
+  const _RecurringTemplatesTab({required this.groupId});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final templatesAsync = ref.watch(recurringTemplatesProvider(groupId));
+    final l10n = AppLocalizations.of(context)!;
+
+    return templatesAsync.when(
+      data: (templates) => Column(
+        children: [
+          Container(
+            width: double.infinity,
+            margin: const EdgeInsets.fromLTRB(12, 12, 12, 4),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.5),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
+              ),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(
+                  Icons.info_outline,
+                  size: 20,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l10n.recurringTemplatesInfoTitle,
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                              fontWeight: FontWeight.w700,
+                            ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        l10n.recurringTemplatesInfoBody,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: TaskListWidget(
+              tasks: templates,
+              emptyStateMessage: l10n.noRecurringTemplates,
+              onRefresh: () => ref.invalidate(recurringTemplatesProvider(groupId)),
+            ),
+          ),
+        ],
+      ),
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (error, stack) => Center(
+        child: Text('${l10n.errorLoadingTasks}: ${error.toString()}'),
       ),
     );
   }
