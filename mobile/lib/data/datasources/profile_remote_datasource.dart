@@ -1,4 +1,6 @@
-﻿import 'package:graphql_flutter/graphql_flutter.dart' hide ServerException, NetworkException;
+﻿import 'package:gql/language.dart' as gql_lang;
+import 'package:gql_exec/gql_exec.dart';
+import 'package:taskflow/core/config/graphql_client.dart';
 import 'package:taskflow/core/errors/exceptions.dart';
 import 'package:taskflow/data/models/group_summary.dart';
 import 'package:taskflow/data/models/user.dart';
@@ -6,9 +8,7 @@ import 'package:taskflow/data/models/user_statistics.dart';
 
 /// Remote data source for user profile operations via GraphQL API
 class ProfileRemoteDataSource {
-  final GraphQLClient client;
-
-  ProfileRemoteDataSource(this.client);
+  ProfileRemoteDataSource();
 
   /// Get current user profile (uses existing 'me' query)
   Future<User> getCurrentUserProfile() async {
@@ -28,22 +28,28 @@ class ProfileRemoteDataSource {
     ''';
 
     try {
-      final result = await client.query(
-        QueryOptions(document: gql(query), fetchPolicy: FetchPolicy.networkOnly),
+      final gqlRequest = Request(
+        operation: Operation(
+          document: gql_lang.parseString(query),
+          operationName: 'GetCurrentUser',
+        ),
       );
 
-      if (result.hasException) {
-        _handleGraphQLException(result.exception!);
+      final response = await GraphQLClientConfig.request(gqlRequest);
+
+      if (response.errors != null && response.errors!.isNotEmpty) {
+        _handleGraphQLErrors(response.errors!);
       }
 
-      final data = result.data?['me'];
+      final data = response.data?['me'];
       if (data == null) {
         throw const ServerException(message: 'Failed to fetch user profile');
       }
 
       return User.fromJson(data);
+    } on AppException {
+      rethrow;
     } catch (e) {
-      if (e is AppException) rethrow;
       throw ServerException(message: e.toString());
     }
   }
@@ -69,26 +75,29 @@ class ProfileRemoteDataSource {
     ''';
 
     try {
-      final result = await client.query(
-        QueryOptions(
-          document: gql(query),
-          variables: {'groupId': groupId},
-          fetchPolicy: FetchPolicy.networkOnly,
+      final gqlRequest = Request(
+        operation: Operation(
+          document: gql_lang.parseString(query),
+          operationName: 'GetMyStatistics',
         ),
+        variables: {'groupId': groupId},
       );
 
-      if (result.hasException) {
-        _handleGraphQLException(result.exception!);
+      final response = await GraphQLClientConfig.request(gqlRequest);
+
+      if (response.errors != null && response.errors!.isNotEmpty) {
+        _handleGraphQLErrors(response.errors!);
       }
 
-      final data = result.data?['myStatistics'];
+      final data = response.data?['myStatistics'];
       if (data == null) {
         throw const ServerException(message: 'Failed to fetch statistics');
       }
 
       return UserStatistics.fromJson(data);
+    } on AppException {
+      rethrow;
     } catch (e) {
-      if (e is AppException) rethrow;
       throw ServerException(message: e.toString());
     }
   }
@@ -108,15 +117,17 @@ class ProfileRemoteDataSource {
     ''';
 
     try {
-      final result = await client.query(
-        QueryOptions(document: gql(query), fetchPolicy: FetchPolicy.networkOnly),
+      final gqlRequest = Request(
+        operation: Operation(document: gql_lang.parseString(query), operationName: 'GetUserGroups'),
       );
 
-      if (result.hasException) {
-        _handleGraphQLException(result.exception!);
+      final response = await GraphQLClientConfig.request(gqlRequest);
+
+      if (response.errors != null && response.errors!.isNotEmpty) {
+        _handleGraphQLErrors(response.errors!);
       }
 
-      final List<dynamic> groupsData = result.data?['getUserGroups'] ?? [];
+      final List<dynamic> groupsData = response.data?['getUserGroups'] ?? [];
 
       // We need to get member role separately or transform the data
       // For now, we'll return groups with default 'participant' role
@@ -130,8 +141,9 @@ class ProfileRemoteDataSource {
           joinedAt: DateTime.parse(json['createdAt']),
         );
       }).toList();
+    } on AppException {
+      rethrow;
     } catch (e) {
-      if (e is AppException) rethrow;
       throw ServerException(message: e.toString());
     }
   }
@@ -157,23 +169,17 @@ class ProfileRemoteDataSource {
     throw const ServerException(message: 'Avatar upload not yet implemented in backend');
   }
 
-  void _handleGraphQLException(OperationException exception) {
-    if (exception.linkException != null) {
-      throw NetworkException(message: 'Network error: ${exception.linkException}');
+  void _handleGraphQLErrors(List<GraphQLError> errors) {
+    if (errors.isEmpty) return;
+
+    final error = errors.first;
+    final message = error.message;
+
+    if (message.toLowerCase().contains('unauthorized') ||
+        message.toLowerCase().contains('unauthenticated')) {
+      throw const AuthException(message: 'Session expired');
     }
 
-    if (exception.graphqlErrors.isNotEmpty) {
-      final error = exception.graphqlErrors.first;
-      final message = error.message;
-
-      if (message.toLowerCase().contains('unauthorized') ||
-          message.toLowerCase().contains('unauthenticated')) {
-        throw const AuthException(message: 'Session expired');
-      }
-
-      throw ServerException(message: message);
-    }
-
-    throw const ServerException(message: 'Unknown GraphQL error');
+    throw ServerException(message: message);
   }
 }

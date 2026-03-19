@@ -21,7 +21,7 @@
     "prisma:seed": "ts-node prisma/seed.ts"
   },
   "dependencies": {
-    "@apollo/server": "^5.0.0",
+    "@apollo/server": "^5.4.0",
     "@as-integrations/express5": "^1.1.2",
     "@nestjs/apollo": "^13.2.1",
     "@nestjs/cache-manager": "^3.0.1",

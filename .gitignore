@@ -90,3 +90,5 @@ typings/
 .turbo/daemon/*.log.*mobile/nul
 
 nul
+.backend/src/schema.gql
+.backend/package-lock.json

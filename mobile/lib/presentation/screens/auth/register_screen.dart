@@ -30,43 +30,34 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     super.dispose();
   }
 
-  void _handleRegister() async {
+  void _handleRegister() {
     if (_formKey.currentState!.validate()) {
       final email = _emailController.text.trim();
       final username = _usernameController.text.trim();
       final password = _passwordController.text;
-
-      try {
-        await ref.read(authStateProvider.notifier).register(email, username, password);
-        // Navigation will be handled by router redirect
-      } catch (e) {
-        // Show error snackbar
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(e.toString()),
-              backgroundColor: Theme.of(context).colorScheme.error,
-              duration: const Duration(seconds: 3),
-            ),
-          );
-
-          // Reset state to unauthenticated after showing error
-          // Delay to allow snackbar to be visible
-          Future.delayed(const Duration(milliseconds: 500), () {
-            if (mounted) {
-              ref.read(authStateProvider.notifier).resetToUnauthenticated(e.toString());
-            }
-          });
-        }
-      }
+      ref.read(authStateProvider.notifier).register(email, username, password);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authStateProvider);
-
     final isLoading = authState.status == AuthStatus.loading;
+
+    // Show snackbar when error appears in state
+    ref.listen<AuthState>(authStateProvider, (previous, next) {
+      if (next.status == AuthStatus.unauthenticated &&
+          next.error != null &&
+          previous?.status == AuthStatus.loading) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(next.error!),
+            backgroundColor: Theme.of(context).colorScheme.error,
+            duration: const Duration(seconds: 4),
+          ),
+        );
+      }
+    });
 
     return Scaffold(
       appBar: AppBar(

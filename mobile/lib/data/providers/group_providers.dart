@@ -1,7 +1,6 @@
 ﻿import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:taskflow/data/datasources/group_remote_datasource.dart';
 import 'package:taskflow/data/providers/auth_providers.dart';
-import 'package:taskflow/data/providers/graphql_provider.dart';
 import 'package:taskflow/data/repositories/group_repository.dart';
 import 'package:taskflow/data/repositories/group_repository_impl.dart';
 import 'package:taskflow/domain/usecases/group/create_group_usecase.dart';
@@ -18,8 +17,7 @@ import 'package:taskflow/domain/usecases/group/update_member_role_usecase.dart';
 
 // DataSource Provider
 final groupRemoteDataSourceProvider = Provider<GroupRemoteDataSource>((ref) {
-  final graphQLClient = ref.watch(graphqlClientProvider);
-  return GroupRemoteDataSource(graphQLClient);
+  return GroupRemoteDataSource();
 });
 
 // Repository Provider
@@ -74,24 +72,18 @@ final removeMemberUseCaseProvider = Provider<RemoveMemberUseCase>((ref) {
   return RemoveMemberUseCase(repository);
 });
 
-final updateMemberRoleUseCaseProvider = Provider<UpdateMemberRoleUseCase>((
-  ref,
-) {
+final updateMemberRoleUseCaseProvider = Provider<UpdateMemberRoleUseCase>((ref) {
   final repository = ref.watch(groupRepositoryProvider);
   return UpdateMemberRoleUseCase(repository);
 });
 
-final regenerateInviteTokenUseCaseProvider =
-    Provider<RegenerateInviteTokenUseCase>((ref) {
-      final repository = ref.watch(groupRepositoryProvider);
-      return RegenerateInviteTokenUseCase(repository);
-    });
+final regenerateInviteTokenUseCaseProvider = Provider<RegenerateInviteTokenUseCase>((ref) {
+  final repository = ref.watch(groupRepositoryProvider);
+  return RegenerateInviteTokenUseCase(repository);
+});
 
 // Provider to check if current user is admin in a specific group
-final isGroupAdminProvider = FutureProvider.family<bool, String>((
-  ref,
-  groupId,
-) async {
+final isGroupAdminProvider = FutureProvider.family<bool, String>((ref, groupId) async {
   final authState = ref.watch(authStateProvider);
   final currentUserId = authState.user?.id;
 
@@ -102,9 +94,7 @@ final isGroupAdminProvider = FutureProvider.family<bool, String>((
 
   return result.fold((failure) => false, (members) {
     try {
-      final currentMember = members.firstWhere(
-        (m) => m.userId == currentUserId,
-      );
+      final currentMember = members.firstWhere((m) => m.userId == currentUserId);
       return currentMember.role == 'ADMIN';
     } catch (e) {
       return false;

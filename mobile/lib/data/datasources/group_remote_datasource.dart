@@ -1,4 +1,6 @@
-﻿import 'package:graphql_flutter/graphql_flutter.dart';
+﻿import 'package:gql/language.dart' as gql_lang;
+import 'package:gql_exec/gql_exec.dart';
+import 'package:taskflow/core/config/graphql_client.dart';
 import 'package:taskflow/core/errors/exceptions.dart' as app_exceptions;
 import 'package:taskflow/data/models/create_group_request.dart';
 import 'package:taskflow/data/models/group.dart';
@@ -7,9 +9,7 @@ import 'package:taskflow/data/models/join_group_request.dart';
 import 'package:taskflow/data/models/update_group_request.dart';
 
 class GroupRemoteDataSource {
-  final GraphQLClient client;
-
-  GroupRemoteDataSource(this.client);
+  GroupRemoteDataSource();
 
   // GraphQL Fragments
   static const String _groupFragment = r'''
@@ -64,15 +64,16 @@ class GroupRemoteDataSource {
     ''';
 
     try {
-      final result = await client.query(
-        QueryOptions(document: gql(query + _groupFragment), fetchPolicy: FetchPolicy.networkOnly),
+      final gqlRequest = Request(
+        operation: Operation(
+          document: gql_lang.parseString(query + _groupFragment),
+          operationName: 'GetUserGroups',
+        ),
       );
 
-      if (result.hasException) {
-        _handleGraphQLException(result.exception!);
-      }
+      final response = await GraphQLClientConfig.request(gqlRequest);
 
-      final List<dynamic> groupsData = result.data?['getUserGroups'] ?? [];
+      final List<dynamic> groupsData = response.data?['getUserGroups'] ?? [];
       return groupsData.map((json) => Group.fromJson(json)).toList();
     } catch (e) {
       if (e is app_exceptions.AppException) rethrow;
@@ -92,19 +93,21 @@ class GroupRemoteDataSource {
     ''';
 
     try {
-      final result = await client.query(
-        QueryOptions(
-          document: gql(query + _groupFragment),
-          variables: {'groupId': groupId},
-          fetchPolicy: FetchPolicy.networkOnly,
+      final gqlRequest = Request(
+        operation: Operation(
+          document: gql_lang.parseString(query + _groupFragment),
+          operationName: 'GetGroup',
         ),
+        variables: {'groupId': groupId},
       );
 
-      if (result.hasException) {
-        _handleGraphQLException(result.exception!);
+      final response = await GraphQLClientConfig.request(gqlRequest);
+
+      if (response.errors != null && response.errors!.isNotEmpty) {
+        _handleGraphQLErrors(response.errors!);
       }
 
-      final groupData = result.data?['getGroup'];
+      final groupData = response.data?['getGroup'];
       if (groupData == null) {
         throw const app_exceptions.ServerException(message: 'Group not found');
       }
@@ -126,19 +129,21 @@ class GroupRemoteDataSource {
     ''';
 
     try {
-      final result = await client.query(
-        QueryOptions(
-          document: gql(query + _groupMemberFragment + _groupMemberUserFragment),
-          variables: {'groupId': groupId},
-          fetchPolicy: FetchPolicy.networkOnly,
+      final gqlRequest = Request(
+        operation: Operation(
+          document: gql_lang.parseString(query + _groupMemberFragment + _groupMemberUserFragment),
+          operationName: 'GetGroupMembers',
         ),
+        variables: {'groupId': groupId},
       );
 
-      if (result.hasException) {
-        _handleGraphQLException(result.exception!);
+      final response = await GraphQLClientConfig.request(gqlRequest);
+
+      if (response.errors != null && response.errors!.isNotEmpty) {
+        _handleGraphQLErrors(response.errors!);
       }
 
-      final List<dynamic> membersData = result.data?['getGroupMembers'] ?? [];
+      final List<dynamic> membersData = response.data?['getGroupMembers'] ?? [];
       return membersData.map((json) => GroupMember.fromJson(json)).toList();
     } catch (e) {
       if (e is app_exceptions.AppException) rethrow;
@@ -163,19 +168,22 @@ class GroupRemoteDataSource {
       final inputJson = request.toJson();
       print('[CreateGroup] Request JSON: $inputJson');
 
-      final result = await client.mutate(
-        MutationOptions(
-          document: gql(mutation + _groupFragment),
-          variables: {'input': inputJson},
+      final gqlRequest = Request(
+        operation: Operation(
+          document: gql_lang.parseString(mutation + _groupFragment),
+          operationName: 'CreateGroup',
         ),
+        variables: {'input': inputJson},
       );
 
-      if (result.hasException) {
-        print('[CreateGroup] Exception: ${result.exception}');
-        _handleGraphQLException(result.exception!);
+      final response = await GraphQLClientConfig.request(gqlRequest);
+
+      if (response.errors != null && response.errors!.isNotEmpty) {
+        print('[CreateGroup] GraphQL Errors: ${response.errors}');
+        _handleGraphQLErrors(response.errors!);
       }
 
-      final groupData = result.data?['createGroup'];
+      final groupData = response.data?['createGroup'];
       if (groupData == null) {
         throw const app_exceptions.ServerException(message: 'Failed to create group');
       }
@@ -198,18 +206,21 @@ class GroupRemoteDataSource {
     ''';
 
     try {
-      final result = await client.mutate(
-        MutationOptions(
-          document: gql(mutation + _groupFragment),
-          variables: {'groupId': groupId, 'input': request.toJson()},
+      final gqlRequest = Request(
+        operation: Operation(
+          document: gql_lang.parseString(mutation + _groupFragment),
+          operationName: 'UpdateGroup',
         ),
+        variables: {'groupId': groupId, 'input': request.toJson()},
       );
 
-      if (result.hasException) {
-        _handleGraphQLException(result.exception!);
+      final response = await GraphQLClientConfig.request(gqlRequest);
+
+      if (response.errors != null && response.errors!.isNotEmpty) {
+        _handleGraphQLErrors(response.errors!);
       }
 
-      final groupData = result.data?['updateGroup'];
+      final groupData = response.data?['updateGroup'];
       if (groupData == null) {
         throw const app_exceptions.ServerException(message: 'Failed to update group');
       }
@@ -229,12 +240,18 @@ class GroupRemoteDataSource {
     ''';
 
     try {
-      final result = await client.mutate(
-        MutationOptions(document: gql(mutation), variables: {'groupId': groupId}),
+      final gqlRequest = Request(
+        operation: Operation(
+          document: gql_lang.parseString(mutation),
+          operationName: 'DeleteGroup',
+        ),
+        variables: {'groupId': groupId},
       );
 
-      if (result.hasException) {
-        _handleGraphQLException(result.exception!);
+      final response = await GraphQLClientConfig.request(gqlRequest);
+
+      if (response.errors != null && response.errors!.isNotEmpty) {
+        _handleGraphQLErrors(response.errors!);
       }
     } catch (e) {
       if (e is app_exceptions.AppException) rethrow;
@@ -252,18 +269,21 @@ class GroupRemoteDataSource {
     ''';
 
     try {
-      final result = await client.mutate(
-        MutationOptions(
-          document: gql(mutation + _groupFragment),
-          variables: {'input': request.toJson()},
+      final gqlRequest = Request(
+        operation: Operation(
+          document: gql_lang.parseString(mutation + _groupFragment),
+          operationName: 'JoinGroup',
         ),
+        variables: {'input': request.toJson()},
       );
 
-      if (result.hasException) {
-        _handleGraphQLException(result.exception!);
+      final response = await GraphQLClientConfig.request(gqlRequest);
+
+      if (response.errors != null && response.errors!.isNotEmpty) {
+        _handleGraphQLErrors(response.errors!);
       }
 
-      final groupData = result.data?['joinGroup'];
+      final groupData = response.data?['joinGroup'];
       if (groupData == null) {
         throw const app_exceptions.ServerException(message: 'Failed to join group');
       }
@@ -283,12 +303,15 @@ class GroupRemoteDataSource {
     ''';
 
     try {
-      final result = await client.mutate(
-        MutationOptions(document: gql(mutation), variables: {'groupId': groupId}),
+      final gqlRequest = Request(
+        operation: Operation(document: gql_lang.parseString(mutation), operationName: 'LeaveGroup'),
+        variables: {'groupId': groupId},
       );
 
-      if (result.hasException) {
-        _handleGraphQLException(result.exception!);
+      final response = await GraphQLClientConfig.request(gqlRequest);
+
+      if (response.errors != null && response.errors!.isNotEmpty) {
+        _handleGraphQLErrors(response.errors!);
       }
     } catch (e) {
       if (e is app_exceptions.AppException) rethrow;
@@ -304,12 +327,18 @@ class GroupRemoteDataSource {
     ''';
 
     try {
-      final result = await client.mutate(
-        MutationOptions(document: gql(mutation), variables: {'groupId': groupId, 'userId': userId}),
+      final gqlRequest = Request(
+        operation: Operation(
+          document: gql_lang.parseString(mutation),
+          operationName: 'RemoveMember',
+        ),
+        variables: {'groupId': groupId, 'userId': userId},
       );
 
-      if (result.hasException) {
-        _handleGraphQLException(result.exception!);
+      final response = await GraphQLClientConfig.request(gqlRequest);
+
+      if (response.errors != null && response.errors!.isNotEmpty) {
+        _handleGraphQLErrors(response.errors!);
       }
     } catch (e) {
       if (e is app_exceptions.AppException) rethrow;
@@ -327,21 +356,26 @@ class GroupRemoteDataSource {
     ''';
 
     try {
-      final result = await client.mutate(
-        MutationOptions(
-          document: gql(mutation + _groupMemberFragment + _groupMemberUserFragment),
-          variables: {
-            'groupId': groupId,
-            'input': {'userId': userId, 'role': role},
-          },
+      final gqlRequest = Request(
+        operation: Operation(
+          document: gql_lang.parseString(
+            mutation + _groupMemberFragment + _groupMemberUserFragment,
+          ),
+          operationName: 'UpdateMemberRole',
         ),
+        variables: {
+          'groupId': groupId,
+          'input': {'userId': userId, 'role': role},
+        },
       );
 
-      if (result.hasException) {
-        _handleGraphQLException(result.exception!);
+      final response = await GraphQLClientConfig.request(gqlRequest);
+
+      if (response.errors != null && response.errors!.isNotEmpty) {
+        _handleGraphQLErrors(response.errors!);
       }
 
-      final memberData = result.data?['updateMemberRole'];
+      final memberData = response.data?['updateMemberRole'];
       if (memberData == null) {
         throw const app_exceptions.ServerException(message: 'Failed to update member role');
       }
@@ -365,15 +399,21 @@ class GroupRemoteDataSource {
     ''';
 
     try {
-      final result = await client.mutate(
-        MutationOptions(document: gql(mutation + _groupFragment), variables: {'groupId': groupId}),
+      final gqlRequest = Request(
+        operation: Operation(
+          document: gql_lang.parseString(mutation + _groupFragment),
+          operationName: 'RegenerateInviteToken',
+        ),
+        variables: {'groupId': groupId},
       );
 
-      if (result.hasException) {
-        _handleGraphQLException(result.exception!);
+      final response = await GraphQLClientConfig.request(gqlRequest);
+
+      if (response.errors != null && response.errors!.isNotEmpty) {
+        _handleGraphQLErrors(response.errors!);
       }
 
-      final groupData = result.data?['regenerateInviteToken'];
+      final groupData = response.data?['regenerateInviteToken'];
       if (groupData == null) {
         throw const app_exceptions.ServerException(message: 'Failed to regenerate invite token');
       }
@@ -389,27 +429,19 @@ class GroupRemoteDataSource {
 
   // Error handling
 
-  void _handleGraphQLException(OperationException exception) {
-    if (exception.linkException != null) {
-      throw app_exceptions.NetworkException(
-        message: 'Network error: ${exception.linkException!.toString()}',
-      );
+  void _handleGraphQLErrors(List<GraphQLError> errors) {
+    if (errors.isEmpty) return;
+
+    final error = errors.first;
+    final message = error.message;
+    final code = error.extensions?['code'] as String?;
+
+    if (code == 'UNAUTHENTICATED' || code == 'FORBIDDEN') {
+      throw app_exceptions.AuthException(message: message, code: code);
+    } else if (code == 'VALIDATION_ERROR') {
+      throw app_exceptions.ValidationException(message: message, code: code);
+    } else {
+      throw app_exceptions.ServerException(message: message, code: code);
     }
-
-    if (exception.graphqlErrors.isNotEmpty) {
-      final error = exception.graphqlErrors.first;
-      final message = error.message;
-      final code = error.extensions?['code'] as String?;
-
-      if (code == 'UNAUTHENTICATED' || code == 'FORBIDDEN') {
-        throw app_exceptions.AuthException(message: message, code: code);
-      } else if (code == 'VALIDATION_ERROR') {
-        throw app_exceptions.ValidationException(message: message, code: code);
-      } else {
-        throw app_exceptions.ServerException(message: message, code: code);
-      }
-    }
-
-    throw const app_exceptions.ServerException(message: 'Unknown server error');
   }
 }

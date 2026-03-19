@@ -44,5 +44,9 @@
     // Terminal
     "terminal.integrated.env.windows": {
         "FLUTTER_ROOT": null
+    },
+    "chat.tools.terminal.autoApprove": {
+        "flutter": true,
+        "tee": true
     }
 }

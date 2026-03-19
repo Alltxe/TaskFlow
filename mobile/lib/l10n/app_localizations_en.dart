@@ -1120,4 +1120,35 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get delete => 'Delete';
+
+  @override
+  String get error => 'Error';
+
+  @override
+  String get networkError =>
+      'No internet connection. Please check your network settings.';
+
+  @override
+  String get timeoutError => 'Request timeout. Please try again.';
+
+  @override
+  String get serverError => 'Server error. Please try again later.';
+
+  @override
+  String get authError => 'Authentication failed. Please log in again.';
+
+  @override
+  String get validationError => 'Invalid data. Please check your input.';
+
+  @override
+  String get notFoundError => 'Resource not found.';
+
+  @override
+  String get permissionError => 'Permission denied.';
+
+  @override
+  String get unknownError => 'An unexpected error occurred. Please try again.';
+
+  @override
+  String get dismiss => 'Dismiss';
 }

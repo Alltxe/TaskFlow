@@ -2155,6 +2155,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Delete'**
   String get delete;
+
+  /// No description provided for @error.
+  ///
+  /// In en, this message translates to:
+  /// **'Error'**
+  String get error;
+
+  /// No description provided for @networkError.
+  ///
+  /// In en, this message translates to:
+  /// **'No internet connection. Please check your network settings.'**
+  String get networkError;
+
+  /// No description provided for @timeoutError.
+  ///
+  /// In en, this message translates to:
+  /// **'Request timeout. Please try again.'**
+  String get timeoutError;
+
+  /// No description provided for @serverError.
+  ///
+  /// In en, this message translates to:
+  /// **'Server error. Please try again later.'**
+  String get serverError;
+
+  /// No description provided for @authError.
+  ///
+  /// In en, this message translates to:
+  /// **'Authentication failed. Please log in again.'**
+  String get authError;
+
+  /// No description provided for @validationError.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid data. Please check your input.'**
+  String get validationError;
+
+  /// No description provided for @notFoundError.
+  ///
+  /// In en, this message translates to:
+  /// **'Resource not found.'**
+  String get notFoundError;
+
+  /// No description provided for @permissionError.
+  ///
+  /// In en, this message translates to:
+  /// **'Permission denied.'**
+  String get permissionError;
+
+  /// No description provided for @unknownError.
+  ///
+  /// In en, this message translates to:
+  /// **'An unexpected error occurred. Please try again.'**
+  String get unknownError;
+
+  /// No description provided for @dismiss.
+  ///
+  /// In en, this message translates to:
+  /// **'Dismiss'**
+  String get dismiss;
 }
 
 class _AppLocalizationsDelegate

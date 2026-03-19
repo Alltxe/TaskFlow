@@ -1,5 +1,7 @@
-﻿import 'package:graphql_flutter/graphql_flutter.dart';
-import 'package:taskflow/core/errors/exceptions.dart' as app_exceptions;
+﻿import 'package:gql/language.dart' as gql_lang;
+import 'package:gql_exec/gql_exec.dart';
+import 'package:taskflow/core/config/graphql_client.dart';
+import 'package:taskflow/core/errors/exceptions.dart';
 import 'package:taskflow/data/models/leaderboard_entry.dart';
 import 'package:taskflow/data/models/point_balance.dart';
 import 'package:taskflow/data/models/point_transaction_history.dart';
@@ -9,9 +11,7 @@ import 'package:taskflow/data/models/reward_transaction.dart';
 import 'package:taskflow/data/models/user_statistics.dart';
 
 class RewardRemoteDataSource {
-  final GraphQLClient client;
-
-  RewardRemoteDataSource(this.client);
+  RewardRemoteDataSource();
 
   // Get group rewards
   Future<List<Reward>> getGroupRewards(String groupId) async {
@@ -32,23 +32,26 @@ class RewardRemoteDataSource {
     ''';
 
     try {
-      final result = await client.query(
-        QueryOptions(
-          document: gql(query),
-          variables: {'groupId': groupId},
-          fetchPolicy: FetchPolicy.networkOnly,
+      final gqlRequest = Request(
+        operation: Operation(
+          document: gql_lang.parseString(query),
+          operationName: 'GetGroupRewards',
         ),
+        variables: {'groupId': groupId},
       );
 
-      if (result.hasException) {
-        _handleGraphQLException(result.exception!);
+      final response = await GraphQLClientConfig.request(gqlRequest);
+
+      if (response.errors != null && response.errors!.isNotEmpty) {
+        _handleGraphQLErrors(response.errors!);
       }
 
-      final List<dynamic> rewardsData = result.data?['getGroupRewards'] ?? [];
+      final List<dynamic> rewardsData = response.data?['getGroupRewards'] ?? [];
       return rewardsData.map((json) => Reward.fromJson(json)).toList();
+    } on AppException {
+      rethrow;
     } catch (e) {
-      if (e is app_exceptions.AppException) rethrow;
-      throw app_exceptions.NetworkException(message: 'Failed to fetch rewards: ${e.toString()}');
+      throw NetworkException(message: 'Failed to fetch rewards: ${e.toString()}');
     }
   }
 
@@ -73,27 +76,30 @@ class RewardRemoteDataSource {
     ''';
 
     try {
-      final result = await client.query(
-        QueryOptions(
-          document: gql(query),
-          variables: {'groupId': groupId},
-          fetchPolicy: FetchPolicy.networkOnly,
+      final gqlRequest = Request(
+        operation: Operation(
+          document: gql_lang.parseString(query),
+          operationName: 'GetUserStatistics',
         ),
+        variables: {'groupId': groupId},
       );
 
-      if (result.hasException) {
-        _handleGraphQLException(result.exception!);
+      final response = await GraphQLClientConfig.request(gqlRequest);
+
+      if (response.errors != null && response.errors!.isNotEmpty) {
+        _handleGraphQLErrors(response.errors!);
       }
 
-      final statsData = result.data?['getUserStatistics'];
+      final statsData = response.data?['getUserStatistics'];
       if (statsData == null) {
-        throw const app_exceptions.ServerException(message: 'Stats not found');
+        throw const ServerException(message: 'Stats not found');
       }
 
       return UserStatistics.fromJson(statsData);
+    } on AppException {
+      rethrow;
     } catch (e) {
-      if (e is app_exceptions.AppException) rethrow;
-      throw app_exceptions.NetworkException(message: 'Failed to fetch statistics: ${e.toString()}');
+      throw NetworkException(message: 'Failed to fetch statistics: ${e.toString()}');
     }
   }
 
@@ -113,25 +119,26 @@ class RewardRemoteDataSource {
     ''';
 
     try {
-      final result = await client.query(
-        QueryOptions(
-          document: gql(query),
-          variables: {'groupId': groupId},
-          fetchPolicy: FetchPolicy.networkOnly,
+      final gqlRequest = Request(
+        operation: Operation(
+          document: gql_lang.parseString(query),
+          operationName: 'GetGroupLeaderboard',
         ),
+        variables: {'groupId': groupId},
       );
 
-      if (result.hasException) {
-        _handleGraphQLException(result.exception!);
+      final response = await GraphQLClientConfig.request(gqlRequest);
+
+      if (response.errors != null && response.errors!.isNotEmpty) {
+        _handleGraphQLErrors(response.errors!);
       }
 
-      final List<dynamic> leaderboardData = result.data?['getGroupLeaderboard'] ?? [];
+      final List<dynamic> leaderboardData = response.data?['getGroupLeaderboard'] ?? [];
       return leaderboardData.map((json) => LeaderboardEntry.fromJson(json)).toList();
+    } on AppException {
+      rethrow;
     } catch (e) {
-      if (e is app_exceptions.AppException) rethrow;
-      throw app_exceptions.NetworkException(
-        message: 'Failed to fetch leaderboard: ${e.toString()}',
-      );
+      throw NetworkException(message: 'Failed to fetch leaderboard: ${e.toString()}');
     }
   }
 
@@ -155,37 +162,35 @@ class RewardRemoteDataSource {
     ''';
 
     try {
-      final result = await client.mutate(
-        MutationOptions(
-          document: gql(mutation),
-          variables: {
-            'input': {
-              'rewardId': input.rewardId,
-              'groupId': input.groupId,
-            },
-          },
-          fetchPolicy: FetchPolicy.networkOnly,
+      final gqlRequest = Request(
+        operation: Operation(
+          document: gql_lang.parseString(mutation),
+          operationName: 'RequestReward',
         ),
+        variables: {
+          'input': {'rewardId': input.rewardId, 'groupId': input.groupId},
+        },
       );
 
-      if (result.hasException) {
-        _handleGraphQLException(result.exception!);
+      final response = await GraphQLClientConfig.request(gqlRequest);
+
+      if (response.errors != null && response.errors!.isNotEmpty) {
+        _handleGraphQLErrors(response.errors!);
       }
 
-      final transactionData = result.data?['requestReward'];
+      final transactionData = response.data?['requestReward'];
       if (transactionData == null) {
-        throw const app_exceptions.ServerException(
-            message: 'Request reward response is null');
+        throw const ServerException(message: 'Request reward response is null');
       }
 
       // server doesn't return groupId on RewardTransactionType; inject it from the input
       final Map<String, dynamic> transactionMap = Map<String, dynamic>.from(transactionData as Map);
       transactionMap['groupId'] = input.groupId;
       return RewardTransaction.fromJson(transactionMap);
+    } on AppException {
+      rethrow;
     } catch (e) {
-      if (e is app_exceptions.AppException) rethrow;
-      throw app_exceptions.NetworkException(
-          message: 'Failed to request reward: ${e.toString()}');
+      throw NetworkException(message: 'Failed to request reward: ${e.toString()}');
     }
   }
 
@@ -209,28 +214,30 @@ class RewardRemoteDataSource {
     ''';
 
     try {
-      final result = await client.query(
-        QueryOptions(
-          document: gql(query),
-          variables: {'groupId': groupId},
-          fetchPolicy: FetchPolicy.networkOnly,
+      final gqlRequest = Request(
+        operation: Operation(
+          document: gql_lang.parseString(query),
+          operationName: 'GetMyRewardRequests',
         ),
+        variables: {'groupId': groupId},
       );
 
-      if (result.hasException) {
-        _handleGraphQLException(result.exception!);
+      final response = await GraphQLClientConfig.request(gqlRequest);
+
+      if (response.errors != null && response.errors!.isNotEmpty) {
+        _handleGraphQLErrors(response.errors!);
       }
 
-      final List<dynamic> requestsData = result.data?['getMyRewardRequests'] ?? [];
+      final List<dynamic> requestsData = response.data?['getMyRewardRequests'] ?? [];
       return requestsData.map((json) {
         final Map<String, dynamic> map = Map<String, dynamic>.from(json as Map);
         if (groupId != null) map['groupId'] = groupId;
         return RewardTransaction.fromJson(map);
       }).toList();
+    } on AppException {
+      rethrow;
     } catch (e) {
-      if (e is app_exceptions.AppException) rethrow;
-      throw app_exceptions.NetworkException(
-          message: 'Failed to fetch reward requests: ${e.toString()}');
+      throw NetworkException(message: 'Failed to fetch reward requests: ${e.toString()}');
     }
   }
 
@@ -249,28 +256,30 @@ class RewardRemoteDataSource {
     ''';
 
     try {
-      final result = await client.query(
-        QueryOptions(
-          document: gql(query),
-          variables: {'groupId': groupId},
-          fetchPolicy: FetchPolicy.networkOnly,
+      final gqlRequest = Request(
+        operation: Operation(
+          document: gql_lang.parseString(query),
+          operationName: 'GetPointBalance',
         ),
+        variables: {'groupId': groupId},
       );
 
-      if (result.hasException) {
-        _handleGraphQLException(result.exception!);
+      final response = await GraphQLClientConfig.request(gqlRequest);
+
+      if (response.errors != null && response.errors!.isNotEmpty) {
+        _handleGraphQLErrors(response.errors!);
       }
 
-      final balanceData = result.data?['getPointBalance'];
+      final balanceData = response.data?['getPointBalance'];
       if (balanceData == null) {
-        throw const app_exceptions.ServerException(message: 'Point balance not found');
+        throw const ServerException(message: 'Point balance not found');
       }
 
       return PointBalance.fromJson(balanceData);
+    } on AppException {
+      rethrow;
     } catch (e) {
-      if (e is app_exceptions.AppException) rethrow;
-      throw app_exceptions.NetworkException(
-          message: 'Failed to fetch point balance: ${e.toString()}');
+      throw NetworkException(message: 'Failed to fetch point balance: ${e.toString()}');
     }
   }
 
@@ -300,33 +309,30 @@ class RewardRemoteDataSource {
     ''';
 
     try {
-      final result = await client.query(
-        QueryOptions(
-          document: gql(query),
-          variables: {
-            'groupId': groupId,
-            'limit': limit,
-            'offset': offset,
-          },
-          fetchPolicy: FetchPolicy.networkOnly,
+      final gqlRequest = Request(
+        operation: Operation(
+          document: gql_lang.parseString(query),
+          operationName: 'GetPointTransactionHistory',
         ),
+        variables: {'groupId': groupId, 'limit': limit, 'offset': offset},
       );
 
-      if (result.hasException) {
-        _handleGraphQLException(result.exception!);
+      final response = await GraphQLClientConfig.request(gqlRequest);
+
+      if (response.errors != null && response.errors!.isNotEmpty) {
+        _handleGraphQLErrors(response.errors!);
       }
 
-      final historyData = result.data?['getPointTransactionHistory'];
+      final historyData = response.data?['getPointTransactionHistory'];
       if (historyData == null) {
-        throw const app_exceptions.ServerException(
-            message: 'Transaction history not found');
+        throw const ServerException(message: 'Transaction history not found');
       }
 
       return PointTransactionHistory.fromJson(historyData);
+    } on AppException {
+      rethrow;
     } catch (e) {
-      if (e is app_exceptions.AppException) rethrow;
-      throw app_exceptions.NetworkException(
-          message: 'Failed to fetch transaction history: ${e.toString()}');
+      throw NetworkException(message: 'Failed to fetch transaction history: ${e.toString()}');
     }
   }
 
@@ -356,37 +362,39 @@ class RewardRemoteDataSource {
     ''';
 
     try {
-      final result = await client.mutate(
-        MutationOptions(
-          document: gql(mutation),
-          variables: {
-            'input': {
-              'groupId': groupId,
-              'name': name,
-              'cost': cost,
-              if (description != null) 'description': description,
-              if (imageUrl != null) 'imageUrl': imageUrl,
-              if (isActive != null) 'isActive': isActive,
-            },
-          },
-          fetchPolicy: FetchPolicy.networkOnly,
+      final gqlRequest = Request(
+        operation: Operation(
+          document: gql_lang.parseString(mutation),
+          operationName: 'CreateReward',
         ),
+        variables: {
+          'input': {
+            'groupId': groupId,
+            'name': name,
+            'cost': cost,
+            if (description != null) 'description': description,
+            if (imageUrl != null) 'imageUrl': imageUrl,
+            if (isActive != null) 'isActive': isActive,
+          },
+        },
       );
 
-      if (result.hasException) {
-        _handleGraphQLException(result.exception!);
+      final response = await GraphQLClientConfig.request(gqlRequest);
+
+      if (response.errors != null && response.errors!.isNotEmpty) {
+        _handleGraphQLErrors(response.errors!);
       }
 
-      final rewardData = result.data?['createReward'];
+      final rewardData = response.data?['createReward'];
       if (rewardData == null) {
-        throw const app_exceptions.ServerException(message: 'Create reward response is null');
+        throw const ServerException(message: 'Create reward response is null');
       }
 
       return Reward.fromJson(rewardData);
+    } on AppException {
+      rethrow;
     } catch (e) {
-      if (e is app_exceptions.AppException) rethrow;
-      throw app_exceptions.NetworkException(
-          message: 'Failed to create reward: ${e.toString()}');
+      throw NetworkException(message: 'Failed to create reward: ${e.toString()}');
     }
   }
 
@@ -417,46 +425,45 @@ class RewardRemoteDataSource {
     ''';
 
     try {
-      final result = await client.mutate(
-        MutationOptions(
-          document: gql(mutation),
-          variables: {
-            'input': {
-              'rewardId': rewardId,
-              'groupId': groupId,
-              if (name != null) 'name': name,
-              if (cost != null) 'cost': cost,
-              if (description != null) 'description': description,
-              if (imageUrl != null) 'imageUrl': imageUrl,
-              if (isActive != null) 'isActive': isActive,
-            },
-          },
-          fetchPolicy: FetchPolicy.networkOnly,
+      final gqlRequest = Request(
+        operation: Operation(
+          document: gql_lang.parseString(mutation),
+          operationName: 'UpdateReward',
         ),
+        variables: {
+          'input': {
+            'rewardId': rewardId,
+            'groupId': groupId,
+            if (name != null) 'name': name,
+            if (cost != null) 'cost': cost,
+            if (description != null) 'description': description,
+            if (imageUrl != null) 'imageUrl': imageUrl,
+            if (isActive != null) 'isActive': isActive,
+          },
+        },
       );
 
-      if (result.hasException) {
-        _handleGraphQLException(result.exception!);
+      final response = await GraphQLClientConfig.request(gqlRequest);
+
+      if (response.errors != null && response.errors!.isNotEmpty) {
+        _handleGraphQLErrors(response.errors!);
       }
 
-      final rewardData = result.data?['updateReward'];
+      final rewardData = response.data?['updateReward'];
       if (rewardData == null) {
-        throw const app_exceptions.ServerException(message: 'Update reward response is null');
+        throw const ServerException(message: 'Update reward response is null');
       }
 
       return Reward.fromJson(rewardData);
+    } on AppException {
+      rethrow;
     } catch (e) {
-      if (e is app_exceptions.AppException) rethrow;
-      throw app_exceptions.NetworkException(
-          message: 'Failed to update reward: ${e.toString()}');
+      throw NetworkException(message: 'Failed to update reward: ${e.toString()}');
     }
   }
 
   // Delete reward (admin only)
-  Future<bool> deleteReward({
-    required String rewardId,
-    required String groupId,
-  }) async {
+  Future<bool> deleteReward({required String rewardId, required String groupId}) async {
     const mutation = r'''
       mutation DeleteReward($rewardId: String!, $groupId: String!) {
         deleteReward(rewardId: $rewardId, groupId: $groupId)
@@ -464,26 +471,25 @@ class RewardRemoteDataSource {
     ''';
 
     try {
-      final result = await client.mutate(
-        MutationOptions(
-          document: gql(mutation),
-          variables: {
-            'rewardId': rewardId,
-            'groupId': groupId,
-          },
-          fetchPolicy: FetchPolicy.networkOnly,
+      final gqlRequest = Request(
+        operation: Operation(
+          document: gql_lang.parseString(mutation),
+          operationName: 'DeleteReward',
         ),
+        variables: {'rewardId': rewardId, 'groupId': groupId},
       );
 
-      if (result.hasException) {
-        _handleGraphQLException(result.exception!);
+      final response = await GraphQLClientConfig.request(gqlRequest);
+
+      if (response.errors != null && response.errors!.isNotEmpty) {
+        _handleGraphQLErrors(response.errors!);
       }
 
-      return result.data?['deleteReward'] ?? false;
+      return response.data?['deleteReward'] ?? false;
+    } on AppException {
+      rethrow;
     } catch (e) {
-      if (e is app_exceptions.AppException) rethrow;
-      throw app_exceptions.NetworkException(
-          message: 'Failed to delete reward: ${e.toString()}');
+      throw NetworkException(message: 'Failed to delete reward: ${e.toString()}');
     }
   }
 
@@ -507,28 +513,30 @@ class RewardRemoteDataSource {
     ''';
 
     try {
-      final result = await client.query(
-        QueryOptions(
-          document: gql(query),
-          variables: {'groupId': groupId},
-          fetchPolicy: FetchPolicy.networkOnly,
+      final gqlRequest = Request(
+        operation: Operation(
+          document: gql_lang.parseString(query),
+          operationName: 'GetGroupRewardRequests',
         ),
+        variables: {'groupId': groupId},
       );
 
-      if (result.hasException) {
-        _handleGraphQLException(result.exception!);
+      final response = await GraphQLClientConfig.request(gqlRequest);
+
+      if (response.errors != null && response.errors!.isNotEmpty) {
+        _handleGraphQLErrors(response.errors!);
       }
 
-      final List<dynamic> requestsData = result.data?['getGroupRewardRequests'] ?? [];
+      final List<dynamic> requestsData = response.data?['getGroupRewardRequests'] ?? [];
       return requestsData.map((json) {
         final Map<String, dynamic> map = Map<String, dynamic>.from(json as Map);
         map['groupId'] = groupId; // server doesn't expose groupId on RewardTransactionType
         return RewardTransaction.fromJson(map);
       }).toList();
+    } on AppException {
+      rethrow;
     } catch (e) {
-      if (e is app_exceptions.AppException) rethrow;
-      throw app_exceptions.NetworkException(
-          message: 'Failed to fetch group reward requests: ${e.toString()}');
+      throw NetworkException(message: 'Failed to fetch group reward requests: ${e.toString()}');
     }
   }
 
@@ -556,59 +564,52 @@ class RewardRemoteDataSource {
     ''';
 
     try {
-      final result = await client.mutate(
-        MutationOptions(
-          document: gql(mutation),
-          variables: {
-            'input': {
-              'requestId': requestId,
-              'approved': approved,
-              if (reason != null) 'reason': reason,
-            },
-          },
-          fetchPolicy: FetchPolicy.networkOnly,
+      final gqlRequest = Request(
+        operation: Operation(
+          document: gql_lang.parseString(mutation),
+          operationName: 'ApproveRewardRequest',
         ),
+        variables: {
+          'input': {
+            'requestId': requestId,
+            'approved': approved,
+            if (reason != null) 'reason': reason,
+          },
+        },
       );
 
-      if (result.hasException) {
-        _handleGraphQLException(result.exception!);
+      final response = await GraphQLClientConfig.request(gqlRequest);
+
+      if (response.errors != null && response.errors!.isNotEmpty) {
+        _handleGraphQLErrors(response.errors!);
       }
 
-      final transactionData = result.data?['approveRewardRequest'];
+      final transactionData = response.data?['approveRewardRequest'];
       if (transactionData == null) {
-        throw const app_exceptions.ServerException(
-            message: 'Approve reward request response is null');
+        throw const ServerException(message: 'Approve reward request response is null');
       }
 
       return RewardTransaction.fromJson(transactionData);
+    } on AppException {
+      rethrow;
     } catch (e) {
-      if (e is app_exceptions.AppException) rethrow;
-      throw app_exceptions.NetworkException(
-          message: 'Failed to approve/reject reward request: ${e.toString()}');
+      throw NetworkException(message: 'Failed to approve/reject reward request: ${e.toString()}');
     }
   }
 
-  void _handleGraphQLException(OperationException exception) {
-    if (exception.linkException != null) {
-      throw app_exceptions.NetworkException(
-        message: 'Network error: ${exception.linkException!.toString()}',
-      );
+  void _handleGraphQLErrors(List<GraphQLError> errors) {
+    if (errors.isEmpty) return;
+
+    final error = errors.first;
+    final message = error.message;
+    final code = error.extensions?['code'] as String?;
+
+    if (code == 'UNAUTHENTICATED' || code == 'FORBIDDEN') {
+      throw AuthException(message: message, code: code);
+    } else if (code == 'VALIDATION_ERROR') {
+      throw ValidationException(message: message, code: code);
+    } else {
+      throw ServerException(message: message, code: code);
     }
-
-    if (exception.graphqlErrors.isNotEmpty) {
-      final error = exception.graphqlErrors.first;
-      final message = error.message;
-      final code = error.extensions?['code'] as String?;
-
-      if (code == 'UNAUTHENTICATED' || code == 'FORBIDDEN') {
-        throw app_exceptions.AuthException(message: message, code: code);
-      } else if (code == 'VALIDATION_ERROR') {
-        throw app_exceptions.ValidationException(message: message, code: code);
-      } else {
-        throw app_exceptions.ServerException(message: message, code: code);
-      }
-    }
-
-    throw const app_exceptions.ServerException(message: 'Unknown server error');
   }
 }

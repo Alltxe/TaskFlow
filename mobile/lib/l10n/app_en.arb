@@ -469,5 +469,16 @@
     "insufficientPointsShort": "Not enough",
     "create": "Create",
     "save": "Save",
-    "delete": "Delete"
+    "delete": "Delete",
+    "error": "Error",
+    "networkError": "No internet connection. Please check your network settings.",
+    "timeoutError": "Request timeout. Please try again.",
+    "serverError": "Server error. Please try again later.",
+    "authError": "Authentication failed. Please log in again.",
+    "validationError": "Invalid data. Please check your input.",
+    "notFoundError": "Resource not found.",
+    "permissionError": "Permission denied.",
+    "unknownError": "An unexpected error occurred. Please try again.",
+    "retry": "Retry",
+    "dismiss": "Dismiss"
 }

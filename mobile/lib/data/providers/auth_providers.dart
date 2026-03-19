@@ -1,14 +1,21 @@
 ﻿import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:taskflow/core/errors/exceptions.dart';
+import 'package:taskflow/core/events/app_events.dart';
 import 'package:taskflow/data/datasources/auth_local_datasource.dart';
 import 'package:taskflow/data/datasources/auth_remote_datasource.dart';
 import 'package:taskflow/data/models/login_request.dart';
 import 'package:taskflow/data/models/register_request.dart';
 import 'package:taskflow/data/models/user.dart';
-import 'package:taskflow/data/providers/graphql_provider.dart';
 import 'package:taskflow/data/repositories/auth_repository.dart';
 import 'package:taskflow/data/repositories/auth_repository_impl.dart';
+
+/// Provider for secure storage
+final secureStorageProvider = Provider<FlutterSecureStorage>((ref) {
+  return const FlutterSecureStorage();
+});
 
 /// Auth state enum
 enum AuthStatus { authenticated, unauthenticated, loading }
@@ -36,8 +43,7 @@ class AuthState {
 
 /// Provider for AuthRemoteDataSource
 final authRemoteDataSourceProvider = Provider<AuthRemoteDataSource>((ref) {
-  final client = ref.watch(graphqlClientProvider);
-  return AuthRemoteDataSource(client);
+  return AuthRemoteDataSource();
 });
 
 /// Provider for AuthLocalDataSource
@@ -97,9 +103,8 @@ class AuthStateNotifier extends StateNotifier<AuthState> {
       final response = await _authRepository.login(LoginRequest(email: email, password: password));
       state = AuthState.authenticated(response.user);
     } catch (e) {
-      // Don't change state immediately - let UI show error first
-      // State will be reset by UI after showing error message
-      rethrow;
+      // Store error in state - UI will react via ref.listen
+      state = AuthState.unauthenticated(e is AppException ? e.message : e.toString());
     }
   }
 
@@ -117,9 +122,8 @@ class AuthStateNotifier extends StateNotifier<AuthState> {
       );
       state = AuthState.authenticated(response.user);
     } catch (e) {
-      // Don't change state immediately - let UI show error first
-      // State will be reset by UI after showing error message
-      rethrow;
+      // Store error in state - UI will react via ref.listen
+      state = AuthState.unauthenticated(e is AppException ? e.message : e.toString());
     }
   }
 

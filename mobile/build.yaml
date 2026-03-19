@@ -1,0 +1,17 @@
+targets:
+  $default:
+    sources:
+      - $package$
+      - lib/**
+      - test/**
+    builders:
+      freezed:freezed:
+        enabled: true
+      json_serializable:json_serializable:
+        enabled: true
+      hive_generator:hive_generator:
+        enabled: true
+      mockito:mockBuilder:
+        enabled: true
+        generate_for:
+          - test/**/*_test.dart

@@ -384,5 +384,16 @@
     "rotationTypeRandom": "Случайно",
     "rotationTypeLoadBalancing": "Балансировка нагрузки",
     "rotationTypeDisabled": "Отключено (Вручную)",
-    "pleaseSelectDeadline": "Пожалуйста, выберите срок"
+    "pleaseSelectDeadline": "Пожалуйста, выберите срок",
+    "error": "Ошибка",
+    "networkError": "Нет подключения к интернету. Проверьте настройки сети.",
+    "timeoutError": "Превышено время ожидания. Попробуйте еще раз.",
+    "serverError": "Ошибка сервера. Попробуйте позже.",
+    "authError": "Ошибка авторизации. Войдите снова.",
+    "validationError": "Некорректные данные. Проверьте ввод.",
+    "notFoundError": "Ресурс не найден.",
+    "permissionError": "Доступ запрещен.",
+    "unknownError": "Произошла непредвиденная ошибка. Попробуйте еще раз.",
+    "retry": "Повторить",
+    "dismiss": "Закрыть"
 }

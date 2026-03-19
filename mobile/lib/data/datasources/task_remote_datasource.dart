@@ -1,13 +1,13 @@
-﻿import 'package:graphql_flutter/graphql_flutter.dart';
+﻿import 'package:gql/language.dart' as gql_lang;
+import 'package:gql_exec/gql_exec.dart';
+import 'package:taskflow/core/config/graphql_client.dart';
 import 'package:taskflow/core/errors/exceptions.dart' as app_exceptions;
 import 'package:taskflow/data/models/create_task_request.dart';
 import 'package:taskflow/data/models/task.dart';
 import 'package:taskflow/data/models/update_task_request.dart';
 
 class TaskRemoteDataSource {
-  final GraphQLClient client;
-
-  TaskRemoteDataSource(this.client);
+  TaskRemoteDataSource();
 
   // GraphQL Fragments
   // Backend returns GroupMemberUserType for assignee/createdBy in TaskType
@@ -67,20 +67,22 @@ class TaskRemoteDataSource {
       print('[GetGroupTasks] Request - groupId: $groupId, status: $status');
       print('[GetGroupTasks] Variables: $variables');
 
-      final result = await client.query(
-        QueryOptions(
-          document: gql(query + _taskFragment + _userFragment),
-          variables: variables,
-          fetchPolicy: FetchPolicy.networkOnly,
+      final gqlRequest = Request(
+        operation: Operation(
+          document: gql_lang.parseString(query + _taskFragment + _userFragment),
+          operationName: 'GetGroupTasks',
         ),
+        variables: variables,
       );
 
-      if (result.hasException) {
-        print('[GetGroupTasks] Exception: ${result.exception}');
-        _handleGraphQLException(result.exception!);
+      final response = await GraphQLClientConfig.request(gqlRequest);
+
+      if (response.errors != null && response.errors!.isNotEmpty) {
+        print('[GetGroupTasks] GraphQL Errors: ${response.errors}');
+        _handleGraphQLErrors(response.errors!);
       }
 
-      final List<dynamic> tasksData = result.data?['getGroupTasks'] ?? [];
+      final List<dynamic> tasksData = response.data?['getGroupTasks'] ?? [];
       print('[GetGroupTasks] Success - received ${tasksData.length} tasks');
       return tasksData.map((json) => Task.fromJson(json)).toList();
     } catch (e) {
@@ -102,25 +104,21 @@ class TaskRemoteDataSource {
     ''';
 
     try {
-      final result = await client.query(
-        QueryOptions(
-          document: gql(query + _taskFragment + _userFragment),
-          variables: {if (status != null) 'status': status},
-          fetchPolicy: FetchPolicy.networkOnly,
+      final gqlRequest = Request(
+        operation: Operation(
+          document: gql_lang.parseString(query + _taskFragment + _userFragment),
+          operationName: 'GetUserTasks',
         ),
+        variables: {if (status != null) 'status': status},
       );
 
-      if (result.hasException) {
-        _handleGraphQLException(result.exception!);
-      }
+      final response = await GraphQLClientConfig.request(gqlRequest);
 
-      final List<dynamic> tasksData = result.data?['getUserTasks'] ?? [];
+      final List<dynamic> tasksData = response.data?['getUserTasks'] ?? [];
       return tasksData.map((json) => Task.fromJson(json)).toList();
     } catch (e) {
       if (e is app_exceptions.AppException) rethrow;
-      throw app_exceptions.NetworkException(
-        message: 'Failed to fetch user tasks: ${e.toString()}',
-      );
+      throw app_exceptions.NetworkException(message: 'Failed to fetch user tasks: ${e.toString()}');
     }
   }
 
@@ -134,19 +132,21 @@ class TaskRemoteDataSource {
     ''';
 
     try {
-      final result = await client.query(
-        QueryOptions(
-          document: gql(query + _taskFragment + _userFragment),
-          variables: {'taskId': taskId},
-          fetchPolicy: FetchPolicy.networkOnly,
+      final gqlRequest = Request(
+        operation: Operation(
+          document: gql_lang.parseString(query + _taskFragment + _userFragment),
+          operationName: 'GetTask',
         ),
+        variables: {'taskId': taskId},
       );
 
-      if (result.hasException) {
-        _handleGraphQLException(result.exception!);
+      final response = await GraphQLClientConfig.request(gqlRequest);
+
+      if (response.errors != null && response.errors!.isNotEmpty) {
+        _handleGraphQLErrors(response.errors!);
       }
 
-      final taskData = result.data?['getTask'];
+      final taskData = response.data?['getTask'];
       if (taskData == null) {
         throw const app_exceptions.ServerException(message: 'Task not found');
       }
@@ -154,9 +154,7 @@ class TaskRemoteDataSource {
       return Task.fromJson(taskData);
     } catch (e) {
       if (e is app_exceptions.AppException) rethrow;
-      throw app_exceptions.NetworkException(
-        message: 'Failed to fetch task: ${e.toString()}',
-      );
+      throw app_exceptions.NetworkException(message: 'Failed to fetch task: ${e.toString()}');
     }
   }
 
@@ -175,32 +173,31 @@ class TaskRemoteDataSource {
       final inputJson = request.toJson();
       print('[CreateTask] Request JSON: $inputJson');
 
-      final result = await client.mutate(
-        MutationOptions(
-          document: gql(mutation + _taskFragment + _userFragment),
-          variables: {'input': inputJson},
+      final gqlRequest = Request(
+        operation: Operation(
+          document: gql_lang.parseString(mutation + _taskFragment + _userFragment),
+          operationName: 'CreateTask',
         ),
+        variables: {'input': inputJson},
       );
 
-      if (result.hasException) {
-        print('[CreateTask] Exception: ${result.exception}');
-        _handleGraphQLException(result.exception!);
+      final response = await GraphQLClientConfig.request(gqlRequest);
+
+      if (response.errors != null && response.errors!.isNotEmpty) {
+        print('[CreateTask] GraphQL Errors: ${response.errors}');
+        _handleGraphQLErrors(response.errors!);
       }
 
-      final taskData = result.data?['createTask'];
+      final taskData = response.data?['createTask'];
       if (taskData == null) {
-        throw const app_exceptions.ServerException(
-          message: 'Failed to create task',
-        );
+        throw const app_exceptions.ServerException(message: 'Failed to create task');
       }
 
       return Task.fromJson(taskData);
     } catch (e) {
       print('[CreateTask] Error: $e');
       if (e is app_exceptions.AppException) rethrow;
-      throw app_exceptions.NetworkException(
-        message: 'Failed to create task: ${e.toString()}',
-      );
+      throw app_exceptions.NetworkException(message: 'Failed to create task: ${e.toString()}');
     }
   }
 
@@ -214,30 +211,29 @@ class TaskRemoteDataSource {
     ''';
 
     try {
-      final result = await client.mutate(
-        MutationOptions(
-          document: gql(mutation + _taskFragment + _userFragment),
-          variables: {'taskId': taskId, 'input': request.toJson()},
+      final gqlRequest = Request(
+        operation: Operation(
+          document: gql_lang.parseString(mutation + _taskFragment + _userFragment),
+          operationName: 'UpdateTask',
         ),
+        variables: {'taskId': taskId, 'input': request.toJson()},
       );
 
-      if (result.hasException) {
-        _handleGraphQLException(result.exception!);
+      final response = await GraphQLClientConfig.request(gqlRequest);
+
+      if (response.errors != null && response.errors!.isNotEmpty) {
+        _handleGraphQLErrors(response.errors!);
       }
 
-      final taskData = result.data?['updateTask'];
+      final taskData = response.data?['updateTask'];
       if (taskData == null) {
-        throw const app_exceptions.ServerException(
-          message: 'Failed to update task',
-        );
+        throw const app_exceptions.ServerException(message: 'Failed to update task');
       }
 
       return Task.fromJson(taskData);
     } catch (e) {
       if (e is app_exceptions.AppException) rethrow;
-      throw app_exceptions.NetworkException(
-        message: 'Failed to update task: ${e.toString()}',
-      );
+      throw app_exceptions.NetworkException(message: 'Failed to update task: ${e.toString()}');
     }
   }
 
@@ -249,18 +245,19 @@ class TaskRemoteDataSource {
     ''';
 
     try {
-      final result = await client.mutate(
-        MutationOptions(document: gql(mutation), variables: {'taskId': taskId}),
+      final gqlRequest = Request(
+        operation: Operation(document: gql_lang.parseString(mutation), operationName: 'DeleteTask'),
+        variables: {'taskId': taskId},
       );
 
-      if (result.hasException) {
-        _handleGraphQLException(result.exception!);
+      final response = await GraphQLClientConfig.request(gqlRequest);
+
+      if (response.errors != null && response.errors!.isNotEmpty) {
+        _handleGraphQLErrors(response.errors!);
       }
     } catch (e) {
       if (e is app_exceptions.AppException) rethrow;
-      throw app_exceptions.NetworkException(
-        message: 'Failed to delete task: ${e.toString()}',
-      );
+      throw app_exceptions.NetworkException(message: 'Failed to delete task: ${e.toString()}');
     }
   }
 
@@ -274,32 +271,31 @@ class TaskRemoteDataSource {
     ''';
 
     try {
-      final result = await client.mutate(
-        MutationOptions(
-          document: gql(mutation + _taskFragment + _userFragment),
-          variables: {
-            'input': {'taskId': taskId},
-          },
+      final gqlRequest = Request(
+        operation: Operation(
+          document: gql_lang.parseString(mutation + _taskFragment + _userFragment),
+          operationName: 'ClaimTask',
         ),
+        variables: {
+          'input': {'taskId': taskId},
+        },
       );
 
-      if (result.hasException) {
-        _handleGraphQLException(result.exception!);
+      final response = await GraphQLClientConfig.request(gqlRequest);
+
+      if (response.errors != null && response.errors!.isNotEmpty) {
+        _handleGraphQLErrors(response.errors!);
       }
 
-      final taskData = result.data?['claimTask'];
+      final taskData = response.data?['claimTask'];
       if (taskData == null) {
-        throw const app_exceptions.ServerException(
-          message: 'Failed to claim task',
-        );
+        throw const app_exceptions.ServerException(message: 'Failed to claim task');
       }
 
       return Task.fromJson(taskData);
     } catch (e) {
       if (e is app_exceptions.AppException) rethrow;
-      throw app_exceptions.NetworkException(
-        message: 'Failed to claim task: ${e.toString()}',
-      );
+      throw app_exceptions.NetworkException(message: 'Failed to claim task: ${e.toString()}');
     }
   }
 
@@ -313,40 +309,35 @@ class TaskRemoteDataSource {
     ''';
 
     try {
-      final result = await client.mutate(
-        MutationOptions(
-          document: gql(mutation + _taskFragment + _userFragment),
-          variables: {
-            'input': {'taskId': taskId},
-          },
+      final gqlRequest = Request(
+        operation: Operation(
+          document: gql_lang.parseString(mutation + _taskFragment + _userFragment),
+          operationName: 'CompleteTask',
         ),
+        variables: {
+          'input': {'taskId': taskId},
+        },
       );
 
-      if (result.hasException) {
-        _handleGraphQLException(result.exception!);
+      final response = await GraphQLClientConfig.request(gqlRequest);
+
+      if (response.errors != null && response.errors!.isNotEmpty) {
+        _handleGraphQLErrors(response.errors!);
       }
 
-      final taskData = result.data?['completeTask'];
+      final taskData = response.data?['completeTask'];
       if (taskData == null) {
-        throw const app_exceptions.ServerException(
-          message: 'Failed to complete task',
-        );
+        throw const app_exceptions.ServerException(message: 'Failed to complete task');
       }
 
       return Task.fromJson(taskData);
     } catch (e) {
       if (e is app_exceptions.AppException) rethrow;
-      throw app_exceptions.NetworkException(
-        message: 'Failed to complete task: ${e.toString()}',
-      );
+      throw app_exceptions.NetworkException(message: 'Failed to complete task: ${e.toString()}');
     }
   }
 
-  Future<Task> approveTask(
-    String taskId,
-    bool approved, {
-    String? rejectionReason,
-  }) async {
+  Future<Task> approveTask(String taskId, bool approved, {String? rejectionReason}) async {
     const mutation = r'''
       mutation ApproveTask($input: ApproveTaskInput!) {
         approveTask(input: $input) {
@@ -356,28 +347,29 @@ class TaskRemoteDataSource {
     ''';
 
     try {
-      final result = await client.mutate(
-        MutationOptions(
-          document: gql(mutation + _taskFragment + _userFragment),
-          variables: {
-            'input': {
-              'taskId': taskId,
-              'approved': approved,
-              if (rejectionReason != null) 'rejectionReason': rejectionReason,
-            },
-          },
+      final gqlRequest = Request(
+        operation: Operation(
+          document: gql_lang.parseString(mutation + _taskFragment + _userFragment),
+          operationName: 'ApproveTask',
         ),
+        variables: {
+          'input': {
+            'taskId': taskId,
+            'approved': approved,
+            if (rejectionReason != null) 'rejectionReason': rejectionReason,
+          },
+        },
       );
 
-      if (result.hasException) {
-        _handleGraphQLException(result.exception!);
+      final response = await GraphQLClientConfig.request(gqlRequest);
+
+      if (response.errors != null && response.errors!.isNotEmpty) {
+        _handleGraphQLErrors(response.errors!);
       }
 
-      final taskData = result.data?['approveTask'];
+      final taskData = response.data?['approveTask'];
       if (taskData == null) {
-        throw const app_exceptions.ServerException(
-          message: 'Failed to approve/reject task',
-        );
+        throw const app_exceptions.ServerException(message: 'Failed to approve/reject task');
       }
 
       return Task.fromJson(taskData);
@@ -391,27 +383,19 @@ class TaskRemoteDataSource {
 
   // Error handling
 
-  void _handleGraphQLException(OperationException exception) {
-    if (exception.linkException != null) {
-      throw app_exceptions.NetworkException(
-        message: 'Network error: ${exception.linkException!.toString()}',
-      );
+  void _handleGraphQLErrors(List<GraphQLError> errors) {
+    if (errors.isEmpty) return;
+
+    final error = errors.first;
+    final message = error.message;
+    final code = error.extensions?['code'] as String?;
+
+    if (code == 'UNAUTHENTICATED' || code == 'FORBIDDEN') {
+      throw app_exceptions.AuthException(message: message, code: code);
+    } else if (code == 'VALIDATION_ERROR') {
+      throw app_exceptions.ValidationException(message: message, code: code);
+    } else {
+      throw app_exceptions.ServerException(message: message, code: code);
     }
-
-    if (exception.graphqlErrors.isNotEmpty) {
-      final error = exception.graphqlErrors.first;
-      final message = error.message;
-      final code = error.extensions?['code'] as String?;
-
-      if (code == 'UNAUTHENTICATED' || code == 'FORBIDDEN') {
-        throw app_exceptions.AuthException(message: message, code: code);
-      } else if (code == 'VALIDATION_ERROR') {
-        throw app_exceptions.ValidationException(message: message, code: code);
-      } else {
-        throw app_exceptions.ServerException(message: message, code: code);
-      }
-    }
-
-    throw const app_exceptions.ServerException(message: 'Unknown server error');
   }
 }

@@ -1129,4 +1129,36 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get delete => 'Delete';
+
+  @override
+  String get error => 'Ошибка';
+
+  @override
+  String get networkError =>
+      'Нет подключения к интернету. Проверьте настройки сети.';
+
+  @override
+  String get timeoutError => 'Превышено время ожидания. Попробуйте еще раз.';
+
+  @override
+  String get serverError => 'Ошибка сервера. Попробуйте позже.';
+
+  @override
+  String get authError => 'Ошибка авторизации. Войдите снова.';
+
+  @override
+  String get validationError => 'Некорректные данные. Проверьте ввод.';
+
+  @override
+  String get notFoundError => 'Ресурс не найден.';
+
+  @override
+  String get permissionError => 'Доступ запрещен.';
+
+  @override
+  String get unknownError =>
+      'Произошла непредвиденная ошибка. Попробуйте еще раз.';
+
+  @override
+  String get dismiss => 'Закрыть';
 }

@@ -3,8 +3,8 @@ import { cacheExchange } from '@urql/exchange-graphcache'
 import { createClient as createWSClient } from 'graphql-ws'
 
 // API URLs
-const API_URL = 'http://91.184.253.90:3000/graphql'
-const WS_URL = 'ws://91.184.253.90:3000/graphql'
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3100/graphql'
+const WS_URL = import.meta.env.VITE_WS_URL || 'ws://localhost:3100/graphql'
 
 // Function to get access token from localStorage
 // We'll use authStore's persisted state

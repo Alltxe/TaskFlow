@@ -1,6 +1,5 @@
 ﻿import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:taskflow/data/datasources/profile_remote_datasource.dart';
-import 'package:taskflow/data/providers/graphql_provider.dart';
 import 'package:taskflow/data/repositories/profile_repository.dart';
 import 'package:taskflow/data/repositories/profile_repository_impl.dart';
 import 'package:taskflow/domain/usecases/profile/get_user_groups_usecase.dart';
@@ -11,8 +10,7 @@ import 'package:taskflow/domain/usecases/profile/upload_avatar_usecase.dart';
 
 /// Provider for ProfileRemoteDataSource
 final profileRemoteDataSourceProvider = Provider<ProfileRemoteDataSource>((ref) {
-  final graphQLClient = ref.watch(graphqlClientProvider);
-  return ProfileRemoteDataSource(graphQLClient);
+  return ProfileRemoteDataSource();
 });
 
 /// Provider for ProfileRepository

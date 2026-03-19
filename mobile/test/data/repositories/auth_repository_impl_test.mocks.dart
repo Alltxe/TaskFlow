@@ -6,15 +6,14 @@
 import 'dart:async' as _i7;
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart' as _i5;
-import 'package:graphql_flutter/graphql_flutter.dart' as _i2;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:taskflow/data/datasources/auth_local_datasource.dart' as _i10;
 import 'package:taskflow/data/datasources/auth_remote_datasource.dart' as _i6;
-import 'package:taskflow/data/models/auth_response.dart' as _i3;
-import 'package:taskflow/data/models/auth_tokens.dart' as _i4;
+import 'package:taskflow/data/models/auth_response.dart' as _i2;
+import 'package:taskflow/data/models/auth_tokens.dart' as _i3;
 import 'package:taskflow/data/models/login_request.dart' as _i8;
 import 'package:taskflow/data/models/register_request.dart' as _i9;
-import 'package:taskflow/data/models/user.dart' as _i11;
+import 'package:taskflow/data/models/user.dart' as _i4;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -29,8 +28,8 @@ import 'package:taskflow/data/models/user.dart' as _i11;
 // ignore_for_file: camel_case_types
 // ignore_for_file: subtype_of_sealed_class
 
-class _FakeGraphQLClient_0 extends _i1.SmartFake implements _i2.GraphQLClient {
-  _FakeGraphQLClient_0(
+class _FakeAuthResponse_0 extends _i1.SmartFake implements _i2.AuthResponse {
+  _FakeAuthResponse_0(
     Object parent,
     Invocation parentInvocation,
   ) : super(
@@ -39,8 +38,8 @@ class _FakeGraphQLClient_0 extends _i1.SmartFake implements _i2.GraphQLClient {
         );
 }
 
-class _FakeAuthResponse_1 extends _i1.SmartFake implements _i3.AuthResponse {
-  _FakeAuthResponse_1(
+class _FakeAuthTokens_1 extends _i1.SmartFake implements _i3.AuthTokens {
+  _FakeAuthTokens_1(
     Object parent,
     Invocation parentInvocation,
   ) : super(
@@ -49,8 +48,8 @@ class _FakeAuthResponse_1 extends _i1.SmartFake implements _i3.AuthResponse {
         );
 }
 
-class _FakeAuthTokens_2 extends _i1.SmartFake implements _i4.AuthTokens {
-  _FakeAuthTokens_2(
+class _FakeUser_2 extends _i1.SmartFake implements _i4.User {
+  _FakeUser_2(
     Object parent,
     Invocation parentInvocation,
   ) : super(
@@ -80,76 +79,104 @@ class MockAuthRemoteDataSource extends _i1.Mock
   }
 
   @override
-  _i2.GraphQLClient get client => (super.noSuchMethod(
-        Invocation.getter(#client),
-        returnValue: _FakeGraphQLClient_0(
-          this,
-          Invocation.getter(#client),
-        ),
-      ) as _i2.GraphQLClient);
-
-  @override
-  _i7.Future<_i3.AuthResponse> login(_i8.LoginRequest? request) =>
+  _i7.Future<_i2.AuthResponse> login(_i8.LoginRequest? request) =>
       (super.noSuchMethod(
         Invocation.method(
           #login,
           [request],
         ),
-        returnValue: _i7.Future<_i3.AuthResponse>.value(_FakeAuthResponse_1(
+        returnValue: _i7.Future<_i2.AuthResponse>.value(_FakeAuthResponse_0(
           this,
           Invocation.method(
             #login,
             [request],
           ),
         )),
-      ) as _i7.Future<_i3.AuthResponse>);
+      ) as _i7.Future<_i2.AuthResponse>);
 
   @override
-  _i7.Future<_i3.AuthResponse> register(_i9.RegisterRequest? request) =>
+  _i7.Future<_i2.AuthResponse> register(_i9.RegisterRequest? request) =>
       (super.noSuchMethod(
         Invocation.method(
           #register,
           [request],
         ),
-        returnValue: _i7.Future<_i3.AuthResponse>.value(_FakeAuthResponse_1(
+        returnValue: _i7.Future<_i2.AuthResponse>.value(_FakeAuthResponse_0(
           this,
           Invocation.method(
             #register,
             [request],
           ),
         )),
-      ) as _i7.Future<_i3.AuthResponse>);
+      ) as _i7.Future<_i2.AuthResponse>);
 
   @override
-  _i7.Future<_i4.AuthTokens> refreshToken(String? refreshToken) =>
+  _i7.Future<_i3.AuthTokens> refreshToken(String? refreshToken) =>
       (super.noSuchMethod(
         Invocation.method(
           #refreshToken,
           [refreshToken],
         ),
-        returnValue: _i7.Future<_i4.AuthTokens>.value(_FakeAuthTokens_2(
+        returnValue: _i7.Future<_i3.AuthTokens>.value(_FakeAuthTokens_1(
           this,
           Invocation.method(
             #refreshToken,
             [refreshToken],
           ),
         )),
-      ) as _i7.Future<_i4.AuthTokens>);
+      ) as _i7.Future<_i3.AuthTokens>);
 
   @override
-  _i7.Future<_i3.AuthResponse> getCurrentUser() => (super.noSuchMethod(
+  _i7.Future<void> logout(String? refreshToken) => (super.noSuchMethod(
+        Invocation.method(
+          #logout,
+          [refreshToken],
+        ),
+        returnValue: _i7.Future<void>.value(),
+        returnValueForMissingStub: _i7.Future<void>.value(),
+      ) as _i7.Future<void>);
+
+  @override
+  _i7.Future<void> logoutAll() => (super.noSuchMethod(
+        Invocation.method(
+          #logoutAll,
+          [],
+        ),
+        returnValue: _i7.Future<void>.value(),
+        returnValueForMissingStub: _i7.Future<void>.value(),
+      ) as _i7.Future<void>);
+
+  @override
+  _i7.Future<void> changePassword(
+    String? oldPassword,
+    String? newPassword,
+  ) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #changePassword,
+          [
+            oldPassword,
+            newPassword,
+          ],
+        ),
+        returnValue: _i7.Future<void>.value(),
+        returnValueForMissingStub: _i7.Future<void>.value(),
+      ) as _i7.Future<void>);
+
+  @override
+  _i7.Future<_i4.User> getCurrentUser() => (super.noSuchMethod(
         Invocation.method(
           #getCurrentUser,
           [],
         ),
-        returnValue: _i7.Future<_i3.AuthResponse>.value(_FakeAuthResponse_1(
+        returnValue: _i7.Future<_i4.User>.value(_FakeUser_2(
           this,
           Invocation.method(
             #getCurrentUser,
             [],
           ),
         )),
-      ) as _i7.Future<_i3.AuthResponse>);
+      ) as _i7.Future<_i4.User>);
 }
 
 /// A class which mocks [AuthLocalDataSource].
@@ -171,7 +198,7 @@ class MockAuthLocalDataSource extends _i1.Mock
       ) as _i5.FlutterSecureStorage);
 
   @override
-  _i7.Future<void> saveTokens(_i4.AuthTokens? tokens) => (super.noSuchMethod(
+  _i7.Future<void> saveTokens(_i3.AuthTokens? tokens) => (super.noSuchMethod(
         Invocation.method(
           #saveTokens,
           [tokens],
@@ -181,13 +208,13 @@ class MockAuthLocalDataSource extends _i1.Mock
       ) as _i7.Future<void>);
 
   @override
-  _i7.Future<_i4.AuthTokens?> getTokens() => (super.noSuchMethod(
+  _i7.Future<_i3.AuthTokens?> getTokens() => (super.noSuchMethod(
         Invocation.method(
           #getTokens,
           [],
         ),
-        returnValue: _i7.Future<_i4.AuthTokens?>.value(),
-      ) as _i7.Future<_i4.AuthTokens?>);
+        returnValue: _i7.Future<_i3.AuthTokens?>.value(),
+      ) as _i7.Future<_i3.AuthTokens?>);
 
   @override
   _i7.Future<void> deleteTokens() => (super.noSuchMethod(
@@ -200,7 +227,7 @@ class MockAuthLocalDataSource extends _i1.Mock
       ) as _i7.Future<void>);
 
   @override
-  _i7.Future<void> saveUser(_i11.User? user) => (super.noSuchMethod(
+  _i7.Future<void> saveUser(_i4.User? user) => (super.noSuchMethod(
         Invocation.method(
           #saveUser,
           [user],
@@ -210,13 +237,13 @@ class MockAuthLocalDataSource extends _i1.Mock
       ) as _i7.Future<void>);
 
   @override
-  _i7.Future<_i11.User?> getUser() => (super.noSuchMethod(
+  _i7.Future<_i4.User?> getUser() => (super.noSuchMethod(
         Invocation.method(
           #getUser,
           [],
         ),
-        returnValue: _i7.Future<_i11.User?>.value(),
-      ) as _i7.Future<_i11.User?>);
+        returnValue: _i7.Future<_i4.User?>.value(),
+      ) as _i7.Future<_i4.User?>);
 
   @override
   _i7.Future<void> deleteUser() => (super.noSuchMethod(
