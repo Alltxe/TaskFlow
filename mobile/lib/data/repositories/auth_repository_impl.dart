@@ -1,4 +1,5 @@
 ﻿import 'package:taskflow/core/errors/exceptions.dart';
+import 'package:taskflow/core/config/graphql_client.dart';
 import 'package:taskflow/data/datasources/auth_local_datasource.dart';
 import 'package:taskflow/data/datasources/auth_remote_datasource.dart';
 import 'package:taskflow/data/models/auth_response.dart';
@@ -23,6 +24,7 @@ class AuthRepositoryImpl implements AuthRepository {
       // Save tokens and user to local storage
       await localDataSource.saveTokens(response.tokens);
       await localDataSource.saveUser(response.user);
+      await GraphQLClientConfig.updateToken(response.tokens.accessToken);
 
       return response;
     } catch (e) {
@@ -38,6 +40,7 @@ class AuthRepositoryImpl implements AuthRepository {
       // Save tokens and user to local storage
       await localDataSource.saveTokens(response.tokens);
       await localDataSource.saveUser(response.user);
+      await GraphQLClientConfig.updateToken(response.tokens.accessToken);
 
       return response;
     } catch (e) {
@@ -50,6 +53,7 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       // Clear all local data
       await localDataSource.clearAll();
+      await GraphQLClientConfig.logout();
     } catch (e) {
       throw CacheException(message: 'Failed to logout: ${e.toString()}');
     }
@@ -77,6 +81,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
       // Save new tokens
       await localDataSource.saveTokens(newTokens);
+      await GraphQLClientConfig.updateToken(newTokens.accessToken);
 
       return newTokens;
     } catch (e) {

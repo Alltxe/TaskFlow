@@ -1,12 +1,25 @@
 ﻿import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:taskflow/l10n/app_localizations.dart';
 import 'package:taskflow/presentation/screens/auth/login_screen.dart';
 
 void main() {
   group('LoginScreen -', () {
     Widget createWidgetUnderTest() {
-      return const ProviderScope(child: MaterialApp(home: LoginScreen()));
+      return const ProviderScope(
+        child: MaterialApp(
+          localizationsDelegates: [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: LoginScreen(),
+        ),
+      );
     }
 
     testWidgets('should display email and password text fields', (tester) async {

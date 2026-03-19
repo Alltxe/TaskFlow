@@ -161,52 +161,24 @@ class GraphQLClientConfig {
 
   /// Execute a GraphQL request with timeout
   static Future<Response> request(Request gqlRequest) async {
-    Response? response;
-    Object? streamError;
-
     try {
       final link = getLink();
 
-      // Listen to the stream and handle errors properly
-      await for (final res
-          in link
-              .request(gqlRequest)
-              .timeout(
-                AppConfig.receiveTimeout,
-                onTimeout: (sink) {
-                  sink.addError(
-                    const TimeoutException(
-                      message: 'Request timeout. Please check your connection.',
-                    ),
-                  );
-                },
-              )
-              .handleError((error) {
-                _log('Stream error: $error');
-                streamError = error;
-              })) {
-        response = res;
-        break; // Get only first response
-      }
-
-      // If we got a stream error, handle it
-      if (streamError != null) {
-        final errorStr = streamError.toString();
-        _log('Handling stream error: $errorStr');
-
-        // Check if it's an OperationError (GraphQL errors without data)
-        if (errorStr.contains('OperationError')) {
-          throw const ServerException(message: 'Operation failed. Please try again.');
-        }
-
-        throw ServerException(message: errorStr);
-      }
+      final response = await link
+          .request(gqlRequest)
+          .timeout(
+            AppConfig.receiveTimeout,
+            onTimeout: (sink) {
+              sink.addError(
+                const TimeoutException(
+                  message: 'Request timeout. Please check your connection.',
+                ),
+              );
+            },
+          )
+          .first;
 
       // Check if we got a response
-      if (response == null) {
-        throw const ServerException(message: 'No response from server');
-      }
-
       // Check for GraphQL errors in the response
       if (response.errors != null && response.errors!.isNotEmpty) {
         _log('GraphQL returned errors: ${response.errors}');
@@ -223,7 +195,26 @@ class GraphQLClientConfig {
       // Re-throw any AppException (including TimeoutException, NetworkException, etc.)
       rethrow;
     } catch (e) {
-      _log('Unexpected error: $e');
+      _log('Unexpected stream error: $e');
+
+      // gql may surface GraphQL-only failures as OperationError/OperationException
+      // through the stream instead of Response.errors.
+      if (e.toString().contains('OperationError') || e.toString().contains('OperationException')) {
+        final dynamic dynamicError = e;
+        dynamic graphqlErrors;
+        try {
+          graphqlErrors = dynamicError.graphqlErrors;
+        } catch (_) {
+          graphqlErrors = null;
+        }
+
+        if (graphqlErrors is List<GraphQLError> && graphqlErrors.isNotEmpty) {
+          _handleGraphQLErrors(graphqlErrors);
+        }
+
+        throw ServerException(message: e.toString());
+      }
+
       throw ServerException(message: 'Unexpected error: ${e.toString()}');
     }
   }

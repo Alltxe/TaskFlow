@@ -38,6 +38,9 @@ describe('RewardService', () => {
       create: jest.fn(),
       groupBy: jest.fn(),
     },
+    user: {
+      findUnique: jest.fn(),
+    },
     $transaction: jest.fn().mockImplementation(async (cb) => cb(mockPrisma)),
   };
 
@@ -170,10 +173,63 @@ describe('RewardService', () => {
         { userId: adminUserId, _sum: { amount: 120 } },
         { userId: memberUserId, _sum: { amount: 80 } },
       ]);
+
+      prisma.user.findUnique.mockImplementation(({ where }: any) => {
+        if (where.id === adminUserId) {
+          return Promise.resolve({
+            id: adminUserId,
+            username: 'admin',
+            email: 'admin@example.com',
+            avatarUrl: null,
+            isAway: false,
+            awayUntil: null,
+            createdAt: new Date('2025-01-01T00:00:00.000Z'),
+            updatedAt: new Date('2025-01-01T00:00:00.000Z'),
+          });
+        }
+
+        return Promise.resolve({
+          id: memberUserId,
+          username: 'member',
+          email: 'member@example.com',
+          avatarUrl: null,
+          isAway: false,
+          awayUntil: null,
+          createdAt: new Date('2025-01-01T00:00:00.000Z'),
+          updatedAt: new Date('2025-01-01T00:00:00.000Z'),
+        });
+      });
+
       const lb = await service.getLeaderboard(mockGroupId);
       expect(lb).toEqual([
-        { userId: adminUserId, points: 120, rank: 1 },
-        { userId: memberUserId, points: 80, rank: 2 },
+        {
+          user: {
+            id: adminUserId,
+            username: 'admin',
+            email: 'admin@example.com',
+            avatarUrl: null,
+            isAway: false,
+            awayUntil: null,
+            createdAt: new Date('2025-01-01T00:00:00.000Z'),
+            updatedAt: new Date('2025-01-01T00:00:00.000Z'),
+          },
+          pointsEarned: 120,
+          rank: 1,
+        },
+        {
+          user: {
+            id: memberUserId,
+            username: 'member',
+            email: 'member@example.com',
+            avatarUrl: null,
+            isAway: false,
+            awayUntil: null,
+            createdAt: new Date('2025-01-01T00:00:00.000Z'),
+            updatedAt: new Date('2025-01-01T00:00:00.000Z'),
+          },
+          pointsEarned: 80,
+          rank: 2,
+        },
       ]);
     });
   });

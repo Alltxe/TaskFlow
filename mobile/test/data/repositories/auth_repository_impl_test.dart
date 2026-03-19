@@ -1,4 +1,7 @@
-﻿import 'package:flutter_test/flutter_test.dart';
+﻿import 'package:flutter/services.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:mockito/annotations.dart';
+import 'package:mockito/mockito.dart';
 import 'package:taskflow/data/datasources/auth_local_datasource.dart';
 import 'package:taskflow/data/datasources/auth_remote_datasource.dart';
 import 'package:taskflow/data/models/auth_response.dart';
@@ -7,24 +10,41 @@ import 'package:taskflow/data/models/login_request.dart';
 import 'package:taskflow/data/models/register_request.dart';
 import 'package:taskflow/data/models/user.dart';
 import 'package:taskflow/data/repositories/auth_repository_impl.dart';
-import 'package:mockito/annotations.dart';
-import 'package:mockito/mockito.dart';
 
 import 'auth_repository_impl_test.mocks.dart';
 
 @GenerateMocks([AuthRemoteDataSource, AuthLocalDataSource])
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  const secureStorageChannel = MethodChannel('plugins.it_nomads.com/flutter_secure_storage');
+
   late AuthRepositoryImpl repository;
   late MockAuthRemoteDataSource mockRemoteDataSource;
   late MockAuthLocalDataSource mockLocalDataSource;
 
   setUp(() {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(
+      secureStorageChannel,
+      (MethodCall methodCall) async {
+        if (methodCall.method == 'read') {
+          return null;
+        }
+        return null;
+      },
+    );
+
     mockRemoteDataSource = MockAuthRemoteDataSource();
     mockLocalDataSource = MockAuthLocalDataSource();
     repository = AuthRepositoryImpl(
       remoteDataSource: mockRemoteDataSource,
       localDataSource: mockLocalDataSource,
     );
+  });
+
+  tearDown(() {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(secureStorageChannel, null);
   });
 
   group('AuthRepositoryImpl -', () {

@@ -1,5 +1,6 @@
 ﻿import 'package:dartz/dartz.dart' as dartz;
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:taskflow/core/errors/failure.dart';
@@ -9,6 +10,7 @@ import 'package:taskflow/data/models/update_task_request.dart';
 import 'package:taskflow/data/providers/task_providers.dart';
 // dartz alias imported below
 import 'package:taskflow/data/repositories/task_repository.dart';
+import 'package:taskflow/l10n/app_localizations.dart';
 import 'package:taskflow/presentation/screens/tasks/tasks_screen.dart';
 
 void main() {
@@ -41,7 +43,16 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [taskRepositoryProvider.overrideWithValue(fakeRepo)],
-        child: const MaterialApp(home: TasksScreen(groupId: 'g1')),
+        child: const MaterialApp(
+          localizationsDelegates: [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: TasksScreen(groupId: 'g1'),
+        ),
       ),
     );
 
