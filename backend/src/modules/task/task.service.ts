@@ -298,6 +298,7 @@ export class TaskService {
    */
   async updateTask(taskId: string, userId: string, input: UpdateTaskInput) {
     const task = await this.getTask(taskId, userId);
+    const previousAssigneeId = task.assigneeId;
 
     // Проверяем права: админ или создатель
     const member = await this.prisma.groupMember.findFirst({
@@ -314,6 +315,21 @@ export class TaskService {
       throw new ForbiddenException(
         'Только администраторы или создатель могут редактировать задачу',
       );
+    }
+
+    if (input.assigneeId !== undefined) {
+      const assigneeMember = await this.prisma.groupMember.findFirst({
+        where: {
+          groupId: task.groupId,
+          userId: input.assigneeId,
+        },
+      });
+
+      if (!assigneeMember) {
+        throw new BadRequestException(
+          'Указанный пользователь не является членом группы',
+        );
+      }
     }
 
     const updatedTask = await this.prisma.task.update({
@@ -334,6 +350,23 @@ export class TaskService {
         createdBy: true,
       },
     });
+
+    // Notify new assignee when task assignment changes.
+    if (
+      input.assigneeId !== undefined &&
+      updatedTask.assigneeId &&
+      updatedTask.assigneeId !== previousAssigneeId
+    ) {
+      await this.notificationService.notify({
+        userId: updatedTask.assigneeId,
+        title: 'Task assigned',
+        message: `You have been assigned: ${updatedTask.title}`,
+        type: NotificationTypeEnum.TASK_ASSIGNED,
+        relatedEntityType: 'Task',
+        relatedEntityId: updatedTask.id,
+        sentById: userId,
+      });
+    }
 
     return updatedTask;
   }

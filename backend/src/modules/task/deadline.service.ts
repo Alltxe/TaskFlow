@@ -81,16 +81,19 @@ export class DeadlineService {
     this.logger.log('Checking for deadline reminders...');
 
     const now = new Date();
-    const in24Hours = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+    const in30Minutes = new Date(now.getTime() + 30 * 60 * 1000);
     const in1Hour = new Date(now.getTime() + 60 * 60 * 1000);
+    const in23h30 = new Date(now.getTime() + (23 * 60 + 30) * 60 * 1000);
+    const in24Hours = new Date(now.getTime() + 24 * 60 * 60 * 1000);
 
     try {
-      // Задачи с дедлайном через 24 часа
+      // Narrow window prevents duplicate reminders every 30-minute cron cycle.
+      // 24h reminder fires once when deadline enters [23h30m, 24h] interval.
       const tasks24h = await this.prisma.task.findMany({
         where: {
           isRecurring: false,
           deadline: {
-            gte: now,
+            gt: in23h30,
             lte: in24Hours,
           },
           status: {
@@ -103,12 +106,12 @@ export class DeadlineService {
         },
       });
 
-      // Задачи с дедлайном через 1 час
+      // 1h reminder fires once when deadline enters (30m, 1h] interval.
       const tasks1h = await this.prisma.task.findMany({
         where: {
           isRecurring: false,
           deadline: {
-            gte: now,
+            gt: in30Minutes,
             lte: in1Hour,
           },
           status: {
@@ -128,9 +131,18 @@ export class DeadlineService {
       // Send notifications via Notification Service (Phase 8)
       for (const task of tasks24h) {
         if (task.assignee) {
+          const title = 'Task due in 24h';
+          const alreadySent = await this.hasRecentReminder(
+            task.assignee.id,
+            task.id,
+            title,
+            26 * 60,
+          );
+          if (alreadySent) continue;
+
           await this.notifications.notify({
             userId: task.assignee.id,
-            title: 'Task due in 24h',
+            title,
             message: `"${task.title}" is due in 24 hours`,
             type: NotificationTypeEnum.SYSTEM,
             relatedEntityType: 'Task',
@@ -141,9 +153,18 @@ export class DeadlineService {
 
       for (const task of tasks1h) {
         if (task.assignee) {
+          const title = 'Task due in 1h';
+          const alreadySent = await this.hasRecentReminder(
+            task.assignee.id,
+            task.id,
+            title,
+            90,
+          );
+          if (alreadySent) continue;
+
           await this.notifications.notify({
             userId: task.assignee.id,
-            title: 'Task due in 1h',
+            title,
             message: `"${task.title}" is due in 1 hour`,
             type: NotificationTypeEnum.SYSTEM,
             relatedEntityType: 'Task',
@@ -154,5 +175,25 @@ export class DeadlineService {
     } catch (error) {
       this.logger.error('Error sending deadline reminders:', error);
     }
+  }
+
+  private async hasRecentReminder(
+    userId: string,
+    taskId: string,
+    title: string,
+    withinMinutes: number,
+  ): Promise<boolean> {
+    const since = new Date(Date.now() - withinMinutes * 60 * 1000);
+    const existing = await this.prisma.notification.findFirst({
+      where: {
+        userId,
+        relatedEntityType: 'Task',
+        relatedEntityId: taskId,
+        title,
+        createdAt: { gte: since },
+      },
+      select: { id: true },
+    });
+    return Boolean(existing);
   }
 }

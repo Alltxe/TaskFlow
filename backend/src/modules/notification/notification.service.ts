@@ -68,8 +68,8 @@ export class NotificationService {
       `Notification created (${notification.type}) for user=${notification.userId}: ${notification.title}`,
     );
 
-      // Send push notification if enabled and Firebase is initialized
-      if (prefs?.enablePush && this.firebaseService.isInitialized()) {
+      // Send push notification by default unless explicitly disabled in preferences
+      if ((prefs?.enablePush ?? true) && this.firebaseService.isInitialized()) {
         await this.sendPushNotificationToUser(payload.userId, payload.title, payload.message, {
           type: payload.type,
           entityType: payload.relatedEntityType || '',

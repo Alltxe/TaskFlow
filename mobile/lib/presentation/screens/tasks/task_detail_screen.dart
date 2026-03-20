@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:taskflow/data/models/task_enums.dart';
+import 'package:taskflow/l10n/app_localizations.dart';
 import 'package:taskflow/presentation/providers/task_state_provider.dart';
 import 'package:taskflow/presentation/widgets/task/deadline_countdown.dart';
 import 'package:taskflow/presentation/widgets/task/priority_badge.dart';
@@ -18,6 +19,7 @@ class TaskDetailScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final taskAsync = ref.watch(taskDetailsProvider(taskId));
     final colorScheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
@@ -47,7 +49,9 @@ class TaskDetailScreen extends ConsumerWidget {
                   context: context,
                   builder: (context) => AlertDialog(
                     title: const Text('Delete Task'),
-                    content: const Text('Are you sure you want to delete this task?'),
+                    content: const Text(
+                      'Are you sure you want to delete this task?',
+                    ),
                     actions: [
                       TextButton(
                         onPressed: () => Navigator.pop(context, false),
@@ -55,7 +59,9 @@ class TaskDetailScreen extends ConsumerWidget {
                       ),
                       TextButton(
                         onPressed: () => Navigator.pop(context, true),
-                        style: TextButton.styleFrom(foregroundColor: Colors.red),
+                        style: TextButton.styleFrom(
+                          foregroundColor: Colors.red,
+                        ),
                         child: const Text('Delete'),
                       ),
                     ],
@@ -79,6 +85,9 @@ class TaskDetailScreen extends ConsumerWidget {
         data: (task) {
           final priority = TaskPriority.fromString(task.priority);
           final status = TaskStatus.fromString(task.status);
+          final isTemplateWithoutAssignee =
+              task.isRecurring && task.assignee == null;
+          final isUpForGrabsTask = !task.isRecurring && task.assignee == null;
 
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16),
@@ -88,9 +97,9 @@ class TaskDetailScreen extends ConsumerWidget {
                 // Title
                 Text(
                   task.title,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
 
                 const SizedBox(height: 16),
@@ -109,12 +118,14 @@ class TaskDetailScreen extends ConsumerWidget {
 
                 // Executor Info
                 _InfoCard(
-                  title: 'Executor',
+                  title: l10n.executor,
                   child: Row(
                     children: [
                       CircleAvatar(
                         radius: 20,
-                        backgroundColor: task.assignee == null
+                        backgroundColor: isTemplateWithoutAssignee
+                            ? colorScheme.secondaryContainer
+                            : isUpForGrabsTask
                             ? Colors.purple.shade100
                             : colorScheme.primaryContainer,
                         child: task.assignee?.avatarUrl != null
@@ -124,12 +135,19 @@ class TaskDetailScreen extends ConsumerWidget {
                                   width: 40,
                                   height: 40,
                                   fit: BoxFit.cover,
-                                  errorBuilder: (_, __, ___) => const Icon(Icons.person),
+                                  errorBuilder: (_, __, ___) =>
+                                      const Icon(Icons.person),
                                 ),
                               )
                             : Icon(
-                                task.assignee == null ? Icons.volunteer_activism : Icons.person,
-                                color: task.assignee == null
+                                isTemplateWithoutAssignee
+                                    ? Icons.inventory_2_outlined
+                                    : isUpForGrabsTask
+                                    ? Icons.volunteer_activism
+                                    : Icons.person,
+                                color: isTemplateWithoutAssignee
+                                    ? colorScheme.onSecondaryContainer
+                                    : isUpForGrabsTask
                                     ? Colors.purple.shade700
                                     : colorScheme.onPrimaryContainer,
                               ),
@@ -140,18 +158,27 @@ class TaskDetailScreen extends ConsumerWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              task.assignee?.username ?? 'Up-for-Grabs',
-                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                              task.assignee?.username ??
+                                  (isTemplateWithoutAssignee
+                                      ? l10n.recurrenceTemplateLabel
+                                      : l10n.upForGrabs),
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                             if (task.assignee?.isAway == true)
                               Text(
-                                'Away',
-                                style: TextStyle(fontSize: 12, color: Colors.orange.shade700),
+                                l10n.away,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.orange.shade700,
+                                ),
                               ),
                           ],
                         ),
                       ),
-                      if (task.assignee == null)
+                      if (isUpForGrabsTask)
                         ElevatedButton.icon(
                           onPressed: () async {
                             await ref
@@ -159,7 +186,7 @@ class TaskDetailScreen extends ConsumerWidget {
                                 .claimTask(taskId, groupId: task.groupId);
                           },
                           icon: const Icon(Icons.volunteer_activism, size: 18),
-                          label: const Text('Claim Task'),
+                          label: Text(l10n.claimTask),
                         ),
                     ],
                   ),
@@ -170,7 +197,10 @@ class TaskDetailScreen extends ConsumerWidget {
                 // Deadline
                 _InfoCard(
                   title: 'Deadline',
-                  child: DeadlineCountdown(deadline: task.deadline, status: status),
+                  child: DeadlineCountdown(
+                    deadline: task.deadline,
+                    status: status,
+                  ),
                 ),
 
                 const SizedBox(height: 16),
@@ -186,7 +216,10 @@ class TaskDetailScreen extends ConsumerWidget {
                         task.wasClaimedFromPool
                             ? '${(task.points * 1.5).round()} points (+50% bonus)'
                             : '${task.points} points',
-                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ],
                   ),
@@ -196,7 +229,10 @@ class TaskDetailScreen extends ConsumerWidget {
                   const SizedBox(height: 16),
                   _InfoCard(
                     title: 'Description',
-                    child: Text(task.description!, style: const TextStyle(fontSize: 14)),
+                    child: Text(
+                      task.description!,
+                      style: const TextStyle(fontSize: 14),
+                    ),
                   ),
                 ],
 
@@ -215,7 +251,8 @@ class TaskDetailScreen extends ConsumerWidget {
                                   width: 32,
                                   height: 32,
                                   fit: BoxFit.cover,
-                                  errorBuilder: (_, __, ___) => const Icon(Icons.person, size: 16),
+                                  errorBuilder: (_, __, ___) =>
+                                      const Icon(Icons.person, size: 16),
                                 ),
                               )
                             : const Icon(Icons.person, size: 16),
@@ -228,7 +265,10 @@ class TaskDetailScreen extends ConsumerWidget {
                       const Spacer(),
                       Text(
                         DateFormat('MMM dd, yyyy').format(task.createdAt),
-                        style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey.shade600,
+                        ),
                       ),
                     ],
                   ),
@@ -249,7 +289,10 @@ class TaskDetailScreen extends ConsumerWidget {
                       children: [
                         Row(
                           children: [
-                            Icon(Icons.info_outline, color: Colors.red.shade700),
+                            Icon(
+                              Icons.info_outline,
+                              color: Colors.red.shade700,
+                            ),
                             const SizedBox(width: 8),
                             Text(
                               'Rejection Reason',
@@ -297,8 +340,14 @@ class TaskDetailScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildActionButtons(BuildContext context, WidgetRef ref, task, TaskStatus status) {
-    final isAssignedToMe = task.assigneeId != null; // TODO: Check against current user ID
+  Widget _buildActionButtons(
+    BuildContext context,
+    WidgetRef ref,
+    task,
+    TaskStatus status,
+  ) {
+    final isAssignedToMe =
+        task.assigneeId != null; // TODO: Check against current user ID
 
     switch (status) {
       case TaskStatus.pending:
@@ -313,7 +362,9 @@ class TaskDetailScreen extends ConsumerWidget {
               },
               icon: const Icon(Icons.check_circle),
               label: const Text('Mark as Complete'),
-              style: ElevatedButton.styleFrom(padding: const EdgeInsets.all(16)),
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.all(16),
+              ),
             ),
           );
         }
@@ -330,7 +381,12 @@ class TaskDetailScreen extends ConsumerWidget {
                   if (reason != null) {
                     await ref
                         .read(taskActionsProvider.notifier)
-                        .approveTask(taskId, false, rejectionReason: reason, groupId: task.groupId);
+                        .approveTask(
+                          taskId,
+                          false,
+                          rejectionReason: reason,
+                          groupId: task.groupId,
+                        );
                   }
                 },
                 icon: const Icon(Icons.close),
@@ -351,7 +407,9 @@ class TaskDetailScreen extends ConsumerWidget {
                 },
                 icon: const Icon(Icons.check),
                 label: const Text('Approve'),
-                style: ElevatedButton.styleFrom(padding: const EdgeInsets.all(16)),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.all(16),
+                ),
               ),
             ),
           ],
@@ -377,7 +435,10 @@ class TaskDetailScreen extends ConsumerWidget {
           maxLines: 3,
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
           TextButton(
             onPressed: () => Navigator.pop(context, controller.text),
             child: const Text('Reject'),

@@ -18,6 +18,9 @@ describe('DeadlineService', () => {
               findMany: jest.fn(),
               updateMany: jest.fn(),
             },
+            notification: {
+              findFirst: jest.fn(),
+            },
           },
         },
         {
@@ -97,15 +100,16 @@ describe('DeadlineService', () => {
       const in1h = new Date(now.getTime() + 60 * 60 * 1000);
 
       const tasks24h = [
-        { id: 'task1', title: 'Test Task 1', deadline: in24h, status: 'PENDING', assignee: { username: 'user1' } },
+        { id: 'task1', title: 'Test Task 1', deadline: in24h, status: 'PENDING', assignee: { id: 'u1', username: 'user1' } },
       ];
       const tasks1h = [
-        { id: 'task2', title: 'Test Task 2', deadline: in1h, status: 'IN_PROGRESS', assignee: { username: 'user2' } },
+        { id: 'task2', title: 'Test Task 2', deadline: in1h, status: 'IN_PROGRESS', assignee: { id: 'u2', username: 'user2' } },
       ];
 
       jest.spyOn(prisma.task, 'findMany')
         .mockResolvedValueOnce(tasks24h as any)
         .mockResolvedValueOnce(tasks1h as any);
+      jest.spyOn((prisma as any).notification, 'findFirst').mockResolvedValue(null);
 
       await service.sendDeadlineReminders();
 
@@ -114,7 +118,7 @@ describe('DeadlineService', () => {
         where: {
           isRecurring: false,
           deadline: {
-            gte: expect.any(Date),
+            gt: expect.any(Date),
             lte: expect.any(Date),
           },
           status: {
@@ -130,7 +134,7 @@ describe('DeadlineService', () => {
         where: {
           isRecurring: false,
           deadline: {
-            gte: expect.any(Date),
+            gt: expect.any(Date),
             lte: expect.any(Date),
           },
           status: {
@@ -142,6 +146,8 @@ describe('DeadlineService', () => {
           group: true,
         },
       });
+
+      expect((prisma as any).notification.findFirst).toHaveBeenCalledTimes(2);
     });
 
     it('should handle errors in reminder sending', async () => {

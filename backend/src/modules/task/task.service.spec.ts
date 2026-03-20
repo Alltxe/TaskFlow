@@ -22,6 +22,7 @@ import {
 describe('TaskService', () => {
   let service: TaskService;
   let prismaService: PrismaService;
+  let notificationService: { notify: jest.Mock; notifyGroupAdmins: jest.Mock };
 
   const mockAdminUserId = 'admin-user-123';
   const mockMemberUserId = 'member-user-456';
@@ -160,6 +161,7 @@ describe('TaskService', () => {
 
     service = module.get<TaskService>(TaskService);
     prismaService = module.get<PrismaService>(PrismaService);
+    notificationService = module.get(require('../notification/notification.service').NotificationService);
 
     jest.clearAllMocks();
   });
@@ -550,6 +552,32 @@ describe('TaskService', () => {
       await expect(
         service.updateTask(mockTaskId, 'other-user', input),
       ).rejects.toThrow(ForbiddenException);
+    });
+
+    it('should notify when task is reassigned', async () => {
+      const input: UpdateTaskInput = {
+        assigneeId: 'new-assignee-user',
+      };
+
+      mockPrismaService.task.findUnique.mockResolvedValue(mockTask);
+      mockPrismaService.groupMember.findFirst
+        .mockResolvedValueOnce({ role: 'ADMIN' })
+        .mockResolvedValueOnce({ userId: 'new-assignee-user' });
+      mockPrismaService.task.update.mockResolvedValue({
+        ...mockTask,
+        assigneeId: 'new-assignee-user',
+      });
+
+      await service.updateTask(mockTaskId, mockAdminUserId, input);
+
+      expect(notificationService.notify).toHaveBeenCalledWith(
+        expect.objectContaining({
+          userId: 'new-assignee-user',
+          title: 'Task assigned',
+          type: 'TASK_ASSIGNED',
+          relatedEntityId: mockTaskId,
+        }),
+      );
     });
   });
 

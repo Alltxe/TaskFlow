@@ -2,11 +2,13 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { RecurringTaskService } from './recurring-task.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { RotationService } from './rotation.service';
+import { NotificationService } from '../notification/notification.service';
 
 describe('RecurringTaskService', () => {
   let service: RecurringTaskService;
   let prismaService: PrismaService;
   let rotationService: RotationService;
+  let notificationService: NotificationService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -29,12 +31,19 @@ describe('RecurringTaskService', () => {
             selectAssignee: jest.fn(),
           },
         },
+        {
+          provide: NotificationService,
+          useValue: {
+            notify: jest.fn().mockResolvedValue({}),
+          },
+        },
       ],
     }).compile();
 
     service = module.get<RecurringTaskService>(RecurringTaskService);
     prismaService = module.get<PrismaService>(PrismaService);
     rotationService = module.get<RotationService>(RotationService);
+    notificationService = module.get<NotificationService>(NotificationService);
   });
 
   it('should be defined', () => {
@@ -287,6 +296,15 @@ describe('RecurringTaskService', () => {
       expect(result.parentTaskId).toBe(templateId);
       expect(result.isRecurring).toBe(false);
       expect(prismaService.task.create).toHaveBeenCalled();
+      expect(notificationService.notify).toHaveBeenCalledWith(
+        expect.objectContaining({
+          userId,
+          title: 'Task assigned',
+          relatedEntityType: 'Task',
+          relatedEntityId: mockNewTask.id,
+          type: 'TASK_ASSIGNED',
+        }),
+      );
     });
 
     it('should throw error if task is not recurring', async () => {

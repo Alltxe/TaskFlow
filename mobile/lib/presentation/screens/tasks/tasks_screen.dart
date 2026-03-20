@@ -92,7 +92,10 @@ class _TasksScreenState extends ConsumerState<TasksScreen>
             ? FloatingActionButton.extended(
                 onPressed: () {
                   final uri = widget.groupId != null
-                      ? Uri(path: '/tasks/create', queryParameters: {'groupId': widget.groupId!})
+                      ? Uri(
+                          path: '/tasks/create',
+                          queryParameters: {'groupId': widget.groupId!},
+                        )
                       : Uri(path: '/tasks/create');
                   context.push(uri.toString());
                 },
@@ -125,10 +128,14 @@ class _RecurringTemplatesTab extends ConsumerWidget {
             margin: const EdgeInsets.fromLTRB(12, 12, 12, 4),
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.5),
+              color: Theme.of(
+                context,
+              ).colorScheme.primaryContainer.withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
+                color: Theme.of(
+                  context,
+                ).colorScheme.primary.withValues(alpha: 0.2),
               ),
             ),
             child: Row(
@@ -147,8 +154,8 @@ class _RecurringTemplatesTab extends ConsumerWidget {
                       Text(
                         l10n.recurringTemplatesInfoTitle,
                         style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                              fontWeight: FontWeight.w700,
-                            ),
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                       const SizedBox(height: 4),
                       Text(
@@ -165,15 +172,15 @@ class _RecurringTemplatesTab extends ConsumerWidget {
             child: TaskListWidget(
               tasks: templates,
               emptyStateMessage: l10n.noRecurringTemplates,
-              onRefresh: () => ref.invalidate(recurringTemplatesProvider(groupId)),
+              onRefresh: () =>
+                  ref.invalidate(recurringTemplatesProvider(groupId)),
             ),
           ),
         ],
       ),
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, stack) => Center(
-        child: Text('${l10n.errorLoadingTasks}: ${error.toString()}'),
-      ),
+      error: (error, stack) =>
+          Center(child: Text('${l10n.errorLoadingTasks}: ${error.toString()}')),
     );
   }
 }
@@ -304,11 +311,11 @@ class _UpForGrabsTab extends ConsumerWidget {
 
     return tasksAsync.when(
       data: (allTasks) {
-        // Filter for unassigned tasks
+        // Filter for real pool tasks only (exclude recurring templates)
         final upForGrabsTasks = allTasks
-            .where((task) => task.assigneeId == null)
+            .where((task) => task.assigneeId == null && !task.isRecurring)
             .toList();
-  
+
         return TaskListWidget(
           tasks: upForGrabsTasks,
           emptyStateMessage: l10n.noTasksAvailable,

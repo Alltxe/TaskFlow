@@ -18,26 +18,46 @@ class PriorityBadge extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
 
     final (color, icon, label) = switch (priority) {
-      TaskPriority.high => (Colors.red.shade700, Icons.priority_high, l10n.priorityHigh),
-      TaskPriority.medium => (Colors.orange.shade700, Icons.remove, l10n.priorityMedium),
-      TaskPriority.low => (Colors.blue.shade700, Icons.arrow_downward, l10n.priorityLow),
+      TaskPriority.high => (
+        Colors.red.shade700,
+        Icons.keyboard_double_arrow_up_rounded,
+        l10n.priorityHigh,
+      ),
+      TaskPriority.medium => (
+        Colors.orange.shade800,
+        Icons.drag_handle_rounded,
+        l10n.priorityMedium,
+      ),
+      TaskPriority.low => (
+        Colors.blue.shade700,
+        Icons.keyboard_double_arrow_down_rounded,
+        l10n.priorityLow,
+      ),
     };
 
     if (compact) {
-      return Icon(icon, color: color, size: 16);
+      return Container(
+        padding: const EdgeInsets.all(4),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.16),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: color.withValues(alpha: 0.45)),
+        ),
+        child: Icon(icon, color: color, size: 18),
+      );
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.14),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.4)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, color: color, size: 14),
+          Icon(icon, color: color, size: 16),
           const SizedBox(width: 4),
           Text(
             label,

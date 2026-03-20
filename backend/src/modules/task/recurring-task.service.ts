@@ -2,8 +2,9 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { PrismaService } from '../prisma/prisma.service';
 import { RotationService } from './rotation.service';
-import { RotationType, TaskPriority } from '@prisma/client';
+import { NotificationType as NotificationTypeEnum, RotationType, TaskPriority } from '@prisma/client';
 import { RRule, RRuleSet, rrulestr } from 'rrule';
+import { NotificationService } from '../notification/notification.service';
 
 /**
  * Интерфейс для правила повторения задачи
@@ -24,6 +25,7 @@ export class RecurringTaskService {
   constructor(
     private prisma: PrismaService,
     private rotationService: RotationService,
+    private notificationService: NotificationService,
   ) {}
 
   /**
@@ -291,6 +293,18 @@ export class RecurringTaskService {
     this.logger.log(
       `Generated new task ${newTask.id} from template ${template.id} with deadline ${deadline.toISOString()}`,
     );
+
+    if (newTask.assigneeId) {
+      await this.notificationService.notify({
+        userId: newTask.assigneeId,
+        title: 'Task assigned',
+        message: `You have been assigned: ${newTask.title}`,
+        type: NotificationTypeEnum.TASK_ASSIGNED,
+        relatedEntityType: 'Task',
+        relatedEntityId: newTask.id,
+        sentById: template.createdById,
+      });
+    }
 
     return newTask;
   }

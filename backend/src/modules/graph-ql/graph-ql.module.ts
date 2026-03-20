@@ -109,10 +109,8 @@ import { GraphQLError } from 'graphql';
                   );
                 }
 
-                // Log complexity in development
-                if (process.env.NODE_ENV === 'development') {
-                  console.log(`Query Complexity: ${complexity}`);
-                }
+                // Request-level complexity logging is intentionally disabled
+                // to avoid noisy global per-request logs.
               },
             };
           },

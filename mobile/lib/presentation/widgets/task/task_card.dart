@@ -20,6 +20,8 @@ class TaskCard extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     final priority = TaskPriority.fromString(task.priority);
     final status = TaskStatus.fromString(task.status);
+    final isTemplateWithoutAssignee = task.isRecurring && task.assignee == null;
+    final isUpForGrabsTask = !task.isRecurring && task.assignee == null;
 
     // Calculate point multiplier display
     String pointsDisplay = '${task.points} ${l10n.pts}';
@@ -49,9 +51,8 @@ class TaskCard extends StatelessWidget {
                       children: [
                         Text(
                           task.title,
-                          style: Theme.of(
-                            context,
-                          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(fontWeight: FontWeight.w600),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -91,7 +92,9 @@ class TaskCard extends StatelessWidget {
                 children: [
                   CircleAvatar(
                     radius: 12,
-                    backgroundColor: task.assignee == null
+                    backgroundColor: isTemplateWithoutAssignee
+                        ? colorScheme.secondaryContainer
+                        : isUpForGrabsTask
                         ? Colors.purple.shade100
                         : colorScheme.primaryContainer,
                     child: task.assignee?.avatarUrl != null
@@ -109,20 +112,35 @@ class TaskCard extends StatelessWidget {
                             ),
                           )
                         : Icon(
-                            task.assignee == null ? Icons.volunteer_activism : Icons.person,
+                            isTemplateWithoutAssignee
+                                ? Icons.inventory_2_outlined
+                                : isUpForGrabsTask
+                                ? Icons.volunteer_activism
+                                : Icons.person,
                             size: 14,
-                            color: task.assignee == null
+                            color: isTemplateWithoutAssignee
+                                ? colorScheme.onSecondaryContainer
+                                : isUpForGrabsTask
                                 ? Colors.purple.shade700
                                 : colorScheme.onPrimaryContainer,
                           ),
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    task.assignee?.username ?? l10n.upForGrabs,
+                    task.assignee?.username ??
+                        (isTemplateWithoutAssignee
+                            ? l10n.recurrenceTemplateLabel
+                            : l10n.upForGrabs),
                     style: TextStyle(
                       fontSize: 13,
-                      color: task.assignee == null ? Colors.purple.shade700 : Colors.grey.shade700,
-                      fontWeight: task.assignee == null ? FontWeight.w600 : FontWeight.normal,
+                      color: isTemplateWithoutAssignee
+                          ? colorScheme.onSecondaryContainer
+                          : isUpForGrabsTask
+                          ? Colors.purple.shade700
+                          : Colors.grey.shade700,
+                      fontWeight: isTemplateWithoutAssignee || isUpForGrabsTask
+                          ? FontWeight.w600
+                          : FontWeight.normal,
                     ),
                   ),
                 ],
@@ -141,7 +159,10 @@ class TaskCard extends StatelessWidget {
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: task.wasClaimedFromPool
                           ? Colors.purple.shade50
@@ -184,9 +205,9 @@ class TaskCard extends StatelessWidget {
                 const SizedBox(height: 6),
                 Text(
                   l10n.templateAnchorDeadlineShortHint,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Colors.grey.shade700,
-                      ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.copyWith(color: Colors.grey.shade700),
                 ),
               ],
 
@@ -207,12 +228,19 @@ class TaskCard extends StatelessWidget {
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.info_outline, size: 16, color: Colors.red.shade700),
+                      Icon(
+                        Icons.info_outline,
+                        size: 16,
+                        color: Colors.red.shade700,
+                      ),
                       const SizedBox(width: 6),
                       Expanded(
                         child: Text(
                           task.rejectionReason!,
-                          style: TextStyle(fontSize: 12, color: Colors.red.shade700),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.red.shade700,
+                          ),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
