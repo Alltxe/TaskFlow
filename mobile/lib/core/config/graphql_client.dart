@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
@@ -9,6 +10,7 @@ import 'package:gql_link/gql_link.dart' hide ServerException;
 import 'package:http/http.dart' as http;
 import 'package:taskflow/core/config/app_config.dart';
 import 'package:taskflow/core/errors/exceptions.dart';
+import 'package:taskflow/core/events/app_events.dart';
 
 /// Simple GraphQL Client using gql_http_link
 /// Provides direct GraphQL request execution with authentication
@@ -16,7 +18,10 @@ class GraphQLClientConfig {
   GraphQLClientConfig._();
 
   static Link? _link;
+  static Future<bool>? _refreshFuture;
   static const FlutterSecureStorage _secureStorage = FlutterSecureStorage();
+  static const String _accessTokenExpiresAtKey = 'access_token_expires_at';
+  static const String _refreshTokenExpiresAtKey = 'refresh_token_expires_at';
 
   /// Get or create GraphQL link (singleton)
   static Link getLink() {
@@ -178,6 +183,161 @@ class GraphQLClientConfig {
     );
   }
 
+  static bool _isUnauthorizedCode(String? code) {
+    if (code == null) return false;
+    final normalized = code.toUpperCase();
+    return normalized == 'UNAUTHORIZED' || normalized == 'UNAUTHENTICATED';
+  }
+
+  static bool _isUnauthorizedMessage(String message) {
+    final lower = message.toLowerCase();
+    return lower.contains('unauthorized') ||
+        lower.contains('unauthenticated') ||
+        lower.contains('not authenticated') ||
+        lower.contains('требуется авторизация');
+  }
+
+  static bool _hasUnauthorizedErrors(List<GraphQLError> errors) {
+    for (final error in errors) {
+      final code = error.extensions?['code'] as String?;
+      if (_isUnauthorizedCode(code) || _isUnauthorizedMessage(error.message)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  static bool _canAttemptRefresh(Request gqlRequest) {
+    final operationName = gqlRequest.operation.operationName?.toLowerCase() ?? '';
+    return operationName != 'logintoken' &&
+        operationName != 'register' &&
+        operationName != 'refreshtoken' &&
+        operationName != 'login';
+  }
+
+  static Future<bool> _refreshAccessToken() {
+    final inFlight = _refreshFuture;
+    if (inFlight != null) {
+      return inFlight;
+    }
+
+    final refreshTask = _performTokenRefresh();
+    _refreshFuture = refreshTask;
+
+    refreshTask.whenComplete(() {
+      if (identical(_refreshFuture, refreshTask)) {
+        _refreshFuture = null;
+      }
+    });
+
+    return refreshTask;
+  }
+
+  static Future<bool> _performTokenRefresh() async {
+    final refreshToken = await _secureStorage.read(key: AppConfig.refreshTokenKey);
+    if (refreshToken == null || refreshToken.isEmpty) {
+      return false;
+    }
+
+    final body = jsonEncode({
+      'query':
+          'mutation RefreshToken(\$refreshToken: String!) { '
+              'refreshToken(input: {refreshToken: \$refreshToken}) { '
+              'accessToken refreshToken user { id } '
+              '} '
+              '}',
+      'variables': {'refreshToken': refreshToken},
+      'operationName': 'RefreshToken',
+    });
+
+    final client = _TimeoutHttpClient(http.Client(), AppConfig.connectionTimeout);
+
+    try {
+      final response = await client.post(
+        Uri.parse(AppConfig.graphqlEndpoint),
+        headers: {'Content-Type': 'application/json'},
+        body: body,
+      );
+
+      if (response.statusCode < 200 || response.statusCode >= 300) {
+        _log('Refresh HTTP failed with status ${response.statusCode}');
+        return false;
+      }
+
+      final decoded = jsonDecode(response.body);
+      if (decoded is! Map<String, dynamic>) {
+        return false;
+      }
+
+      final errors = decoded['errors'];
+      if (errors is List && errors.isNotEmpty) {
+        for (final error in errors) {
+          if (error is Map<String, dynamic>) {
+            final message = (error['message'] as String?) ?? '';
+            final extensions = error['extensions'];
+            String? code;
+            if (extensions is Map<String, dynamic>) {
+              final rawCode = extensions['code'];
+              code = rawCode is String ? rawCode : null;
+            }
+
+            if (_isUnauthorizedCode(code) || _isUnauthorizedMessage(message)) {
+              _log('Refresh rejected with auth error: $message');
+              return false;
+            }
+          }
+        }
+        return false;
+      }
+
+      final data = decoded['data'];
+      if (data is! Map<String, dynamic>) {
+        return false;
+      }
+
+      final refreshData = data['refreshToken'];
+      if (refreshData is! Map<String, dynamic>) {
+        return false;
+      }
+
+      final newAccessToken = refreshData['accessToken'];
+      final newRefreshToken = refreshData['refreshToken'];
+      if (newAccessToken is! String || newRefreshToken is! String) {
+        return false;
+      }
+
+      final now = DateTime.now();
+      await Future.wait([
+        _secureStorage.write(key: AppConfig.accessTokenKey, value: newAccessToken),
+        _secureStorage.write(key: AppConfig.refreshTokenKey, value: newRefreshToken),
+        _secureStorage.write(
+          key: _accessTokenExpiresAtKey,
+          value: now.add(const Duration(minutes: 15)).toIso8601String(),
+        ),
+        _secureStorage.write(
+          key: _refreshTokenExpiresAtKey,
+          value: now.add(const Duration(days: 7)).toIso8601String(),
+        ),
+      ]);
+
+      _log('Token refreshed successfully');
+      return true;
+    } catch (e) {
+      _log('Refresh request failed: $e');
+      return false;
+    } finally {
+      client.close();
+    }
+  }
+
+  static Future<void> _emitLogoutEventSafely() async {
+    try {
+      logoutEventController.add(true);
+    } catch (_) {
+      // Ignore event delivery failures; auth state cleanup still proceeds.
+    }
+  }
+
   /// Execute a GraphQL request with timeout
   static Future<Response> request(Request gqlRequest) async {
     try {
@@ -201,6 +361,38 @@ class GraphQLClientConfig {
       // Check for GraphQL errors in the response
       if (response.errors != null && response.errors!.isNotEmpty) {
         _log('GraphQL returned errors: ${response.errors}');
+
+        if (_hasUnauthorizedErrors(response.errors!) && _canAttemptRefresh(gqlRequest)) {
+          _log('Unauthorized response detected, attempting token refresh');
+          final refreshed = await _refreshAccessToken();
+
+          if (refreshed) {
+            final retriedResponse = await link
+                .request(gqlRequest)
+                .timeout(
+                  AppConfig.receiveTimeout,
+                  onTimeout: (sink) {
+                    sink.addError(
+                      const TimeoutException(
+                        message: 'Request timeout. Please check your connection.',
+                      ),
+                    );
+                  },
+                )
+                .first;
+
+            if (retriedResponse.errors != null && retriedResponse.errors!.isNotEmpty) {
+              _log('Retried request still has errors: ${retriedResponse.errors}');
+              _handleGraphQLErrors(retriedResponse.errors!);
+            }
+
+            return retriedResponse;
+          }
+
+          await logout();
+          await _emitLogoutEventSafely();
+        }
+
         _handleGraphQLErrors(response.errors!);
       }
 
