@@ -1,5 +1,6 @@
-﻿import 'package:taskflow/core/errors/exceptions.dart';
-import 'package:taskflow/core/config/graphql_client.dart';
+﻿import 'package:taskflow/core/config/graphql_client.dart';
+import 'package:taskflow/core/errors/exceptions.dart';
+import 'package:taskflow/core/services/push_notification_service.dart';
 import 'package:taskflow/data/datasources/auth_local_datasource.dart';
 import 'package:taskflow/data/datasources/auth_remote_datasource.dart';
 import 'package:taskflow/data/models/auth_response.dart';
@@ -25,6 +26,7 @@ class AuthRepositoryImpl implements AuthRepository {
       await localDataSource.saveTokens(response.tokens);
       await localDataSource.saveUser(response.user);
       await GraphQLClientConfig.updateToken(response.tokens.accessToken);
+      await PushNotificationService.instance.syncDeviceToken();
 
       return response;
     } catch (e) {
@@ -41,6 +43,7 @@ class AuthRepositoryImpl implements AuthRepository {
       await localDataSource.saveTokens(response.tokens);
       await localDataSource.saveUser(response.user);
       await GraphQLClientConfig.updateToken(response.tokens.accessToken);
+      await PushNotificationService.instance.syncDeviceToken();
 
       return response;
     } catch (e) {
@@ -51,6 +54,7 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<void> logout() async {
     try {
+      await PushNotificationService.instance.unregisterCurrentDeviceToken();
       // Clear all local data
       await localDataSource.clearAll();
       await GraphQLClientConfig.logout();
@@ -82,6 +86,7 @@ class AuthRepositoryImpl implements AuthRepository {
       // Save new tokens
       await localDataSource.saveTokens(newTokens);
       await GraphQLClientConfig.updateToken(newTokens.accessToken);
+      await PushNotificationService.instance.syncDeviceToken();
 
       return newTokens;
     } catch (e) {

@@ -1,3 +1,7 @@
+import 'dart:io';
+
+import 'package:flutter/foundation.dart';
+
 /// Application configuration
 /// Contains API endpoints, environment settings, and app constants
 class AppConfig {
@@ -10,15 +14,23 @@ class AppConfig {
   );
 
   // API Configuration
-  // Note: For Android emulator, use 10.0.2.2 instead of localhost
-  // For web/iOS, use localhost:3000
-  static const String apiBaseUrl = String.fromEnvironment(
-    'API_BASE_URL',
-    defaultValue: 'http://127.0.0.1:3100',
-  );
+  // Android emulator cannot access host loopback directly; use 10.0.2.2 by default.
+  static const String _apiBaseUrlFromEnv = String.fromEnvironment('API_BASE_URL', defaultValue: '');
 
-  static const String graphqlEndpoint = '$apiBaseUrl/graphql';
-  static const String wsEndpoint = 'ws://127.0.0.1:3100/graphql';
+  static String get apiBaseUrl {
+    if (_apiBaseUrlFromEnv.isNotEmpty) return _apiBaseUrlFromEnv;
+    if (kIsWeb) return 'http://127.0.0.1:3100';
+    if (Platform.isAndroid) return 'http://10.0.2.2:3100';
+    return 'http://127.0.0.1:3100';
+  }
+
+  static String get graphqlEndpoint => '$apiBaseUrl/graphql';
+
+  static String get wsEndpoint {
+    final base = Uri.parse(apiBaseUrl);
+    final wsScheme = base.scheme == 'https' ? 'wss' : 'ws';
+    return base.replace(scheme: wsScheme, path: '/graphql').toString();
+  }
   // Web Frontend URL (for invite links)
   static const String webBaseUrl = String.fromEnvironment(
     'WEB_BASE_URL',

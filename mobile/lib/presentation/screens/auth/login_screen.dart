@@ -45,6 +45,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       return l10n.authError;
     }
 
+    if (normalized.contains('cannot connect to backend') ||
+        normalized.contains('connection refused') ||
+        normalized.contains('failed host lookup')) {
+      return 'Backend недоступен. Проверьте, что сервер запущен на 3100 и API URL настроен корректно.';
+    }
+
     return rawMessage;
   }
 

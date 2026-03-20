@@ -1,14 +1,22 @@
 ﻿import 'dart:async';
 
 import 'package:app_links/app_links.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:taskflow/core/router/app_router.dart';
+import 'package:taskflow/core/services/push_notification_service.dart';
 import 'package:taskflow/core/theme/app_theme.dart';
 import 'package:taskflow/l10n/app_localizations.dart';
 
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  debugPrint('[Push] Background message: ${message.messageId}');
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   runApp(const ProviderScope(child: TaskFlowApp()));
 }
@@ -29,6 +37,7 @@ class _TaskFlowAppState extends ConsumerState<TaskFlowApp> {
     super.initState();
     _appLinks = AppLinks();
     _initDeepLinks();
+    _initPushNotifications();
   }
 
   Future<void> _initDeepLinks() async {
@@ -65,6 +74,15 @@ class _TaskFlowAppState extends ConsumerState<TaskFlowApp> {
         router.go('/join/$token');
       }
     }
+  }
+
+  Future<void> _initPushNotifications() async {
+    await PushNotificationService.instance.initialize(
+      onNavigate: (route) {
+        final router = ref.read(routerProvider);
+        router.go(route);
+      },
+    );
   }
 
   @override

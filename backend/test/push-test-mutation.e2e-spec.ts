@@ -3,6 +3,7 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { PrismaService } from '../src/modules/prisma/prisma.service';
+import { FirebaseService } from '../src/modules/firebase/firebase.service';
 
 describe('sendTestPush mutation (e2e)', () => {
   let app: INestApplication;
@@ -10,7 +11,16 @@ describe('sendTestPush mutation (e2e)', () => {
   let accessToken: string;
 
   beforeAll(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({ imports: [AppModule] }).compile();
+    const firebaseMock: Partial<FirebaseService> = {
+      isInitialized: () => true,
+      sendBatchPushNotifications: async (tokens: string[]) =>
+        tokens.map((_, idx) => ({ success: true, messageId: `mock-${idx + 1}` })),
+    };
+
+    const moduleFixture: TestingModule = await Test.createTestingModule({ imports: [AppModule] })
+      .overrideProvider(FirebaseService)
+      .useValue(firebaseMock)
+      .compile();
 
     app = moduleFixture.createNestApplication();
     app.useGlobalPipes(new ValidationPipe());
@@ -71,20 +81,17 @@ describe('sendTestPush mutation (e2e)', () => {
     await app.close();
   });
 
-  it('returns results for my devices (works if Firebase initialized)', async () => {
+  it('returns successful results for my devices', async () => {
     const res = await request(app.getHttpServer())
       .post('/graphql')
       .set('Authorization', `Bearer ${accessToken}`)
       .send({ query: `mutation { sendTestPush(input: { title: "Hi", body: "There", data: { a: "b" } }) { success messageId error } }` });
 
     expect(res.body.errors).toBeUndefined();
-    // Если Firebase не инициализирован в env, сервис вернёт пустой массив.
-    // В ином случае — хотя бы один успех (есть зарегистрированный токен)
-    const results = res.body.data.sendTestPush as Array<{ success: boolean }>;
+    const results = res.body.data.sendTestPush as Array<{ success: boolean; messageId?: string }>;
     expect(Array.isArray(results)).toBe(true);
-    // допускаем 0..N результатов в зависимости от окружения
-    if (results.length > 0) {
-      expect(results[0].success).toBeDefined();
-    }
+    expect(results.length).toBeGreaterThan(0);
+    expect(results.every((r) => r.success)).toBe(true);
+    expect(results[0].messageId).toMatch(/^mock-/);
   });
 });

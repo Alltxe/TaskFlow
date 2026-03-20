@@ -159,6 +159,25 @@ class GraphQLClientConfig {
     throw ServerException(message: message);
   }
 
+  static bool _looksLikeConnectivityFailure(Object error) {
+    final msg = error.toString().toLowerCase();
+    return msg.contains('socketexception') ||
+        msg.contains('connection refused') ||
+        msg.contains('failed host lookup') ||
+        msg.contains('network is unreachable') ||
+        msg.contains('connection timed out') ||
+        msg.contains('clientexception');
+  }
+
+  static NetworkException _buildConnectivityException(Object error) {
+    return NetworkException(
+      message:
+          'Cannot connect to backend at ${AppConfig.apiBaseUrl}. '
+          'For Android emulator use 10.0.2.2 and make sure backend is running on port 3100.',
+      details: error.toString(),
+    );
+  }
+
   /// Execute a GraphQL request with timeout
   static Future<Response> request(Request gqlRequest) async {
     try {
@@ -197,6 +216,10 @@ class GraphQLClientConfig {
     } catch (e) {
       _log('Unexpected stream error: $e');
 
+      if (_looksLikeConnectivityFailure(e)) {
+        throw _buildConnectivityException(e);
+      }
+
       // gql may surface GraphQL-only failures as OperationError/OperationException
       // through the stream instead of Response.errors.
       if (e.toString().contains('OperationError') || e.toString().contains('OperationException')) {
@@ -210,6 +233,10 @@ class GraphQLClientConfig {
 
         if (graphqlErrors is List<GraphQLError> && graphqlErrors.isNotEmpty) {
           _handleGraphQLErrors(graphqlErrors);
+        }
+
+        if (_looksLikeConnectivityFailure(e)) {
+          throw _buildConnectivityException(e);
         }
 
         throw ServerException(message: e.toString());
