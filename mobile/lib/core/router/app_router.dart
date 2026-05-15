@@ -3,9 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:taskflow/data/providers/auth_providers.dart';
 import 'package:taskflow/l10n/app_localizations.dart';
+import 'package:taskflow/presentation/screens/auth/forgot_password_screen.dart';
 import 'package:taskflow/presentation/screens/auth/login_screen.dart';
 import 'package:taskflow/presentation/screens/auth/register_screen.dart';
 import 'package:taskflow/presentation/screens/auth/splash_screen.dart';
+import 'package:taskflow/presentation/screens/auth/welcome_screen.dart';
 import 'package:taskflow/presentation/screens/dashboard/dashboard_screen.dart';
 import 'package:taskflow/presentation/screens/groups/create_group_screen.dart';
 import 'package:taskflow/presentation/screens/groups/group_layout_screen.dart';
@@ -14,6 +16,8 @@ import 'package:taskflow/presentation/screens/groups/groups_screen.dart';
 import 'package:taskflow/presentation/screens/groups/invite_screen.dart';
 import 'package:taskflow/presentation/screens/groups/join_group_screen.dart';
 import 'package:taskflow/presentation/screens/main_navigation_screen.dart';
+import 'package:taskflow/presentation/screens/profile/change_password_screen.dart';
+import 'package:taskflow/presentation/screens/profile/edit_profile_screen.dart';
 import 'package:taskflow/presentation/screens/profile/points_detail_screen.dart';
 import 'package:taskflow/presentation/screens/profile/profile_screen.dart';
 import 'package:taskflow/presentation/screens/rewards/my_reward_requests_screen.dart';
@@ -41,42 +45,55 @@ final routerProvider = Provider<GoRouter>((ref) {
       final authState = ref.read(authStateProvider);
       final isAuthenticated = authState.status == AuthStatus.authenticated;
       final isLoading = authState.status == AuthStatus.loading;
+      final isPendingVerification = authState.status == AuthStatus.pendingVerification;
       final isOnSplash = state.matchedLocation == '/';
-      final isOnAuth = state.matchedLocation == '/login' || state.matchedLocation == '/register';
+      final isOnPublicAuth = state.matchedLocation == '/login' ||
+          state.matchedLocation == '/register' ||
+          state.matchedLocation == '/welcome' ||
+          state.matchedLocation == '/forgot-password';
       final isOnJoin = state.matchedLocation.startsWith('/join/');
 
+      // While verifying email — stay on /register
+      if (isPendingVerification) {
+        return state.matchedLocation == '/register' ? null : '/register';
+      }
+
       // If loading, stay on splash except when user is already on auth pages.
-      // This keeps login/register visible during failed auth attempts so UI can show errors.
-      if (isLoading && !isOnSplash && !isOnAuth) {
+      if (isLoading && !isOnSplash && !isOnPublicAuth) {
         return '/';
       }
 
       // If authenticated, redirect to home
-      if (isAuthenticated && (isOnSplash || isOnAuth)) {
+      if (isAuthenticated && (isOnSplash || isOnPublicAuth)) {
         return '/home';
       }
 
       // Allow join group screen for unauthenticated users
       if (isOnJoin) {
-        return null; // Allow access to join screen
+        return null;
       }
 
-      // If not authenticated and not loading, redirect to login
-      if (!isAuthenticated && !isLoading && !isOnAuth && !isOnSplash) {
-        return '/login';
+      // If not authenticated and not loading, redirect to welcome
+      if (!isAuthenticated && !isLoading && !isOnPublicAuth && !isOnSplash) {
+        return '/welcome';
       }
 
-      // If not authenticated and done loading on splash, go to login
+      // If not authenticated and done loading on splash, go to welcome
       if (!isAuthenticated && !isLoading && isOnSplash) {
-        return '/login';
+        return '/welcome';
       }
 
-      return null; // No redirect
+      return null;
     },
     routes: [
       GoRoute(path: '/', builder: (context, state) => const SplashScreen()),
+      GoRoute(path: '/welcome', builder: (context, state) => const WelcomeScreen()),
       GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
       GoRoute(path: '/register', builder: (context, state) => const RegisterScreen()),
+      GoRoute(
+        path: '/forgot-password',
+        builder: (context, state) => const ForgotPasswordScreen(),
+      ),
 
       // Main navigation with bottom tabs
       StatefulShellRoute.indexedStack(
@@ -102,9 +119,11 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/settings', builder: (context, state) => const SettingsScreen()),
       GoRoute(
         path: '/edit-profile',
-        builder: (context, state) => Scaffold(
-          body: Center(child: Text(AppLocalizations.of(context)!.editProfileComingSoon)),
-        ),
+        builder: (context, state) => const EditProfileScreen(),
+      ),
+      GoRoute(
+        path: '/change-password',
+        builder: (context, state) => const ChangePasswordScreen(),
       ),
 
       // Group routes (nested)

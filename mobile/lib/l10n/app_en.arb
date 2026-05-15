@@ -18,6 +18,27 @@
     },
     "login": "Login",
     "register": "Register",
+    "welcomeScreenTitle": "Welcome",
+    "welcomeScreenSubtitle": "Sign in or create an account to get started",
+    "welcomeCreateAccount": "Create account",
+    "forgotPassword": "Forgot password?",
+    "forgotPasswordTitle": "Password Recovery",
+    "forgotPasswordSubtitle": "Enter your email and we'll send you a reset code",
+    "forgotPasswordEmailLabel": "Your email",
+    "sendResetCode": "Send code",
+    "resetCodeSentSubtitle": "Enter the 6-digit code sent to {email}",
+    "@resetCodeSentSubtitle": {
+        "description": "Subtitle after code is sent",
+        "placeholders": {
+            "email": { "type": "String" }
+        }
+    },
+    "resetCodeLabel": "Reset code",
+    "resetPasswordTitle": "New Password",
+    "setNewPassword": "Set new password",
+    "passwordResetSuccess": "Password changed successfully. Please log in.",
+    "invalidResetCode": "Invalid or expired reset code",
+    "resendCode": "Resend code",
     "profileTitle": "Profile",
     "settingsTitle": "Settings",
     "navigationProfileLabel": "Profile",
@@ -549,5 +570,15 @@
     "permissionError": "Permission denied.",
     "unknownError": "An unexpected error occurred. Please try again.",
     "retry": "Retry",
-    "dismiss": "Dismiss"
+    "dismiss": "Dismiss",
+    "currentPassword": "Current Password",
+    "newPassword": "New Password",
+    "confirmNewPassword": "Confirm New Password",
+    "currentPasswordRequired": "Current password is required",
+    "newPasswordRequired": "New password is required",
+    "confirmNewPasswordRequired": "Please confirm your new password",
+    "profileUpdatedSuccess": "Profile updated successfully",
+    "passwordChangedSuccess": "Password changed successfully",
+    "usernameHint": "Enter new username",
+    "changePasswordTitle": "Change Password"
 }

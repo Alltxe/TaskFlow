@@ -13,9 +13,11 @@ import {
   CompleteTaskInput,
   ApproveTaskInput,
   ClaimTaskInput,
+  AddTaskAttachmentInput,
 } from './dto/task.input';
 import { RotationService } from './rotation.service';
 import { RecurringTaskService } from './recurring-task.service';
+import { StorageService } from '../storage/storage.service';
 import { AuditLogService } from '../audit-log/audit-log.service';
 import { NotificationService } from '../notification/notification.service';
 import { NotificationType as NotificationTypeEnum } from '@prisma/client';
@@ -32,6 +34,7 @@ export class TaskService {
     private recurringTaskService: RecurringTaskService,
     private auditLogService: AuditLogService,
     private notificationService: NotificationService,
+    private storageService: StorageService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
@@ -190,6 +193,9 @@ export class TaskService {
       include: {
         assignee: true,
         createdBy: true,
+        attachments: {
+          orderBy: { uploadedAt: 'desc' },
+        },
         group: {
           include: {
             members: true,
@@ -952,10 +958,72 @@ export class TaskService {
       currentCycle: activeMembers.map((m) => m.id),
       currentCycleIndex: currentCycleIndex,
       lastRotationAt: lastTask?.createdAt || null,
-      nextRotationAt: null, // TODO: Calculate from recurrence rules (Phase 9)
+      nextRotationAt: null,
       activeMembers: activeMembers,
       awayMembers: awayMembers,
     };
+  }
+
+  /**
+   * Добавить вложение к задаче (файл уже загружен через /upload/task-attachment)
+   */
+  async addTaskAttachment(userId: string, input: AddTaskAttachmentInput) {
+    const task = await this.getTask(input.taskId, userId);
+
+    return this.prisma.taskAttachment.create({
+      data: {
+        url: input.url,
+        filename: input.filename,
+        fileSize: input.fileSize,
+        mimeType: input.mimeType,
+        taskId: input.taskId,
+        groupId: task.groupId,
+        uploadedById: userId,
+      },
+    });
+  }
+
+  /**
+   * Удалить вложение задачи (удаляет и файл в MinIO)
+   */
+  async deleteTaskAttachment(userId: string, attachmentId: string) {
+    const attachment = await this.prisma.taskAttachment.findUnique({
+      where: { id: attachmentId },
+      include: {
+        task: {
+          include: {
+            group: { include: { members: true } },
+          },
+        },
+      },
+    });
+
+    if (!attachment) {
+      throw new NotFoundException('Вложение не найдено');
+    }
+
+    const isMember = attachment.task.group.members.some(
+      (m) => m.userId === userId,
+    );
+    if (!isMember) {
+      throw new ForbiddenException('У вас нет доступа к этому вложению');
+    }
+
+    const isAdmin = attachment.task.group.members.some(
+      (m) => m.userId === userId && m.role === 'ADMIN',
+    );
+    const isUploader = attachment.uploadedById === userId;
+
+    if (!isAdmin && !isUploader) {
+      throw new ForbiddenException(
+        'Удалить вложение может только его автор или администратор',
+      );
+    }
+
+    await this.storageService.deleteFileByUrl(attachment.url);
+    await this.prisma.taskAttachment.delete({ where: { id: attachmentId } });
+
+    return true;
   }
 }
 

@@ -2,6 +2,7 @@
 import 'package:taskflow/data/datasources/profile_remote_datasource.dart';
 import 'package:taskflow/data/repositories/profile_repository.dart';
 import 'package:taskflow/data/repositories/profile_repository_impl.dart';
+import 'package:taskflow/domain/usecases/profile/change_password_usecase.dart';
 import 'package:taskflow/domain/usecases/profile/get_user_groups_usecase.dart';
 import 'package:taskflow/domain/usecases/profile/get_user_profile_usecase.dart';
 import 'package:taskflow/domain/usecases/profile/get_user_statistics_usecase.dart';
@@ -47,4 +48,10 @@ final updateProfileUseCaseProvider = Provider<UpdateProfileUseCase>((ref) {
 final uploadAvatarUseCaseProvider = Provider<UploadAvatarUseCase>((ref) {
   final repository = ref.watch(profileRepositoryProvider);
   return UploadAvatarUseCase(repository);
+});
+
+/// Provider for ChangePasswordUseCase
+final changePasswordUseCaseProvider = Provider<ChangePasswordUseCase>((ref) {
+  final repository = ref.watch(profileRepositoryProvider);
+  return ChangePasswordUseCase(repository);
 });

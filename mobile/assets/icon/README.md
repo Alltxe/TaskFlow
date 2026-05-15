@@ -1,43 +1,19 @@
 # App Icon
 
-To generate app icons, you need to provide the following files:
+Иконки лаунчера — **галочка в круге** в духе Material `task_alt`, как на splash / login / welcome.
 
-1. `app_icon.png` - Main app icon (1024x1024 px recommended)
-   - Should contain the task_alt icon (checkmark in circle) matching the splash screen
-   - Background color: #2196F3 (Material Blue)
-   - Icon should be centered and visible
+## Файлы
 
-2. `app_icon_foreground.png` - Foreground for adaptive icon (Android only)
-   - 1024x1024 px with transparent background
-   - Contains only the checkmark icon in white color
-   - Used with adaptive_icon_background color for Android 8.0+
+1. **`app_icon.png`** — 1024×1024, фон **#2196F3**, по центру белая пиктограмма «галочка в круге».
+2. **`app_icon_foreground.png`** — 1024×1024, прозрачный фон: только белая галочка в круге (для adaptive icon Android).
 
-## How to create the icon:
+## В приложении
 
-### Option 1: Using an icon generator service
-1. Go to https://icon.kitchen/ or https://www.appicon.co/
-2. Upload a source image with the task_alt icon (checkmark in circle)
-3. Set background color to #2196F3
-4. Generate and download the icons
-5. Place the generated files in this directory
+На экранах используется `Icon(Icons.task_alt, …)` (см. `splash_screen.dart`, `login_screen.dart`, `welcome_screen.dart`).
 
-### Option 2: Manual creation
-1. Create a 1024x1024 px PNG image
-2. Use blue background (#2196F3)
-3. Add a white checkmark icon in the center (similar to Material Icons task_alt)
-4. Save as `app_icon.png`
-5. Create another version with transparent background and only the checkmark as `app_icon_foreground.png`
-
-### Option 3: Use existing web icon
-If you have a suitable icon in `web/icons/Icon-512.png`, you can copy it here as `app_icon.png`.
-
-## After adding the icon files:
-
-Run the following command to generate platform-specific icons:
+## После замены PNG
 
 ```bash
-flutter pub get
-flutter pub run flutter_launcher_icons
+cd mobile
+dart run flutter_launcher_icons
 ```
-
-This will automatically generate all required icon sizes for Android and iOS.

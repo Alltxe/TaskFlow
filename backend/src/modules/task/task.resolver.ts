@@ -12,7 +12,9 @@ import {
   CompleteTaskInput,
   ApproveTaskInput,
   ClaimTaskInput,
+  AddTaskAttachmentInput,
 } from './dto/task.input';
+import { TaskAttachmentType } from './types/task-attachment.type';
 import { JwtAuthGuard } from '../auth/auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import type { User } from '@prisma/client';
@@ -193,6 +195,30 @@ export class TaskResolver {
     @CurrentUser() user: User,
   ): Promise<RotationPatternType> {
     return this.taskService.getRotationPattern(groupId, user.id);
+  }
+
+  /**
+   * Добавить вложение к задаче (файл предварительно загружен через POST /upload/task-attachment)
+   */
+  @Mutation(() => TaskAttachmentType)
+  @UseGuards(JwtAuthGuard)
+  async addTaskAttachment(
+    @Args('input') input: AddTaskAttachmentInput,
+    @CurrentUser() user: User,
+  ) {
+    return this.taskService.addTaskAttachment(user.id, input);
+  }
+
+  /**
+   * Удалить вложение задачи
+   */
+  @Mutation(() => Boolean)
+  @UseGuards(JwtAuthGuard)
+  async deleteTaskAttachment(
+    @Args('attachmentId') attachmentId: string,
+    @CurrentUser() user: User,
+  ) {
+    return this.taskService.deleteTaskAttachment(user.id, attachmentId);
   }
 
   /**

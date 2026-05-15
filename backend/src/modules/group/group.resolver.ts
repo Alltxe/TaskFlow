@@ -1,7 +1,7 @@
 import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
 import { GroupService } from './group.service';
-import { GroupType, GroupMemberType } from './types/group.type';
+import { GroupType, GroupMemberType, GroupPreviewType } from './types/group.type';
 import {
   CreateGroupInput,
   UpdateGroupInput,
@@ -16,6 +16,16 @@ import type { User } from '@prisma/client';
 @Resolver()
 export class GroupResolver {
   constructor(private groupService: GroupService) {}
+
+  /**
+   * Получить превью группы по токену приглашения (публичный, без авторизации)
+   */
+  @Query(() => GroupPreviewType)
+  async getGroupPreviewByInviteToken(
+    @Args('inviteToken') inviteToken: string,
+  ) {
+    return this.groupService.getGroupPreviewByInviteToken(inviteToken);
+  }
 
   /**
    * Создать группу

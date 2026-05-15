@@ -34,6 +34,10 @@ _$TaskImpl _$$TaskImplFromJson(Map<String, dynamic> json) => _$TaskImpl(
       createdBy: json['createdBy'] == null
           ? null
           : GroupMemberUser.fromJson(json['createdBy'] as Map<String, dynamic>),
+      attachments: (json['attachments'] as List<dynamic>?)
+              ?.map((e) => TaskAttachment.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const [],
     );
 
 Map<String, dynamic> _$$TaskImplToJson(_$TaskImpl instance) =>
@@ -59,4 +63,5 @@ Map<String, dynamic> _$$TaskImplToJson(_$TaskImpl instance) =>
       'assigneeId': instance.assigneeId,
       'assignee': instance.assignee,
       'createdBy': instance.createdBy,
+      'attachments': instance.attachments,
     };

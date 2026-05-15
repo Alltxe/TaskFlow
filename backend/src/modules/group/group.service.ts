@@ -217,6 +217,32 @@ export class GroupService {
   }
 
   /**
+   * Получить превью группы по токену приглашения (без авторизации)
+   */
+  async getGroupPreviewByInviteToken(inviteToken: string) {
+    const group = await this.prisma.group.findUnique({
+      where: { inviteToken },
+      include: {
+        _count: {
+          select: { members: true },
+        },
+      },
+    });
+
+    if (!group) {
+      throw new NotFoundException('Группа не найдена или токен недействителен');
+    }
+
+    return {
+      id: group.id,
+      name: group.name,
+      description: group.description,
+      memberCount: group._count.members,
+      requiresApproval: group.requiresApproval,
+    };
+  }
+
+  /**
    * Присоединиться к группе по токену
    */
   async joinGroup(userId: string, input: JoinGroupInput) {

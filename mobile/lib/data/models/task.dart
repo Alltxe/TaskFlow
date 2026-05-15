@@ -1,5 +1,6 @@
 ﻿import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:taskflow/data/models/group_member.dart';
+import 'package:taskflow/data/models/task_attachment.dart';
 
 part 'task.freezed.dart';
 part 'task.g.dart';
@@ -28,6 +29,7 @@ class Task with _$Task {
     String? assigneeId,
     GroupMemberUser? assignee,
     GroupMemberUser? createdBy,
+    @Default([]) List<TaskAttachment> attachments,
   }) = _Task;
 
   factory Task.fromJson(Map<String, dynamic> json) => _$TaskFromJson(json);

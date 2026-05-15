@@ -9,15 +9,16 @@ datasource db {
 }
 
 model User {
-  id           String    @id @default(cuid())
-  email        String    @unique
-  username     String
-  passwordHash String    @map("password_hash")
-  avatarUrl    String?   @map("avatar_url")
-  isAway       Boolean   @default(false) @map("is_away")
-  awayUntil    DateTime? @map("away_until")
-  createdAt    DateTime  @default(now()) @map("created_at")
-  updatedAt    DateTime  @updatedAt @map("updated_at")
+  id              String    @id @default(cuid())
+  email           String    @unique
+  username        String    @unique
+  passwordHash    String    @map("password_hash")
+  avatarUrl       String?   @map("avatar_url")
+  isAway          Boolean   @default(false) @map("is_away")
+  awayUntil       DateTime? @map("away_until")
+  emailVerifiedAt DateTime? @map("email_verified_at")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
 
   // Relations
   createdGroups          Group[]                    @relation("GroupCreator")
@@ -39,8 +40,38 @@ model User {
   pointTransactions      PointTransaction[]
   deviceTokens           DeviceToken[]
   notificationPreference NotificationPreference?
+  emailVerifications     EmailVerification[]
+  passwordResetTokens    PasswordResetToken[]
 
   @@map("users")
+}
+
+model EmailVerification {
+  id        String    @id @default(cuid())
+  code      String
+  expiresAt DateTime  @map("expires_at")
+  usedAt    DateTime? @map("used_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  userId    String    @map("user_id")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("email_verifications")
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  code      String
+  expiresAt DateTime  @map("expires_at")
+  usedAt    DateTime? @map("used_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  userId    String    @map("user_id")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("password_reset_tokens")
 }
 
 model Group {

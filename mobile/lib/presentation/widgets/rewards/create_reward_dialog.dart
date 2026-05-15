@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:taskflow/domain/usecases/reward/reward_usecase_providers.dart';
 import 'package:taskflow/l10n/app_localizations.dart';
+import 'package:taskflow/presentation/widgets/rewards/reward_image_picker.dart';
 
 class CreateRewardDialog extends ConsumerStatefulWidget {
   final String groupId;
@@ -18,8 +19,8 @@ class _CreateRewardDialogState extends ConsumerState<CreateRewardDialog> {
   final _nameController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _costController = TextEditingController();
-  final _imageUrlController = TextEditingController();
 
+  String? _imageUrl;
   bool _isLoading = false;
 
   @override
@@ -27,7 +28,6 @@ class _CreateRewardDialogState extends ConsumerState<CreateRewardDialog> {
     _nameController.dispose();
     _descriptionController.dispose();
     _costController.dispose();
-    _imageUrlController.dispose();
     super.dispose();
   }
 
@@ -46,9 +46,7 @@ class _CreateRewardDialogState extends ConsumerState<CreateRewardDialog> {
       description: _descriptionController.text.trim().isEmpty
           ? null
           : _descriptionController.text.trim(),
-      imageUrl: _imageUrlController.text.trim().isEmpty
-          ? null
-          : _imageUrlController.text.trim(),
+      imageUrl: _imageUrl,
       isActive: true,
     );
 
@@ -94,11 +92,17 @@ class _CreateRewardDialogState extends ConsumerState<CreateRewardDialog> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text(
-                    l10n.createReward,
-                    style: theme.textTheme.headlineSmall,
-                  ),
+                  Text(l10n.createReward, style: theme.textTheme.headlineSmall),
                   const SizedBox(height: 24),
+
+                  // Image picker
+                  RewardImagePicker(
+                    imageUrl: _imageUrl,
+                    enabled: !_isLoading,
+                    onUploaded: (url) => setState(() => _imageUrl = url),
+                  ),
+                  const SizedBox(height: 16),
+
                   TextFormField(
                     controller: _nameController,
                     decoration: InputDecoration(
@@ -112,13 +116,12 @@ class _CreateRewardDialogState extends ConsumerState<CreateRewardDialog> {
                       if (value == null || value.trim().isEmpty) {
                         return l10n.rewardNameRequired;
                       }
-                      if (value.trim().length < 3) {
-                        return l10n.rewardNameMinLength;
-                      }
+                      if (value.trim().length < 3) return l10n.rewardNameMinLength;
                       return null;
                     },
                   ),
                   const SizedBox(height: 16),
+
                   TextFormField(
                     controller: _descriptionController,
                     decoration: InputDecoration(
@@ -131,6 +134,7 @@ class _CreateRewardDialogState extends ConsumerState<CreateRewardDialog> {
                     textCapitalization: TextCapitalization.sentences,
                   ),
                   const SizedBox(height: 16),
+
                   TextFormField(
                     controller: _costController,
                     decoration: InputDecoration(
@@ -141,40 +145,23 @@ class _CreateRewardDialogState extends ConsumerState<CreateRewardDialog> {
                     ),
                     enabled: !_isLoading,
                     keyboardType: TextInputType.number,
-                    inputFormatters: [
-                      FilteringTextInputFormatter.digitsOnly,
-                    ],
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
                         return l10n.rewardCostRequired;
                       }
                       final cost = int.tryParse(value);
-                      if (cost == null || cost <= 0) {
-                        return l10n.rewardCostMustBePositive;
-                      }
+                      if (cost == null || cost <= 0) return l10n.rewardCostMustBePositive;
                       return null;
                     },
                   ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _imageUrlController,
-                    decoration: InputDecoration(
-                      labelText: l10n.rewardImageUrl,
-                      hintText: l10n.enterImageUrl,
-                      border: const OutlineInputBorder(),
-                      prefixIcon: const Icon(Icons.image),
-                    ),
-                    enabled: !_isLoading,
-                    keyboardType: TextInputType.url,
-                  ),
                   const SizedBox(height: 24),
+
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       TextButton(
-                        onPressed: _isLoading
-                            ? null
-                            : () => Navigator.of(context).pop(),
+                        onPressed: _isLoading ? null : () => Navigator.of(context).pop(),
                         child: Text(l10n.cancel),
                       ),
                       const SizedBox(width: 8),

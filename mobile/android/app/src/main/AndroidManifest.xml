@@ -1,5 +1,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- Camera and media permissions for image/file picker -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <!-- Android 13+ granular media permissions -->
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+    <!-- Android < 13 storage permission -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
 
     <application
         android:label="TaskFlow"
@@ -26,12 +34,28 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
-            <!-- Deep Links -->
+            <!-- Custom URL scheme: taskflow://invite/{token} -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="taskflow" />
+            </intent-filter>
+            <!--
+                HTTPS App Links: https://{HOST}/join/{token}
+                android:autoVerify="true" — Android проверит /.well-known/assetlinks.json на хосте.
+                Замените android:host на реальный домен бэкенда.
+                Переменная DEEP_LINK_HOST задаётся в build.gradle.kts:
+                  manifestPlaceholders["DEEP_LINK_HOST"] = "api.taskflow.example.com"
+            -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="https"
+                    android:host="${DEEP_LINK_HOST}"
+                    android:pathPrefix="/join/" />
             </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.
@@ -52,6 +76,15 @@
         <intent>
             <action android:name="android.intent.action.PROCESS_TEXT"/>
             <data android:mimeType="text/plain"/>
+        </intent>
+        <!-- url_launcher: allow opening http/https URLs -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="https" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="http" />
         </intent>
     </queries>
 </manifest>

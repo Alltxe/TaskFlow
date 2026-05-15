@@ -87,6 +87,9 @@ dependencies:
 
   # Functional Programming
   dartz: ^0.10.1
+  mime: ^2.0.0
+  url_launcher: ^6.3.2
+  device_info_plus: ^12.4.0
 
 dev_dependencies:
   flutter_test:

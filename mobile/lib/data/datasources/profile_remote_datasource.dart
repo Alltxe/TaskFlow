@@ -1,5 +1,8 @@
-﻿import 'package:gql/language.dart' as gql_lang;
+﻿import 'package:dio/dio.dart' as dio_pkg;
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:gql/language.dart' as gql_lang;
 import 'package:gql_exec/gql_exec.dart';
+import 'package:taskflow/core/config/app_config.dart';
 import 'package:taskflow/core/config/graphql_client.dart';
 import 'package:taskflow/core/errors/exceptions.dart';
 import 'package:taskflow/data/models/group_summary.dart';
@@ -148,25 +151,150 @@ class ProfileRemoteDataSource {
     }
   }
 
-  /// Update user profile (username, avatar, away status)
-  /// Note: Backend doesn't have updateProfile mutation yet,
-  /// this is a placeholder for future implementation
+  /// Update user profile (username, avatarUrl, away status) via GraphQL updateUser mutation.
   Future<User> updateProfile({
     String? username,
     String? avatarUrl,
     bool? isAway,
     DateTime? awayUntil,
   }) async {
-    // TODO: Implement when backend adds updateProfile mutation
-    throw const ServerException(message: 'Profile update not yet implemented in backend');
+    const mutation = r'''
+      mutation UpdateUser($input: UpdateUserInput!) {
+        updateUser(input: $input) {
+          id
+          email
+          username
+          avatarUrl
+          isAway
+          awayUntil
+          createdAt
+          updatedAt
+        }
+      }
+    ''';
+
+    final input = <String, dynamic>{
+      if (username != null) 'username': username,
+      if (avatarUrl != null) 'avatarUrl': avatarUrl,
+    };
+
+    try {
+      final gqlRequest = Request(
+        operation: Operation(
+          document: gql_lang.parseString(mutation),
+          operationName: 'UpdateUser',
+        ),
+        variables: {'input': input},
+      );
+
+      final response = await GraphQLClientConfig.request(gqlRequest);
+
+      if (response.errors != null && response.errors!.isNotEmpty) {
+        _handleGraphQLErrors(response.errors!);
+      }
+
+      final data = response.data?['updateUser'];
+      if (data == null) {
+        throw const ServerException(message: 'Failed to update profile');
+      }
+
+      return User.fromJson(data);
+    } on AppException {
+      rethrow;
+    } catch (e) {
+      throw ServerException(message: e.toString());
+    }
   }
 
-  /// Upload avatar image
-  /// Note: Backend doesn't have avatar upload endpoint yet,
-  /// this is a placeholder for future implementation
+  /// Upload avatar image to MinIO via REST, then update the user's avatarUrl.
+  /// Returns the new avatar URL.
   Future<String> uploadAvatar(String filePath) async {
-    // TODO: Implement when backend adds file upload endpoint
-    throw const ServerException(message: 'Avatar upload not yet implemented in backend');
+    const storage = FlutterSecureStorage();
+    final token = await storage.read(key: AppConfig.accessTokenKey);
+
+    final dio = dio_pkg.Dio();
+    final formData = dio_pkg.FormData.fromMap({
+      'file': await dio_pkg.MultipartFile.fromFile(filePath, filename: filePath.split('/').last),
+    });
+
+    try {
+      print('[Avatar] Uploading to: ${AppConfig.apiBaseUrl}/upload/avatar');
+      print('[Avatar] File path: $filePath');
+      print('[Avatar] Token present: ${token != null}');
+
+      final response = await dio.post<Map<String, dynamic>>(
+        '${AppConfig.apiBaseUrl}/upload/avatar',
+        data: formData,
+        options: dio_pkg.Options(
+          headers: {
+            if (token != null) 'Authorization': 'Bearer $token',
+          },
+        ),
+      );
+
+      print('[Avatar] Response status: ${response.statusCode}');
+      print('[Avatar] Response data: ${response.data}');
+
+      final url = response.data?['url'] as String?;
+      if (url == null) {
+        throw const ServerException(message: 'Upload response missing url');
+      }
+
+      print('[Avatar] URL from server: $url');
+
+      // Persist the new avatarUrl in the user profile
+      await updateProfile(avatarUrl: url);
+
+      print('[Avatar] Profile updated with new URL');
+      return url;
+    } on dio_pkg.DioException catch (e) {
+      final details = e.response?.data?.toString() ??
+          e.error?.toString() ??
+          e.type.name;
+      print('[Avatar] DioException: type=${e.type}, status=${e.response?.statusCode}, details=$details');
+      throw ServerException(message: 'Ошибка загрузки аватара: $details');
+    } on AppException {
+      rethrow;
+    } catch (e) {
+      throw ServerException(message: e.toString());
+    }
+  }
+
+  /// Change user password via GraphQL changePassword mutation.
+  Future<void> changePassword({
+    required String oldPassword,
+    required String newPassword,
+  }) async {
+    const mutation = r'''
+      mutation ChangePassword($input: ChangePasswordInput!) {
+        changePassword(input: $input)
+      }
+    ''';
+
+    try {
+      final gqlRequest = Request(
+        operation: Operation(
+          document: gql_lang.parseString(mutation),
+          operationName: 'ChangePassword',
+        ),
+        variables: {
+          'input': {
+            'oldPassword': oldPassword,
+            'newPassword': newPassword,
+          },
+        },
+      );
+
+      final response = await GraphQLClientConfig.request(gqlRequest);
+
+      if (response.errors != null && response.errors!.isNotEmpty) {
+        _handleGraphQLErrors(response.errors!);
+      }
+    } on AppException {
+      rethrow;
+    } catch (e) {
+      throw ServerException(message: e.toString());
+    }
   }
 
   void _handleGraphQLErrors(List<GraphQLError> errors) {

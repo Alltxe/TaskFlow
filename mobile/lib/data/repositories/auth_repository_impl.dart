@@ -131,4 +131,32 @@ class AuthRepositoryImpl implements AuthRepository {
       return true;
     }
   }
+
+  @override
+  Future<void> verifyEmail(String code) async {
+    await remoteDataSource.verifyEmail(code);
+  }
+
+  @override
+  Future<void> resendVerificationCode() async {
+    await remoteDataSource.resendVerificationCode();
+  }
+
+  @override
+  Future<void> requestPasswordReset(String email) async {
+    await remoteDataSource.requestPasswordReset(email);
+  }
+
+  @override
+  Future<void> resetPassword({
+    required String email,
+    required String code,
+    required String newPassword,
+  }) async {
+    await remoteDataSource.resetPassword(
+      email: email,
+      code: code,
+      newPassword: newPassword,
+    );
+  }
 }

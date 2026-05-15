@@ -128,6 +128,16 @@ class _FakeAuthRepository implements AuthRepository {
   Future<AuthResponse> register(RegisterRequest request) {
     throw UnimplementedError();
   }
+
+  @override
+  Future<void> verifyEmail(String code) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> resendVerificationCode() {
+    throw UnimplementedError();
+  }
 }
 
 class _FakeGroupRepository implements GroupRepository {

@@ -65,13 +65,25 @@ class _TaskFlowAppState extends ConsumerState<TaskFlowApp> {
   }
 
   void _handleDeepLink(Uri uri) {
-    // Handle taskflow://invite/{token}
+    // Кастомная схема: taskflow://invite/{token}
     if (uri.scheme == 'taskflow' && uri.host == 'invite') {
       final token = uri.pathSegments.isNotEmpty ? uri.pathSegments[0] : null;
       if (token != null) {
-        // Navigate to join group screen
-        final router = ref.read(routerProvider);
-        router.go('/join/$token');
+        ref.read(routerProvider).go('/join/$token');
+      }
+      return;
+    }
+
+    // HTTPS App Links (Android) / Universal Links (iOS): https://{host}/join/{token}
+    // Также обрабатывает пути вида /TaskFlow/join/{token} (если приложение на подпути)
+    if (uri.scheme == 'https' || uri.scheme == 'http') {
+      final segments = uri.pathSegments;
+      final joinIndex = segments.indexOf('join');
+      if (joinIndex >= 0 && joinIndex + 1 < segments.length) {
+        final token = segments[joinIndex + 1];
+        if (token.isNotEmpty) {
+          ref.read(routerProvider).go('/join/$token');
+        }
       }
     }
   }

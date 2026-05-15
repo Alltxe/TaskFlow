@@ -12,11 +12,11 @@ import 'package:taskflow/data/models/user.dart';
 class AuthRemoteDataSource {
   AuthRemoteDataSource();
 
-  /// Login with email and password
+  /// Login with email or username and password
   Future<AuthResponse> login(LoginRequest request) async {
     const mutationString = r'''
-      mutation Login($email: String!, $password: String!) {
-        login(input: {email: $email, password: $password}) {
+      mutation Login($identifier: String!, $password: String!) {
+        login(input: {identifier: $identifier, password: $password}) {
           accessToken
           refreshToken
           user {
@@ -39,7 +39,7 @@ class AuthRemoteDataSource {
           document: gql_lang.parseString(mutationString),
           operationName: 'Login',
         ),
-        variables: {'email': request.email, 'password': request.password},
+        variables: {'identifier': request.email, 'password': request.password},
       );
 
       final response = await GraphQLClientConfig.request(gqlRequest);
@@ -194,6 +194,74 @@ class AuthRemoteDataSource {
     }
   }
 
+  /// Verify email with 6-digit code (requires valid access token)
+  Future<void> verifyEmail(String code) async {
+    const mutationString = r'''
+      mutation VerifyEmail($code: String!) {
+        verifyEmail(input: {code: $code}) {
+          id
+          email
+          emailVerifiedAt
+        }
+      }
+    ''';
+
+    try {
+      final gqlRequest = Request(
+        operation: Operation(
+          document: gql_lang.parseString(mutationString),
+          operationName: 'VerifyEmail',
+        ),
+        variables: {'code': code},
+      );
+
+      final response = await GraphQLClientConfig.request(gqlRequest);
+
+      if (response.errors != null && response.errors!.isNotEmpty) {
+        final errorMessage = response.errors!.map((e) => e.message).join(', ');
+        throw ServerException(message: errorMessage);
+      }
+
+      final data = response.data?['verifyEmail'];
+      if (data == null) {
+        throw const ServerException(message: 'Email verification failed: No data returned');
+      }
+    } on AppException {
+      rethrow;
+    } catch (e) {
+      throw ServerException(message: 'Email verification error: ${e.toString()}');
+    }
+  }
+
+  /// Resend email verification code (requires valid access token)
+  Future<void> resendVerificationCode() async {
+    const mutationString = r'''
+      mutation ResendVerificationCode {
+        resendVerificationCode
+      }
+    ''';
+
+    try {
+      final gqlRequest = Request(
+        operation: Operation(
+          document: gql_lang.parseString(mutationString),
+          operationName: 'ResendVerificationCode',
+        ),
+      );
+
+      final response = await GraphQLClientConfig.request(gqlRequest);
+
+      if (response.errors != null && response.errors!.isNotEmpty) {
+        final errorMessage = response.errors!.map((e) => e.message).join(', ');
+        throw ServerException(message: errorMessage);
+      }
+    } on AppException {
+      rethrow;
+    } catch (e) {
+      throw ServerException(message: 'Resend code error: ${e.toString()}');
+    }
+  }
+
   /// Logout - invalidate refresh token
   Future<void> logout(String refreshToken) async {
     const mutationString = r'''
@@ -283,6 +351,70 @@ class AuthRemoteDataSource {
       rethrow;
     } catch (e) {
       throw ServerException(message: 'Change password error: ${e.toString()}');
+    }
+  }
+
+  /// Request password reset — sends 6-digit code to the given email.
+  Future<void> requestPasswordReset(String email) async {
+    const mutationString = r'''
+      mutation RequestPasswordReset($email: String!) {
+        requestPasswordReset(input: {email: $email})
+      }
+    ''';
+
+    try {
+      final gqlRequest = Request(
+        operation: Operation(
+          document: gql_lang.parseString(mutationString),
+          operationName: 'RequestPasswordReset',
+        ),
+        variables: {'email': email},
+      );
+
+      final response = await GraphQLClientConfig.request(gqlRequest);
+
+      if (response.errors != null && response.errors!.isNotEmpty) {
+        final errorMessage = response.errors!.map((e) => e.message).join(', ');
+        throw ServerException(message: errorMessage);
+      }
+    } on AppException {
+      rethrow;
+    } catch (e) {
+      throw ServerException(message: 'Request password reset error: ${e.toString()}');
+    }
+  }
+
+  /// Reset password using the code sent to email.
+  Future<void> resetPassword({
+    required String email,
+    required String code,
+    required String newPassword,
+  }) async {
+    const mutationString = r'''
+      mutation ResetPassword($email: String!, $code: String!, $newPassword: String!) {
+        resetPassword(input: {email: $email, code: $code, newPassword: $newPassword})
+      }
+    ''';
+
+    try {
+      final gqlRequest = Request(
+        operation: Operation(
+          document: gql_lang.parseString(mutationString),
+          operationName: 'ResetPassword',
+        ),
+        variables: {'email': email, 'code': code, 'newPassword': newPassword},
+      );
+
+      final response = await GraphQLClientConfig.request(gqlRequest);
+
+      if (response.errors != null && response.errors!.isNotEmpty) {
+        final errorMessage = response.errors!.map((e) => e.message).join(', ');
+        throw ServerException(message: errorMessage);
+      }
+    } on AppException {
+      rethrow;
+    } catch (e) {
+      throw ServerException(message: 'Reset password error: ${e.toString()}');
     }
   }
 

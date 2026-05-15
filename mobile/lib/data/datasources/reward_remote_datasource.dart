@@ -1,5 +1,8 @@
-﻿import 'package:gql/language.dart' as gql_lang;
+﻿import 'package:dio/dio.dart' as dio_pkg;
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:gql/language.dart' as gql_lang;
 import 'package:gql_exec/gql_exec.dart';
+import 'package:taskflow/core/config/app_config.dart';
 import 'package:taskflow/core/config/graphql_client.dart';
 import 'package:taskflow/core/errors/exceptions.dart';
 import 'package:taskflow/data/models/leaderboard_entry.dart';
@@ -594,6 +597,37 @@ class RewardRemoteDataSource {
       rethrow;
     } catch (e) {
       throw NetworkException(message: 'Failed to approve/reject reward request: ${e.toString()}');
+    }
+  }
+
+  /// Upload a reward image to MinIO and return its public URL.
+  Future<String> uploadRewardImage(String filePath) async {
+    const storage = FlutterSecureStorage();
+    final token = await storage.read(key: AppConfig.accessTokenKey);
+
+    final dio = dio_pkg.Dio();
+    final formData = dio_pkg.FormData.fromMap({
+      'file': await dio_pkg.MultipartFile.fromFile(
+        filePath,
+        filename: filePath.split('/').last,
+      ),
+    });
+
+    try {
+      final dioResponse = await dio.post<Map<String, dynamic>>(
+        '${AppConfig.apiBaseUrl}/upload/reward-image',
+        data: formData,
+        options: dio_pkg.Options(
+          headers: {
+            if (token != null) 'Authorization': 'Bearer $token',
+          },
+        ),
+      );
+      final url = dioResponse.data?['url'] as String?;
+      if (url == null) throw const ServerException(message: 'Upload response missing url');
+      return url;
+    } on dio_pkg.DioException catch (e) {
+      throw ServerException(message: 'Ошибка загрузки изображения: ${e.message}');
     }
   }
 

@@ -8,6 +8,7 @@ import {
 import * as bcrypt from 'bcrypt';
 import { AuthService } from './auth.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { MailService } from '../mail/mail.service';
 import { RegisterInput, LoginInput, RefreshTokenInput } from './dto/auth.input';
 
 // Mock bcrypt
@@ -38,6 +39,7 @@ describe('AuthService', () => {
   const mockPrismaService = {
     user: {
       findUnique: jest.fn(),
+      findFirst: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
     },
@@ -47,6 +49,16 @@ describe('AuthService', () => {
       update: jest.fn(),
       updateMany: jest.fn(),
     },
+    emailVerification: {
+      create: jest.fn(),
+      findFirst: jest.fn(),
+      update: jest.fn(),
+    },
+    $transaction: jest.fn(),
+  };
+
+  const mockMailService = {
+    sendEmailVerificationCode: jest.fn().mockResolvedValue(undefined),
   };
 
   const mockJwtService = {
@@ -65,6 +77,10 @@ describe('AuthService', () => {
         {
           provide: JwtService,
           useValue: mockJwtService,
+        },
+        {
+          provide: MailService,
+          useValue: mockMailService,
         },
       ],
     }).compile();
@@ -92,6 +108,7 @@ describe('AuthService', () => {
       mockPrismaService.user.findUnique.mockResolvedValue(null);
       mockPrismaService.user.create.mockResolvedValue(mockUser);
       mockPrismaService.refreshToken.create.mockResolvedValue({});
+      mockPrismaService.emailVerification.create.mockResolvedValue({});
       (bcrypt.hash as jest.Mock).mockResolvedValue('hashed_password');
       mockJwtService.sign.mockReturnValue('mock_token');
 
@@ -117,7 +134,7 @@ describe('AuthService', () => {
         BadRequestException,
       );
       await expect(service.register(invalidInput)).rejects.toThrow(
-        'incorrect email',
+        'Incorrect email',
       );
     });
 
@@ -145,36 +162,56 @@ describe('AuthService', () => {
   });
 
   describe('login', () => {
-    const loginInput: LoginInput = {
-      email: 'test@example.com',
+    const loginByEmail: LoginInput = {
+      identifier: 'test@example.com',
       password: 'password123',
     };
 
-    it('should successfully login a user with correct credentials', async () => {
+    const loginByUsername: LoginInput = {
+      identifier: 'testuser',
+      password: 'password123',
+    };
+
+    it('should successfully login a user by email', async () => {
       mockPrismaService.user.findUnique.mockResolvedValue(mockUser);
       mockPrismaService.refreshToken.create.mockResolvedValue({});
       (bcrypt.compare as jest.Mock).mockResolvedValue(true);
       mockJwtService.sign.mockReturnValue('mock_token');
 
-      const result = await service.login(loginInput);
+      const result = await service.login(loginByEmail);
 
       expect(result).toHaveProperty('accessToken');
       expect(result).toHaveProperty('refreshToken');
       expect(result).toHaveProperty('user');
       expect(result.user).not.toHaveProperty('passwordHash');
       expect(mockPrismaService.user.findUnique).toHaveBeenCalledWith({
-        where: { email: loginInput.email },
+        where: { email: loginByEmail.identifier },
+      });
+    });
+
+    it('should successfully login a user by username', async () => {
+      mockPrismaService.user.findUnique.mockResolvedValue(mockUser);
+      mockPrismaService.refreshToken.create.mockResolvedValue({});
+      (bcrypt.compare as jest.Mock).mockResolvedValue(true);
+      mockJwtService.sign.mockReturnValue('mock_token');
+
+      const result = await service.login(loginByUsername);
+
+      expect(result).toHaveProperty('accessToken');
+      expect(result).toHaveProperty('user');
+      expect(mockPrismaService.user.findUnique).toHaveBeenCalledWith({
+        where: { username: loginByUsername.identifier },
       });
     });
 
     it('should throw UnauthorizedException if user not found', async () => {
       mockPrismaService.user.findUnique.mockResolvedValue(null);
 
-      await expect(service.login(loginInput)).rejects.toThrow(
+      await expect(service.login(loginByEmail)).rejects.toThrow(
         UnauthorizedException,
       );
-      await expect(service.login(loginInput)).rejects.toThrow(
-        'Incorrect email or password',
+      await expect(service.login(loginByEmail)).rejects.toThrow(
+        'Incorrect login or password',
       );
     });
 
@@ -182,11 +219,11 @@ describe('AuthService', () => {
       mockPrismaService.user.findUnique.mockResolvedValue(mockUser);
       (bcrypt.compare as jest.Mock).mockResolvedValue(false);
 
-      await expect(service.login(loginInput)).rejects.toThrow(
+      await expect(service.login(loginByEmail)).rejects.toThrow(
         UnauthorizedException,
       );
-      await expect(service.login(loginInput)).rejects.toThrow(
-        'Incorrect email or password',
+      await expect(service.login(loginByEmail)).rejects.toThrow(
+        'Incorrect login or password',
       );
     });
   });

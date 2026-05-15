@@ -55,6 +55,56 @@ class AppLocalizationsEn extends AppLocalizations {
   String get register => 'Register';
 
   @override
+  String get welcomeScreenTitle => 'Welcome';
+
+  @override
+  String get welcomeScreenSubtitle =>
+      'Sign in or create an account to get started';
+
+  @override
+  String get welcomeCreateAccount => 'Create account';
+
+  @override
+  String get forgotPassword => 'Forgot password?';
+
+  @override
+  String get forgotPasswordTitle => 'Password Recovery';
+
+  @override
+  String get forgotPasswordSubtitle =>
+      'Enter your email and we\'ll send you a reset code';
+
+  @override
+  String get forgotPasswordEmailLabel => 'Your email';
+
+  @override
+  String get sendResetCode => 'Send code';
+
+  @override
+  String resetCodeSentSubtitle(String email) {
+    return 'Enter the 6-digit code sent to $email';
+  }
+
+  @override
+  String get resetCodeLabel => 'Reset code';
+
+  @override
+  String get resetPasswordTitle => 'New Password';
+
+  @override
+  String get setNewPassword => 'Set new password';
+
+  @override
+  String get passwordResetSuccess =>
+      'Password changed successfully. Please log in.';
+
+  @override
+  String get invalidResetCode => 'Invalid or expired reset code';
+
+  @override
+  String get resendCode => 'Resend code';
+
+  @override
   String get profileTitle => 'Profile';
 
   @override
@@ -1319,4 +1369,34 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dismiss => 'Dismiss';
+
+  @override
+  String get currentPassword => 'Current Password';
+
+  @override
+  String get newPassword => 'New Password';
+
+  @override
+  String get confirmNewPassword => 'Confirm New Password';
+
+  @override
+  String get currentPasswordRequired => 'Current password is required';
+
+  @override
+  String get newPasswordRequired => 'New password is required';
+
+  @override
+  String get confirmNewPasswordRequired => 'Please confirm your new password';
+
+  @override
+  String get profileUpdatedSuccess => 'Profile updated successfully';
+
+  @override
+  String get passwordChangedSuccess => 'Password changed successfully';
+
+  @override
+  String get usernameHint => 'Enter new username';
+
+  @override
+  String get changePasswordTitle => 'Change Password';
 }

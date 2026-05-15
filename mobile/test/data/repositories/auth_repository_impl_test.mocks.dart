@@ -127,6 +127,26 @@ class MockAuthRemoteDataSource extends _i1.Mock
       ) as _i7.Future<_i3.AuthTokens>);
 
   @override
+  _i7.Future<void> verifyEmail(String? code) => (super.noSuchMethod(
+        Invocation.method(
+          #verifyEmail,
+          [code],
+        ),
+        returnValue: _i7.Future<void>.value(),
+        returnValueForMissingStub: _i7.Future<void>.value(),
+      ) as _i7.Future<void>);
+
+  @override
+  _i7.Future<void> resendVerificationCode() => (super.noSuchMethod(
+        Invocation.method(
+          #resendVerificationCode,
+          [],
+        ),
+        returnValue: _i7.Future<void>.value(),
+        returnValueForMissingStub: _i7.Future<void>.value(),
+      ) as _i7.Future<void>);
+
+  @override
   _i7.Future<void> logout(String? refreshToken) => (super.noSuchMethod(
         Invocation.method(
           #logout,

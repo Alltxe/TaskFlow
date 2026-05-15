@@ -26,4 +26,20 @@ abstract class AuthRepository {
 
   /// Check if access token needs refresh
   Future<bool> needsTokenRefresh();
+
+  /// Verify email with 6-digit code
+  Future<void> verifyEmail(String code);
+
+  /// Resend email verification code
+  Future<void> resendVerificationCode();
+
+  /// Request password reset — sends a 6-digit code to the given email.
+  Future<void> requestPasswordReset(String email);
+
+  /// Reset password using the code sent to email.
+  Future<void> resetPassword({
+    required String email,
+    required String code,
+    required String newPassword,
+  });
 }

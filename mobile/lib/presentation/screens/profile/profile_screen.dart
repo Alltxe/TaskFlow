@@ -2,50 +2,169 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:taskflow/core/utils/media_permission_helper.dart';
+import 'package:taskflow/core/errors/failure.dart';
+import 'package:taskflow/data/models/group_summary.dart';
+import 'package:taskflow/data/models/user_statistics.dart';
 import 'package:taskflow/data/providers/auth_providers.dart';
 import 'package:taskflow/data/providers/profile_providers.dart';
 import 'package:taskflow/l10n/app_localizations.dart';
+import 'package:dartz/dartz.dart';
 
 /// Profile tab screen
-class ProfileScreen extends ConsumerWidget {
+class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final statisticsAsync = ref.watch(getUserStatisticsUseCaseProvider);
-    final groupsAsync = ref.watch(getUserGroupsUseCaseProvider);
+  ConsumerState<ProfileScreen> createState() => _ProfileScreenState();
+}
 
+class _ProfileScreenState extends ConsumerState<ProfileScreen> {
+  bool _uploadingAvatar = false;
+
+  // Cached futures — created once and kept stable across rebuilds
+  Future<Either<Failure, UserStatistics>>? _statisticsFuture;
+  Future<Either<Failure, List<GroupSummary>>>? _groupsFuture;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _statisticsFuture ??= ref.read(getUserStatisticsUseCaseProvider).call();
+    _groupsFuture ??= ref.read(getUserGroupsUseCaseProvider).call();
+  }
+
+  void _refresh() {
+    setState(() {
+      _statisticsFuture = ref.read(getUserStatisticsUseCaseProvider).call();
+      _groupsFuture = ref.read(getUserGroupsUseCaseProvider).call();
+    });
+    ref.invalidate(getUserProfileUseCaseProvider);
+  }
+
+  // ── Avatar upload ─────────────────────────────────────────────────────────
+
+  Future<void> _pickAndUploadAvatar() async {
+    final source = await _showImageSourceDialog();
+    if (source == null) return;
+
+    final hasPermission = await _requestMediaPermission(source);
+    if (!hasPermission) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Нет разрешения на доступ к медиафайлам')),
+        );
+      }
+      return;
+    }
+
+    final picker = ImagePicker();
+    final XFile? picked = await picker.pickImage(
+      source: source,
+      maxWidth: 512,
+      maxHeight: 512,
+      imageQuality: 85,
+    );
+    if (picked == null) return;
+
+    setState(() => _uploadingAvatar = true);
+    try {
+      final useCase = ref.read(uploadAvatarUseCaseProvider);
+      final result = await useCase(picked.path);
+      result.fold(
+        (failure) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Ошибка: ${failure.message}'),
+                backgroundColor: Theme.of(context).colorScheme.error,
+              ),
+            );
+          }
+        },
+        (newAvatarUrl) {
+          print('[Profile] Upload success, URL: $newAvatarUrl');
+          final currentUser = ref.read(authStateProvider).user;
+          print('[Profile] Current user avatarUrl before: ${currentUser?.avatarUrl}');
+          if (currentUser != null) {
+            final updated = currentUser.copyWith(avatarUrl: newAvatarUrl);
+            print('[Profile] Updated user avatarUrl: ${updated.avatarUrl}');
+            ref.read(authStateProvider.notifier).updateUser(updated);
+          }
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Аватар обновлён')),
+            );
+          }
+        },
+      );
+    } finally {
+      if (mounted) setState(() => _uploadingAvatar = false);
+    }
+  }
+
+  Future<ImageSource?> _showImageSourceDialog() {
+    return showModalBottomSheet<ImageSource>(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.photo_library_outlined),
+              title: const Text('Из галереи'),
+              onTap: () => Navigator.pop(ctx, ImageSource.gallery),
+            ),
+            ListTile(
+              leading: const Icon(Icons.camera_alt_outlined),
+              title: const Text('Сделать фото'),
+              onTap: () => Navigator.pop(ctx, ImageSource.camera),
+            ),
+            ListTile(
+              leading: const Icon(Icons.close),
+              title: const Text('Отмена'),
+              onTap: () => Navigator.pop(ctx),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<bool> _requestMediaPermission(ImageSource source) =>
+      requestMediaPermission(source);
+
+  // ── Build ─────────────────────────────────────────────────────────────────
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.profileTitle),
         actions: [
-          IconButton(icon: const Icon(Icons.settings), onPressed: () => context.push('/settings')),
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () => context.push('/settings'),
+          ),
         ],
       ),
       body: RefreshIndicator(
-        onRefresh: () async {
-          ref.invalidate(getUserProfileUseCaseProvider);
-          ref.invalidate(getUserStatisticsUseCaseProvider);
-          ref.invalidate(getUserGroupsUseCaseProvider);
-        },
+        onRefresh: () async => _refresh(),
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            // Profile header
-            _buildProfileHeader(context, ref),
+            _buildProfileHeader(context),
             const SizedBox(height: 24),
 
-            // Statistics cards
-            FutureBuilder(
-              future: statisticsAsync.call(),
+            FutureBuilder<Either<Failure, UserStatistics>>(
+              future: _statisticsFuture,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
                 }
-
                 return snapshot.data?.fold(
                       (failure) => _buildErrorCard(context, failure.message),
-                      (statistics) => _buildStatisticsSection(context, statistics),
+                      (stats) => _buildStatisticsSection(context, stats),
                     ) ??
                     const SizedBox.shrink();
               },
@@ -53,14 +172,12 @@ class ProfileScreen extends ConsumerWidget {
 
             const SizedBox(height: 24),
 
-            // Groups section
-            FutureBuilder(
-              future: groupsAsync.call(),
+            FutureBuilder<Either<Failure, List<GroupSummary>>>(
+              future: _groupsFuture,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
                 }
-
                 return snapshot.data?.fold(
                       (failure) => _buildErrorCard(context, failure.message),
                       (groups) => _buildGroupsSection(context, groups),
@@ -74,7 +191,7 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildProfileHeader(BuildContext context, WidgetRef ref) {
+  Widget _buildProfileHeader(BuildContext context) {
     final authState = ref.watch(authStateProvider);
 
     if (authState.status == AuthStatus.loading) {
@@ -91,12 +208,12 @@ class ProfileScreen extends ConsumerWidget {
     }
 
     final user = authState.user!;
+    print('[Profile] Building header, avatarUrl: ${user.avatarUrl}');
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            // Avatar
             Stack(
               children: [
                 CircleAvatar(
@@ -117,23 +234,29 @@ class ProfileScreen extends ConsumerWidget {
                   child: CircleAvatar(
                     radius: 18,
                     backgroundColor: Theme.of(context).colorScheme.primary,
-                    child: IconButton(
-                      icon: const Icon(Icons.camera_alt, size: 18),
-                      color: Theme.of(context).colorScheme.onPrimary,
-                      onPressed: () => context.push('/edit-profile'),
-                      padding: EdgeInsets.zero,
-                    ),
+                    child: _uploadingAvatar
+                        ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : IconButton(
+                            icon: const Icon(Icons.camera_alt, size: 18),
+                            color: Theme.of(context).colorScheme.onPrimary,
+                            onPressed: _uploadingAvatar ? null : _pickAndUploadAvatar,
+                            padding: EdgeInsets.zero,
+                            tooltip: 'Изменить аватар',
+                          ),
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 16),
-
-            // Username
             Text(user.username, style: Theme.of(context).textTheme.headlineSmall),
             const SizedBox(height: 4),
-
-            // Email
             Text(
               user.email,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -141,24 +264,17 @@ class ProfileScreen extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: 12),
-
-            // Away status
             if (user.isAway)
               Chip(
                 avatar: const Icon(Icons.flight_takeoff, size: 16),
                 label: Text(
                   user.awayUntil != null
-                      ? AppLocalizations.of(
-                          context,
-                        )!.awayUntil(_formatDate(context, user.awayUntil!))
+                      ? AppLocalizations.of(context)!.awayUntil(_formatDate(context, user.awayUntil!))
                       : AppLocalizations.of(context)!.away,
                 ),
                 backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
               ),
-
             const SizedBox(height: 16),
-
-            // Edit profile button
             FilledButton.tonalIcon(
               onPressed: () => context.push('/edit-profile'),
               icon: const Icon(Icons.edit),
@@ -170,7 +286,7 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildStatisticsSection(BuildContext context, statistics) {
+  Widget _buildStatisticsSection(BuildContext context, UserStatistics statistics) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -237,9 +353,7 @@ class ProfileScreen extends ConsumerWidget {
     IconData icon,
     Color color,
   ) {
-    // Make points card tappable
     final isPointsCard = label == AppLocalizations.of(context)!.points;
-
     return Card(
       child: InkWell(
         onTap: isPointsCard ? () => context.push('/points-detail') : null,
@@ -252,9 +366,10 @@ class ProfileScreen extends ConsumerWidget {
               const SizedBox(height: 8),
               Text(
                 value,
-                style: Theme.of(
-                  context,
-                ).textTheme.headlineMedium?.copyWith(color: color, fontWeight: FontWeight.bold),
+                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                  color: color,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 4),
               Row(
@@ -274,7 +389,7 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildGroupsSection(BuildContext context, List groups) {
+  Widget _buildGroupsSection(BuildContext context, List<GroupSummary> groups) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -287,16 +402,9 @@ class ProfileScreen extends ConsumerWidget {
               child: Center(
                 child: Column(
                   children: [
-                    Icon(
-                      Icons.group_add,
-                      size: 48,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
+                    Icon(Icons.group_add, size: 48, color: Theme.of(context).colorScheme.onSurfaceVariant),
                     const SizedBox(height: 12),
-                    Text(
-                      AppLocalizations.of(context)!.noGroupsYet,
-                      style: Theme.of(context).textTheme.bodyLarge,
-                    ),
+                    Text(AppLocalizations.of(context)!.noGroupsYet, style: Theme.of(context).textTheme.bodyLarge),
                     const SizedBox(height: 8),
                     Text(
                       AppLocalizations.of(context)!.joinOrCreateGroup,
@@ -322,10 +430,6 @@ class ProfileScreen extends ConsumerWidget {
                       ? Theme.of(context).colorScheme.primaryContainer
                       : null,
                 ),
-                onTap: () {
-                  // Navigate to group detail
-                  // context.push('/groups/${group.id}');
-                },
               ),
             ),
           ),
@@ -357,15 +461,9 @@ class ProfileScreen extends ConsumerWidget {
   String _formatDate(BuildContext context, DateTime date) {
     final now = DateTime.now();
     final difference = date.difference(now).inDays;
-
-    if (difference == 0) {
-      return AppLocalizations.of(context)!.today;
-    } else if (difference == 1) {
-      return AppLocalizations.of(context)!.tomorrow;
-    } else if (difference < 7) {
-      return AppLocalizations.of(context)!.inDays(difference);
-    } else {
-      return '${date.day}/${date.month}/${date.year}';
-    }
+    if (difference == 0) return AppLocalizations.of(context)!.today;
+    if (difference == 1) return AppLocalizations.of(context)!.tomorrow;
+    if (difference < 7) return AppLocalizations.of(context)!.inDays(difference);
+    return '${date.day}/${date.month}/${date.year}';
   }
 }

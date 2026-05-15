@@ -8,12 +8,13 @@ import { DeadlineService } from './deadline.service';
 import { RecurringTaskService } from './recurring-task.service';
 import { AuditLogModule } from '../audit-log/audit-log.module';
 import { NotificationModule } from '../notification/notification.module';
+import { StorageModule } from '../storage/storage.module';
 
 // Conditionally include scheduling in non-test environments to avoid lingering timers in Jest
 const scheduleImport = process.env.JEST_WORKER_ID ? [] : [ScheduleModule.forRoot()];
 
 @Module({
-  imports: [AuthModule, ...scheduleImport, AuditLogModule, NotificationModule],
+  imports: [AuthModule, ...scheduleImport, AuditLogModule, NotificationModule, StorageModule],
   providers: [TaskService, TaskResolver, RotationService, DeadlineService, RecurringTaskService],
   exports: [TaskService, DeadlineService, RecurringTaskService],
 })

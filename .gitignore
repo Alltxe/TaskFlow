@@ -92,3 +92,4 @@ typings/
 nul
 .backend/src/schema.gql
 .backend/package-lock.json
+mobile/android/google-services.json

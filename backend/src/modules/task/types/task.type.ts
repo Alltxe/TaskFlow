@@ -1,5 +1,6 @@
 import { ObjectType, Field, ID, Int } from '@nestjs/graphql';
 import { GroupMemberUserType } from '../../group/types/group.type';
+import { TaskAttachmentType } from './task-attachment.type';
 
 @ObjectType()
 export class TaskType {
@@ -77,4 +78,7 @@ export class TaskType {
 
   @Field(() => TaskType, { nullable: true })
   parentTask?: TaskType | null;
+
+  @Field(() => [TaskAttachmentType], { nullable: true })
+  attachments?: TaskAttachmentType[];
 }

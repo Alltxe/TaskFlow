@@ -14,29 +14,30 @@ class LoginScreen extends ConsumerStatefulWidget {
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
+  final _identifierController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
 
   @override
   void dispose() {
-    _emailController.dispose();
+    _identifierController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
 
   void _handleLogin() {
     if (_formKey.currentState!.validate()) {
-      final email = _emailController.text.trim();
+      final identifier = _identifierController.text.trim();
       final password = _passwordController.text;
-      ref.read(authStateProvider.notifier).login(email, password);
+      ref.read(authStateProvider.notifier).login(identifier, password);
     }
   }
 
   String _mapAuthError(String rawMessage, AppLocalizations l10n) {
     final normalized = rawMessage.toLowerCase();
 
-    if (normalized.contains('incorrect email or password') ||
+    if (normalized.contains('incorrect login or password') ||
+        normalized.contains('incorrect email or password') ||
         normalized.contains('invalid credentials')) {
       return l10n.invalidCredentialsError;
     }
@@ -76,6 +77,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     });
 
     return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: isLoading ? null : () => context.go('/welcome'),
+        ),
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24.0),
@@ -84,9 +91,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const SizedBox(height: 48),
+                const SizedBox(height: 24),
 
-                // App logo
                 Icon(Icons.task_alt, size: 80, color: Theme.of(context).colorScheme.primary),
                 const SizedBox(height: 16),
 
@@ -110,13 +116,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
                 const SizedBox(height: 48),
 
-                // Email field
+                // Email or username field
                 TextFormField(
-                  controller: _emailController,
+                  controller: _identifierController,
                   decoration: InputDecoration(
-                    labelText: AppLocalizations.of(context)!.emailLabel,
-                    hintText: AppLocalizations.of(context)!.enterYourEmail,
-                    prefixIcon: const Icon(Icons.email_outlined),
+                    labelText: 'Email или логин',
+                    hintText: 'user@example.com или username',
+                    prefixIcon: const Icon(Icons.person_outlined),
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                   keyboardType: TextInputType.emailAddress,
@@ -124,10 +130,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   enabled: !isLoading,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return AppLocalizations.of(context)!.emailRequired;
-                    }
-                    if (!value.contains('@')) {
-                      return AppLocalizations.of(context)!.invalidEmailFormat;
+                      return 'Введите email или логин';
                     }
                     return null;
                   },
@@ -187,6 +190,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       : Text(AppLocalizations.of(context)!.login),
                 ),
                 const SizedBox(height: 16),
+
+                // Forgot password link
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: isLoading ? null : () => context.push('/forgot-password'),
+                    child: Text(AppLocalizations.of(context)!.forgotPassword),
+                  ),
+                ),
+                const SizedBox(height: 8),
 
                 // Register link
                 Row(

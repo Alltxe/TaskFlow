@@ -18,6 +18,27 @@
     },
     "login": "Войти",
     "register": "Регистрация",
+    "welcomeScreenTitle": "Добро пожаловать",
+    "welcomeScreenSubtitle": "Для начала работы войдите или создайте аккаунт",
+    "welcomeCreateAccount": "Создать аккаунт",
+    "forgotPassword": "Забыли пароль?",
+    "forgotPasswordTitle": "Восстановление пароля",
+    "forgotPasswordSubtitle": "Введите email и мы отправим код для сброса пароля",
+    "forgotPasswordEmailLabel": "Ваш email",
+    "sendResetCode": "Отправить код",
+    "resetCodeSentSubtitle": "Введите 6-значный код, отправленный на {email}",
+    "@resetCodeSentSubtitle": {
+        "description": "Subtitle after code is sent",
+        "placeholders": {
+            "email": { "type": "String" }
+        }
+    },
+    "resetCodeLabel": "Код из письма",
+    "resetPasswordTitle": "Новый пароль",
+    "setNewPassword": "Установить пароль",
+    "passwordResetSuccess": "Пароль успешно изменён. Войдите с новым паролем.",
+    "invalidResetCode": "Неверный или устаревший код",
+    "resendCode": "Отправить повторно",
     "profileTitle": "Профиль",
     "settingsTitle": "Настройки",
     "navigationProfileLabel": "Профиль",
@@ -464,5 +485,15 @@
     "permissionError": "Доступ запрещен.",
     "unknownError": "Произошла непредвиденная ошибка. Попробуйте еще раз.",
     "retry": "Повторить",
-    "dismiss": "Закрыть"
+    "dismiss": "Закрыть",
+    "currentPassword": "Текущий пароль",
+    "newPassword": "Новый пароль",
+    "confirmNewPassword": "Подтвердите новый пароль",
+    "currentPasswordRequired": "Введите текущий пароль",
+    "newPasswordRequired": "Введите новый пароль",
+    "confirmNewPasswordRequired": "Подтвердите новый пароль",
+    "profileUpdatedSuccess": "Профиль успешно обновлён",
+    "passwordChangedSuccess": "Пароль успешно изменён",
+    "usernameHint": "Введите новое имя пользователя",
+    "changePasswordTitle": "Изменить пароль"
 }

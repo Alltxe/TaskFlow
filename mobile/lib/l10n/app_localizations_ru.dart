@@ -56,6 +56,56 @@ class AppLocalizationsRu extends AppLocalizations {
   String get register => 'Регистрация';
 
   @override
+  String get welcomeScreenTitle => 'Добро пожаловать';
+
+  @override
+  String get welcomeScreenSubtitle =>
+      'Для начала работы войдите или создайте аккаунт';
+
+  @override
+  String get welcomeCreateAccount => 'Создать аккаунт';
+
+  @override
+  String get forgotPassword => 'Забыли пароль?';
+
+  @override
+  String get forgotPasswordTitle => 'Восстановление пароля';
+
+  @override
+  String get forgotPasswordSubtitle =>
+      'Введите email и мы отправим код для сброса пароля';
+
+  @override
+  String get forgotPasswordEmailLabel => 'Ваш email';
+
+  @override
+  String get sendResetCode => 'Отправить код';
+
+  @override
+  String resetCodeSentSubtitle(String email) {
+    return 'Введите 6-значный код, отправленный на $email';
+  }
+
+  @override
+  String get resetCodeLabel => 'Код из письма';
+
+  @override
+  String get resetPasswordTitle => 'Новый пароль';
+
+  @override
+  String get setNewPassword => 'Установить пароль';
+
+  @override
+  String get passwordResetSuccess =>
+      'Пароль успешно изменён. Войдите с новым паролем.';
+
+  @override
+  String get invalidResetCode => 'Неверный или устаревший код';
+
+  @override
+  String get resendCode => 'Отправить повторно';
+
+  @override
   String get profileTitle => 'Профиль';
 
   @override
@@ -1332,4 +1382,34 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get dismiss => 'Закрыть';
+
+  @override
+  String get currentPassword => 'Текущий пароль';
+
+  @override
+  String get newPassword => 'Новый пароль';
+
+  @override
+  String get confirmNewPassword => 'Подтвердите новый пароль';
+
+  @override
+  String get currentPasswordRequired => 'Введите текущий пароль';
+
+  @override
+  String get newPasswordRequired => 'Введите новый пароль';
+
+  @override
+  String get confirmNewPasswordRequired => 'Подтвердите новый пароль';
+
+  @override
+  String get profileUpdatedSuccess => 'Профиль успешно обновлён';
+
+  @override
+  String get passwordChangedSuccess => 'Пароль успешно изменён';
+
+  @override
+  String get usernameHint => 'Введите новое имя пользователя';
+
+  @override
+  String get changePasswordTitle => 'Изменить пароль';
 }

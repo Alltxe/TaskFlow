@@ -45,6 +45,13 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<!-- Permissions for camera and photo library (image_picker) -->
+	<key>NSCameraUsageDescription</key>
+	<string>TaskFlow использует камеру для загрузки аватара и прикрепления фотографий к задачам.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>TaskFlow обращается к вашей галерее для выбора аватара и вложений к задачам.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>TaskFlow сохраняет изображения в вашу галерею.</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>

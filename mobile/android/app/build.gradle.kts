@@ -29,6 +29,9 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        // Хост для HTTPS App Links. Замените на реальный домен бэкенда.
+        // Должен совпадать с доменом, где размещён /.well-known/assetlinks.json
+        manifestPlaceholders["DEEP_LINK_HOST"] = System.getenv("DEEP_LINK_HOST") ?: "localhost"
     }
 
     buildTypes {

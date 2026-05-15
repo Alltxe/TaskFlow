@@ -25,4 +25,10 @@ abstract class ProfileRepository {
 
   /// Upload avatar image and return the URL
   Future<Either<Failure, String>> uploadAvatar(String filePath);
+
+  /// Change user password
+  Future<Either<Failure, void>> changePassword({
+    required String oldPassword,
+    required String newPassword,
+  });
 }

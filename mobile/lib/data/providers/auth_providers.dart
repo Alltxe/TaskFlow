@@ -18,7 +18,7 @@ final secureStorageProvider = Provider<FlutterSecureStorage>((ref) {
 });
 
 /// Auth state enum
-enum AuthStatus { authenticated, unauthenticated, loading }
+enum AuthStatus { authenticated, unauthenticated, loading, pendingVerification }
 
 /// Auth state class
 class AuthState {
@@ -39,6 +39,11 @@ class AuthState {
       error = error;
 
   const AuthState.loading() : status = AuthStatus.loading, user = null, error = null;
+
+  const AuthState.pendingVerification(User user)
+    : status = AuthStatus.pendingVerification,
+      user = user,
+      error = null;
 }
 
 /// Provider for AuthRemoteDataSource
@@ -96,41 +101,71 @@ class AuthStateNotifier extends StateNotifier<AuthState> {
     });
   }
 
-  /// Login
-  Future<void> login(String email, String password) async {
+  /// Login by email or username
+  Future<void> login(String identifier, String password) async {
     state = const AuthState.loading();
     try {
-      final response = await _authRepository.login(LoginRequest(email: email, password: password));
+      final response = await _authRepository.login(
+        LoginRequest(email: identifier, password: password),
+      );
       state = AuthState.authenticated(response.user);
     } catch (e) {
-      // Store error in state - UI will react via ref.listen
       state = AuthState.unauthenticated(e is AppException ? e.message : e.toString());
     }
   }
 
-  /// Reset to unauthenticated state (called by UI after showing error)
+  /// Reset to unauthenticated state
   void resetToUnauthenticated([String? error]) {
     state = AuthState.unauthenticated(error);
   }
 
-  /// Register
+  /// Register — stays in pendingVerification until email is confirmed
   Future<void> register(String email, String username, String password) async {
     state = const AuthState.loading();
     try {
       final response = await _authRepository.register(
         RegisterRequest(email: email, username: username, password: password),
       );
-      state = AuthState.authenticated(response.user);
+      // Stay on register screen showing the code input
+      state = AuthState.pendingVerification(response.user);
     } catch (e) {
-      // Store error in state - UI will react via ref.listen
       state = AuthState.unauthenticated(e is AppException ? e.message : e.toString());
     }
+  }
+
+  /// Verify email with 6-digit code
+  Future<void> verifyEmailCode(String code) async {
+    final currentUser = state.user;
+    if (currentUser == null) return;
+
+    state = const AuthState.loading();
+    try {
+      await _authRepository.verifyEmail(code);
+      state = AuthState.authenticated(currentUser);
+    } catch (e) {
+      // Return to pendingVerification with error — user can retry
+      state = AuthState.pendingVerification(currentUser);
+      // Re-throw so the UI can show the error
+      rethrow;
+    }
+  }
+
+  /// Resend verification code
+  Future<void> resendVerificationCode() async {
+    await _authRepository.resendVerificationCode();
   }
 
   /// Logout
   Future<void> logout() async {
     await _authRepository.logout();
     state = const AuthState.unauthenticated();
+  }
+
+  /// Update user data in auth state (e.g., after profile update)
+  void updateUser(User user) {
+    if (state.status == AuthStatus.authenticated) {
+      state = AuthState.authenticated(user);
+    }
   }
 
   /// Check if authenticated

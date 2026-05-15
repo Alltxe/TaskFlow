@@ -44,6 +44,7 @@ type UserType {
   avatarUrl: String
   isAway: Boolean!
   awayUntil: DateTime
+  emailVerifiedAt: DateTime
   createdAt: DateTime!
   updatedAt: DateTime!
 }
@@ -57,6 +58,14 @@ type AuthResponseType {
   accessToken: String!
   refreshToken: String!
   user: UserType!
+}
+
+type GroupPreviewType {
+  id: ID!
+  name: String!
+  description: String
+  memberCount: Int!
+  requiresApproval: Boolean!
 }
 
 type GroupMemberUserType {
@@ -122,6 +131,18 @@ type AuditLogListType {
   offset: Int!
 }
 
+type TaskAttachmentType {
+  id: ID!
+  url: String!
+  filename: String!
+  fileSize: Int!
+  mimeType: String!
+  uploadedAt: DateTime!
+  taskId: String!
+  groupId: String!
+  uploadedById: String!
+}
+
 type TaskType {
   id: ID!
   title: String!
@@ -148,6 +169,7 @@ type TaskType {
   createdBy: GroupMemberUserType!
   childTasks: [TaskType!]
   parentTask: TaskType
+  attachments: [TaskAttachmentType!]
 }
 
 type RotationScheduleEntry {
@@ -380,8 +402,9 @@ type Query {
     groupId: String
   ): UserStatistics!
 
-  """Получить информацию о текущем пользователе"""
+  """Получить информацию о текущем пользователе (требуется авторизация)."""
   me: UserType!
+  getGroupPreviewByInviteToken(inviteToken: String!): GroupPreviewType!
   getGroup(groupId: String!): GroupType!
   getUserGroups: [GroupType!]!
   getGroupMembers(groupId: String!): [GroupMemberType!]!
@@ -472,22 +495,40 @@ type Mutation {
   """Set "Away" status for current user (affects task rotation)"""
   setUserAwayStatus(input: SetAwayStatusInput!): UserType!
 
-  """Регистрация нового пользователя"""
+  """
+  Регистрация. После регистрации на email отправляется 6-значный код подтверждения.
+  """
   register(input: RegisterInput!): AuthResponseType!
 
-  """Вход пользователя"""
+  """Вход по логину (username) или email и паролю."""
   login(input: LoginInput!): AuthResponseType!
 
-  """Сменить пароль текущего пользователя"""
+  """
+  Подтверждение email по 6-значному коду, отправленному при регистрации. Требуется авторизация.
+  """
+  verifyEmail(input: VerifyEmailInput!): UserType!
+
+  """Повторно отправить код подтверждения email. Требуется авторизация."""
+  resendVerificationCode: Boolean!
+
+  """Сменить пароль текущего пользователя (требуется авторизация)."""
   changePassword(input: ChangePasswordInput!): Boolean!
 
-  """Обновить access token с помощью refresh token"""
+  """
+  Запросить сброс пароля: отправляет 6-значный код на email. Не требует авторизации.
+  """
+  requestPasswordReset(input: RequestPasswordResetInput!): Boolean!
+
+  """Сбросить пароль по коду из письма. Не требует авторизации."""
+  resetPassword(input: ResetPasswordInput!): Boolean!
+
+  """Обновить access token с помощью refresh token."""
   refreshToken(input: RefreshTokenInput!): AuthResponseType!
 
-  """Выход из системы (отзыв refresh token)"""
+  """Выход из системы (отзыв refresh token)."""
   logout(refreshToken: String!): Boolean!
 
-  """Выход из всех устройств"""
+  """Выход из всех устройств (требуется авторизация)."""
   logoutAll: Float!
   createGroup(input: CreateGroupInput!): GroupType!
   updateGroup(groupId: String!, input: UpdateGroupInput!): GroupType!
@@ -507,6 +548,8 @@ type Mutation {
   Claim an unassigned task from the Up-for-Grabs pool. User receives bonus points (1.5x multiplier).
   """
   claimTask(input: ClaimTaskInput!): TaskType!
+  addTaskAttachment(input: AddTaskAttachmentInput!): TaskAttachmentType!
+  deleteTaskAttachment(attachmentId: String!): Boolean!
 
   """Manually generate next task from recurring template (admin only)"""
   generateNextRecurringTask(taskId: String!): TaskType!
@@ -568,12 +611,34 @@ input RegisterInput {
 }
 
 input LoginInput {
-  email: String!
+  """Username или email"""
+  identifier: String!
   password: String!
+}
+
+input VerifyEmailInput {
+  """6-значный код из письма"""
+  code: String!
 }
 
 input ChangePasswordInput {
   oldPassword: String!
+  newPassword: String!
+}
+
+input RequestPasswordResetInput {
+  """Email пользователя для отправки кода сброса пароля"""
+  email: String!
+}
+
+input ResetPasswordInput {
+  """Email пользователя"""
+  email: String!
+
+  """6-значный код из письма"""
+  code: String!
+
+  """Новый пароль"""
   newPassword: String!
 }
 
@@ -643,6 +708,14 @@ input ApproveTaskInput {
 
 input ClaimTaskInput {
   taskId: String!
+}
+
+input AddTaskAttachmentInput {
+  taskId: String!
+  url: String!
+  filename: String!
+  fileSize: Int!
+  mimeType: String!
 }
 
 input MarkNotificationsReadInput {

@@ -1,9 +1,13 @@
-﻿import 'package:gql/language.dart' as gql_lang;
+﻿import 'package:dio/dio.dart' as dio_pkg;
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:gql/language.dart' as gql_lang;
 import 'package:gql_exec/gql_exec.dart';
+import 'package:taskflow/core/config/app_config.dart';
 import 'package:taskflow/core/config/graphql_client.dart';
 import 'package:taskflow/core/errors/exceptions.dart' as app_exceptions;
 import 'package:taskflow/data/models/create_task_request.dart';
 import 'package:taskflow/data/models/task.dart';
+import 'package:taskflow/data/models/task_attachment.dart';
 import 'package:taskflow/data/models/update_task_request.dart';
 
 class TaskRemoteDataSource {
@@ -47,6 +51,17 @@ class TaskRemoteDataSource {
       }
       createdBy {
         ...TaskAssigneeFields
+      }
+      attachments {
+        id
+        url
+        filename
+        fileSize
+        mimeType
+        uploadedAt
+        taskId
+        groupId
+        uploadedById
       }
     }
   ''';
@@ -413,6 +428,119 @@ class TaskRemoteDataSource {
       throw app_exceptions.NetworkException(
         message: 'Failed to approve/reject task: ${e.toString()}',
       );
+    }
+  }
+
+  /// Upload a file as task attachment via REST and register it via GraphQL.
+  /// Returns the created [TaskAttachment].
+  Future<TaskAttachment> uploadAndAddAttachment({
+    required String taskId,
+    required String filePath,
+    required String filename,
+    required String mimeType,
+  }) async {
+    const storage = FlutterSecureStorage();
+    final token = await storage.read(key: AppConfig.accessTokenKey);
+
+    final dio = dio_pkg.Dio();
+    final formData = dio_pkg.FormData.fromMap({
+      'file': await dio_pkg.MultipartFile.fromFile(filePath, filename: filename),
+    });
+
+    dio_pkg.Response<Map<String, dynamic>> uploadResponse;
+    try {
+      uploadResponse = await dio.post<Map<String, dynamic>>(
+        '${AppConfig.apiBaseUrl}/upload/task-attachment',
+        data: formData,
+        options: dio_pkg.Options(
+          headers: {
+            if (token != null) 'Authorization': 'Bearer $token',
+          },
+        ),
+      );
+    } on dio_pkg.DioException catch (e) {
+      final details = e.response?.data?.toString() ??
+          e.error?.toString() ??
+          e.type.name;
+      throw app_exceptions.ServerException(
+        message: 'Ошибка загрузки файла: $details',
+      );
+    }
+
+    final uploadData = uploadResponse.data;
+    if (uploadData == null) {
+      throw const app_exceptions.ServerException(message: 'Empty upload response');
+    }
+
+    final url = uploadData['url'] as String;
+    final fileSize = (uploadData['fileSize'] as num).toInt();
+    final respMimeType = uploadData['mimeType'] as String? ?? mimeType;
+
+    // Register the attachment via GraphQL
+    const mutation = r'''
+      mutation AddTaskAttachment($input: AddTaskAttachmentInput!) {
+        addTaskAttachment(input: $input) {
+          id
+          url
+          filename
+          fileSize
+          mimeType
+          uploadedAt
+          taskId
+          groupId
+          uploadedById
+        }
+      }
+    ''';
+
+    final gqlRequest = Request(
+      operation: Operation(
+        document: gql_lang.parseString(mutation),
+        operationName: 'AddTaskAttachment',
+      ),
+      variables: {
+        'input': {
+          'taskId': taskId,
+          'url': url,
+          'filename': filename,
+          'fileSize': fileSize,
+          'mimeType': respMimeType,
+        },
+      },
+    );
+
+    final response = await GraphQLClientConfig.request(gqlRequest);
+    if (response.errors != null && response.errors!.isNotEmpty) {
+      _handleGraphQLErrors(response.errors!);
+    }
+
+    final data = response.data?['addTaskAttachment'];
+    if (data == null) {
+      throw const app_exceptions.ServerException(message: 'Failed to register attachment');
+    }
+
+    return TaskAttachment.fromJson(data as Map<String, dynamic>);
+  }
+
+  /// Delete a task attachment.
+  Future<void> deleteTaskAttachment(String attachmentId) async {
+    const mutation = r'''
+      mutation DeleteTaskAttachment($attachmentId: String!) {
+        deleteTaskAttachment(attachmentId: $attachmentId)
+      }
+    ''';
+
+    final gqlRequest = Request(
+      operation: Operation(
+        document: gql_lang.parseString(mutation),
+        operationName: 'DeleteTaskAttachment',
+      ),
+      variables: {'attachmentId': attachmentId},
+    );
+
+    final response = await GraphQLClientConfig.request(gqlRequest);
+    if (response.errors != null && response.errors!.isNotEmpty) {
+      _handleGraphQLErrors(response.errors!);
     }
   }
 

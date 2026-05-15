@@ -1,7 +1,11 @@
-﻿import 'package:flutter/material.dart';
+﻿import 'package:dartz/dartz.dart' hide Task;
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:taskflow/core/errors/failure.dart';
+import 'package:taskflow/data/models/group_summary.dart';
+import 'package:taskflow/data/models/task.dart';
 import 'package:taskflow/data/models/user_statistics.dart';
 import 'package:taskflow/data/providers/auth_providers.dart';
 import 'package:taskflow/data/providers/profile_providers.dart';
@@ -18,78 +22,92 @@ class DashboardScreen extends ConsumerStatefulWidget {
 }
 
 class _DashboardScreenState extends ConsumerState<DashboardScreen> {
-  String? _selectedGroupId; // null means "All Groups"
+  String? _selectedGroupId;
   DateTime _selectedDate = DateTime.now();
   DateTime _weekStart = DateTime.now();
+
+  // Cached futures — stable across rebuilds caused by setState
+  Future<Either<Failure, List<GroupSummary>>>? _groupsFuture;
+  Future<UserStatistics>? _statsFuture;
+  Future<Either<Failure, List<Task>>>? _tasksFuture;
 
   @override
   void initState() {
     super.initState();
-    // Set week start to Monday
     _weekStart = _getWeekStart(DateTime.now());
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Only initialise once per widget lifecycle
+    _groupsFuture ??= ref.read(getUserGroupsUseCaseProvider).call();
+    _statsFuture ??= ref.read(profileRemoteDataSourceProvider).getUserStatistics();
+    _tasksFuture ??= ref.read(getUserTasksUseCaseProvider).call(status: null);
+  }
+
+  void _onGroupChanged(String? groupId) {
+    final ds = ref.read(profileRemoteDataSourceProvider);
+    setState(() {
+      _selectedGroupId = groupId;
+      // Stats are group-specific — re-fetch only stats, keep groups/tasks stable
+      _statsFuture = groupId != null
+          ? ds.getUserStatistics(groupId: groupId)
+          : ds.getUserStatistics();
+    });
+  }
+
+  void _refresh() {
+    final ds = ref.read(profileRemoteDataSourceProvider);
+    setState(() {
+      _groupsFuture = ref.read(getUserGroupsUseCaseProvider).call();
+      _statsFuture = ds.getUserStatistics(groupId: _selectedGroupId);
+      _tasksFuture = ref.read(getUserTasksUseCaseProvider).call(status: null);
+    });
+  }
+
+  // ── Helpers ───────────────────────────────────────────────────────────────
+
   DateTime _getWeekStart(DateTime date) {
-    // Get Monday of the week
-    final weekday = date.weekday; // 1 = Monday, 7 = Sunday
-    return date.subtract(Duration(days: weekday - 1));
+    return date.subtract(Duration(days: date.weekday - 1));
   }
 
-  List<DateTime> _getWeekDays() {
-    return List.generate(7, (index) => _weekStart.add(Duration(days: index)));
-  }
+  List<DateTime> _getWeekDays() =>
+      List.generate(7, (i) => _weekStart.add(Duration(days: i)));
 
-  void _previousWeek() {
-    setState(() {
-      _weekStart = _weekStart.subtract(const Duration(days: 7));
-    });
-  }
+  void _previousWeek() =>
+      setState(() => _weekStart = _weekStart.subtract(const Duration(days: 7)));
 
-  void _nextWeek() {
-    setState(() {
-      _weekStart = _weekStart.add(const Duration(days: 7));
-    });
-  }
+  void _nextWeek() =>
+      setState(() => _weekStart = _weekStart.add(const Duration(days: 7)));
 
-  bool _isSameDay(DateTime a, DateTime b) {
-    return a.year == b.year && a.month == b.month && a.day == b.day;
-  }
+  bool _isSameDay(DateTime a, DateTime b) =>
+      a.year == b.year && a.month == b.month && a.day == b.day;
+
+  // ── Build ─────────────────────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
-    final authState = ref.watch(authStateProvider);
-    final username = authState.user?.username ?? '';
+    final username = ref.watch(authStateProvider).user?.username ?? '';
 
     return Scaffold(
       appBar: AppBar(title: Text(AppLocalizations.of(context)!.home)),
       body: RefreshIndicator(
-        onRefresh: () async {
-          ref.invalidate(getUserTasksUseCaseProvider);
-          ref.invalidate(getUserGroupsUseCaseProvider);
-        },
+        onRefresh: () async => _refresh(),
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            // Welcome message
             Text(
               AppLocalizations.of(context)!.welcomeUser(username),
               style: Theme.of(context).textTheme.headlineSmall,
             ),
             const SizedBox(height: 24),
-
-            // Group filter
             _buildGroupFilter(),
             const SizedBox(height: 24),
-
-            // Statistics cards
             _buildStatisticsSection(),
             const SizedBox(height: 24),
-
-            // Week calendar strip
             _buildWeekCalendar(),
             const SizedBox(height: 24),
-
-            // Tasks for selected date
             _buildTasksForDate(),
           ],
         ),
@@ -98,66 +116,55 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   }
 
   Widget _buildGroupFilter() {
-    final getUserGroupsUseCase = ref.read(getUserGroupsUseCaseProvider);
-
-    return FutureBuilder(
-      future: getUserGroupsUseCase(),
+    return FutureBuilder<Either<Failure, List<GroupSummary>>>(
+      future: _groupsFuture,
       builder: (context, snapshot) {
         if (!snapshot.hasData) return const SizedBox.shrink();
 
-        final groupsResult = snapshot.data!;
-        return groupsResult.fold((failure) => const SizedBox.shrink(), (groups) {
-          if (groups.isEmpty) return const SizedBox.shrink();
-
-          return Card(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: DropdownButton<String?>(
-                isExpanded: true,
-                value: _selectedGroupId,
-                underline: const SizedBox.shrink(),
-                hint: Text(AppLocalizations.of(context)!.filterByGroup),
-                items: [
-                  DropdownMenuItem<String?>(
-                    value: null,
-                    child: Text(AppLocalizations.of(context)!.allGroups),
-                  ),
-                  ...groups.map((group) {
-                    return DropdownMenuItem<String?>(value: group.id, child: Text(group.name));
-                  }),
-                ],
-                onChanged: (value) {
-                  setState(() {
-                    _selectedGroupId = value;
-                  });
-                },
+        return snapshot.data!.fold(
+          (_) => const SizedBox.shrink(),
+          (groups) {
+            if (groups.isEmpty) return const SizedBox.shrink();
+            return Card(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: DropdownButton<String?>(
+                  isExpanded: true,
+                  value: _selectedGroupId,
+                  underline: const SizedBox.shrink(),
+                  hint: Text(AppLocalizations.of(context)!.filterByGroup),
+                  items: [
+                    DropdownMenuItem<String?>(
+                      value: null,
+                      child: Text(AppLocalizations.of(context)!.allGroups),
+                    ),
+                    ...groups.map(
+                      (g) => DropdownMenuItem<String?>(
+                        value: g.id,
+                        child: Text(g.name),
+                      ),
+                    ),
+                  ],
+                  onChanged: _onGroupChanged,
+                ),
               ),
-            ),
-          );
-        });
+            );
+          },
+        );
       },
     );
   }
 
   Widget _buildStatisticsSection() {
-    // Fetch statistics based on selected group
-    final statsQuery = _selectedGroupId != null
-        ? ref.read(profileRemoteDataSourceProvider).getUserStatistics(groupId: _selectedGroupId)
-        : ref.read(profileRemoteDataSourceProvider).getUserStatistics();
-
     return FutureBuilder<UserStatistics>(
-      future: statsQuery,
+      future: _statsFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         }
-
-        if (snapshot.hasError || !snapshot.hasData) {
-          return const SizedBox.shrink();
-        }
+        if (!snapshot.hasData) return const SizedBox.shrink();
 
         final stats = snapshot.data!;
-
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -213,9 +220,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             Flexible(
               child: Text(
                 value,
-                style: Theme.of(
-                  context,
-                ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold, color: color),
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: color,
+                ),
                 overflow: TextOverflow.ellipsis,
               ),
             ),
@@ -241,7 +249,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
     return Column(
       children: [
-        // Week navigation
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -251,7 +258,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               tooltip: AppLocalizations.of(context)!.previousWeek,
             ),
             Text(
-              '${DateFormat('MMM d').format(weekDays.first)} - ${DateFormat('MMM d, y').format(weekDays.last)}',
+              '${DateFormat('MMM d').format(weekDays.first)} – '
+              '${DateFormat('MMM d, y').format(weekDays.last)}',
               style: Theme.of(context).textTheme.titleMedium,
             ),
             IconButton(
@@ -262,8 +270,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           ],
         ),
         const SizedBox(height: 12),
-
-        // Week days strip
         SizedBox(
           height: 80,
           child: ListView.builder(
@@ -275,18 +281,16 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               final isToday = _isSameDay(date, now);
 
               return GestureDetector(
-                onTap: () {
-                  setState(() {
-                    _selectedDate = date;
-                  });
-                },
+                onTap: () => setState(() => _selectedDate = date),
                 child: Container(
                   width: 70,
                   margin: const EdgeInsets.symmetric(horizontal: 4),
                   decoration: BoxDecoration(
                     color: isSelected
                         ? Theme.of(context).colorScheme.primaryContainer
-                        : (isToday ? Theme.of(context).colorScheme.secondaryContainer : null),
+                        : (isToday
+                            ? Theme.of(context).colorScheme.secondaryContainer
+                            : null),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
                       color: isSelected
@@ -330,48 +334,36 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   String _getWeekdayName(int weekday) {
     final l10n = AppLocalizations.of(context)!;
     switch (weekday) {
-      case 1:
-        return l10n.monday.substring(0, 3);
-      case 2:
-        return l10n.tuesday.substring(0, 3);
-      case 3:
-        return l10n.wednesday.substring(0, 3);
-      case 4:
-        return l10n.thursday.substring(0, 3);
-      case 5:
-        return l10n.friday.substring(0, 3);
-      case 6:
-        return l10n.saturday.substring(0, 3);
-      case 7:
-        return l10n.sunday.substring(0, 3);
-      default:
-        return '';
+      case 1: return l10n.monday.substring(0, 3);
+      case 2: return l10n.tuesday.substring(0, 3);
+      case 3: return l10n.wednesday.substring(0, 3);
+      case 4: return l10n.thursday.substring(0, 3);
+      case 5: return l10n.friday.substring(0, 3);
+      case 6: return l10n.saturday.substring(0, 3);
+      case 7: return l10n.sunday.substring(0, 3);
+      default: return '';
     }
   }
 
   Widget _buildTasksForDate() {
-    final getUserTasksUseCase = ref.read(getUserTasksUseCaseProvider);
-
-    return FutureBuilder(
-      future: getUserTasksUseCase(status: null),
+    return FutureBuilder<Either<Failure, List<Task>>>(
+      future: _tasksFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         }
-
-        if (snapshot.hasError || !snapshot.hasData) {
+        if (!snapshot.hasData) {
           return Center(
             child: Text(
-              AppLocalizations.of(
-                context,
-              )!.errorWithMessage(snapshot.error?.toString() ?? 'Unknown error'),
+              AppLocalizations.of(context)!.errorWithMessage(
+                snapshot.error?.toString() ?? 'Unknown error',
+              ),
               style: TextStyle(color: Theme.of(context).colorScheme.error),
             ),
           );
         }
 
-        final tasksResult = snapshot.data!;
-        return tasksResult.fold(
+        return snapshot.data!.fold(
           (failure) => Center(
             child: Text(
               AppLocalizations.of(context)!.errorWithMessage(failure.message),
@@ -379,28 +371,25 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             ),
           ),
           (allTasks) {
-            // Filter tasks by selected date and group
             final filteredTasks = allTasks.where((task) {
-              final taskDate = task.deadline;
-              final matchesDate = _isSameDay(taskDate, _selectedDate);
-              final matchesGroup = _selectedGroupId == null || task.groupId == _selectedGroupId;
+              final matchesDate = _isSameDay(task.deadline, _selectedDate);
+              final matchesGroup =
+                  _selectedGroupId == null || task.groupId == _selectedGroupId;
               return matchesDate && matchesGroup;
-            }).toList();
-
-            // Sort tasks: active first (by deadline), then completed
-            filteredTasks.sort((a, b) {
-              if (a.status == 'COMPLETED' && b.status != 'COMPLETED') return 1;
-              if (a.status != 'COMPLETED' && b.status == 'COMPLETED') return -1;
-              return a.deadline.compareTo(b.deadline);
-            });
+            }).toList()
+              ..sort((a, b) {
+                if (a.status == 'COMPLETED' && b.status != 'COMPLETED') return 1;
+                if (a.status != 'COMPLETED' && b.status == 'COMPLETED') return -1;
+                return a.deadline.compareTo(b.deadline);
+              });
 
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  AppLocalizations.of(
-                    context,
-                  )!.tasksForDate(DateFormat('MMM d, y').format(_selectedDate)),
+                  AppLocalizations.of(context)!.tasksForDate(
+                    DateFormat('MMM d, y').format(_selectedDate),
+                  ),
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
                 const SizedBox(height: 12),
@@ -427,12 +416,15 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     ),
                   )
                 else
-                  ...filteredTasks.map((task) {
-                    return Padding(
+                  ...filteredTasks.map(
+                    (task) => Padding(
                       padding: const EdgeInsets.only(bottom: 8),
-                      child: TaskCard(task: task, onTap: () => context.push('/tasks/${task.id}')),
-                    );
-                  }),
+                      child: TaskCard(
+                        task: task,
+                        onTap: () => context.push('/tasks/${task.id}'),
+                      ),
+                    ),
+                  ),
               ],
             );
           },

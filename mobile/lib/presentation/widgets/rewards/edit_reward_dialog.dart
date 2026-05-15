@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:taskflow/data/models/reward.dart';
 import 'package:taskflow/domain/usecases/reward/reward_usecase_providers.dart';
 import 'package:taskflow/l10n/app_localizations.dart';
+import 'package:taskflow/presentation/widgets/rewards/reward_image_picker.dart';
 
 class EditRewardDialog extends ConsumerStatefulWidget {
   final Reward reward;
@@ -19,8 +20,8 @@ class _EditRewardDialogState extends ConsumerState<EditRewardDialog> {
   late final TextEditingController _nameController;
   late final TextEditingController _descriptionController;
   late final TextEditingController _costController;
-  late final TextEditingController _imageUrlController;
 
+  String? _imageUrl;
   bool _isLoading = false;
 
   @override
@@ -30,8 +31,7 @@ class _EditRewardDialogState extends ConsumerState<EditRewardDialog> {
     _descriptionController =
         TextEditingController(text: widget.reward.description ?? '');
     _costController = TextEditingController(text: widget.reward.cost.toString());
-    _imageUrlController =
-        TextEditingController(text: widget.reward.imageUrl ?? '');
+    _imageUrl = widget.reward.imageUrl;
   }
 
   @override
@@ -39,7 +39,6 @@ class _EditRewardDialogState extends ConsumerState<EditRewardDialog> {
     _nameController.dispose();
     _descriptionController.dispose();
     _costController.dispose();
-    _imageUrlController.dispose();
     super.dispose();
   }
 
@@ -59,9 +58,7 @@ class _EditRewardDialogState extends ConsumerState<EditRewardDialog> {
       description: _descriptionController.text.trim().isEmpty
           ? null
           : _descriptionController.text.trim(),
-      imageUrl: _imageUrlController.text.trim().isEmpty
-          ? null
-          : _imageUrlController.text.trim(),
+      imageUrl: _imageUrl,
     );
 
     if (!mounted) return;
@@ -106,11 +103,17 @@ class _EditRewardDialogState extends ConsumerState<EditRewardDialog> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text(
-                    l10n.editReward,
-                    style: theme.textTheme.headlineSmall,
-                  ),
+                  Text(l10n.editReward, style: theme.textTheme.headlineSmall),
                   const SizedBox(height: 24),
+
+                  // Image picker (replaces manual URL field)
+                  RewardImagePicker(
+                    imageUrl: _imageUrl,
+                    enabled: !_isLoading,
+                    onUploaded: (url) => setState(() => _imageUrl = url),
+                  ),
+                  const SizedBox(height: 16),
+
                   TextFormField(
                     controller: _nameController,
                     decoration: InputDecoration(
@@ -124,13 +127,12 @@ class _EditRewardDialogState extends ConsumerState<EditRewardDialog> {
                       if (value == null || value.trim().isEmpty) {
                         return l10n.rewardNameRequired;
                       }
-                      if (value.trim().length < 3) {
-                        return l10n.rewardNameMinLength;
-                      }
+                      if (value.trim().length < 3) return l10n.rewardNameMinLength;
                       return null;
                     },
                   ),
                   const SizedBox(height: 16),
+
                   TextFormField(
                     controller: _descriptionController,
                     decoration: InputDecoration(
@@ -143,6 +145,7 @@ class _EditRewardDialogState extends ConsumerState<EditRewardDialog> {
                     textCapitalization: TextCapitalization.sentences,
                   ),
                   const SizedBox(height: 16),
+
                   TextFormField(
                     controller: _costController,
                     decoration: InputDecoration(
@@ -153,40 +156,23 @@ class _EditRewardDialogState extends ConsumerState<EditRewardDialog> {
                     ),
                     enabled: !_isLoading,
                     keyboardType: TextInputType.number,
-                    inputFormatters: [
-                      FilteringTextInputFormatter.digitsOnly,
-                    ],
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
                         return l10n.rewardCostRequired;
                       }
                       final cost = int.tryParse(value);
-                      if (cost == null || cost <= 0) {
-                        return l10n.rewardCostMustBePositive;
-                      }
+                      if (cost == null || cost <= 0) return l10n.rewardCostMustBePositive;
                       return null;
                     },
                   ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _imageUrlController,
-                    decoration: InputDecoration(
-                      labelText: l10n.rewardImageUrl,
-                      hintText: l10n.enterImageUrl,
-                      border: const OutlineInputBorder(),
-                      prefixIcon: const Icon(Icons.image),
-                    ),
-                    enabled: !_isLoading,
-                    keyboardType: TextInputType.url,
-                  ),
                   const SizedBox(height: 24),
+
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       TextButton(
-                        onPressed: _isLoading
-                            ? null
-                            : () => Navigator.of(context).pop(),
+                        onPressed: _isLoading ? null : () => Navigator.of(context).pop(),
                         child: Text(l10n.cancel),
                       ),
                       const SizedBox(width: 8),

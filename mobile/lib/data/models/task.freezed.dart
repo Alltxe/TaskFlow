@@ -41,6 +41,7 @@ mixin _$Task {
   String? get assigneeId => throw _privateConstructorUsedError;
   GroupMemberUser? get assignee => throw _privateConstructorUsedError;
   GroupMemberUser? get createdBy => throw _privateConstructorUsedError;
+  List<TaskAttachment> get attachments => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -73,7 +74,8 @@ abstract class $TaskCopyWith<$Res> {
       String createdById,
       String? assigneeId,
       GroupMemberUser? assignee,
-      GroupMemberUser? createdBy});
+      GroupMemberUser? createdBy,
+      List<TaskAttachment> attachments});
 
   $GroupMemberUserCopyWith<$Res>? get assignee;
   $GroupMemberUserCopyWith<$Res>? get createdBy;
@@ -113,6 +115,7 @@ class _$TaskCopyWithImpl<$Res, $Val extends Task>
     Object? assigneeId = freezed,
     Object? assignee = freezed,
     Object? createdBy = freezed,
+    Object? attachments = null,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -199,6 +202,10 @@ class _$TaskCopyWithImpl<$Res, $Val extends Task>
           ? _value.createdBy
           : createdBy // ignore: cast_nullable_to_non_nullable
               as GroupMemberUser?,
+      attachments: null == attachments
+          ? _value.attachments
+          : attachments // ignore: cast_nullable_to_non_nullable
+              as List<TaskAttachment>,
     ) as $Val);
   }
 
@@ -255,7 +262,8 @@ abstract class _$$TaskImplCopyWith<$Res> implements $TaskCopyWith<$Res> {
       String createdById,
       String? assigneeId,
       GroupMemberUser? assignee,
-      GroupMemberUser? createdBy});
+      GroupMemberUser? createdBy,
+      List<TaskAttachment> attachments});
 
   @override
   $GroupMemberUserCopyWith<$Res>? get assignee;
@@ -294,6 +302,7 @@ class __$$TaskImplCopyWithImpl<$Res>
     Object? assigneeId = freezed,
     Object? assignee = freezed,
     Object? createdBy = freezed,
+    Object? attachments = null,
   }) {
     return _then(_$TaskImpl(
       id: null == id
@@ -380,6 +389,10 @@ class __$$TaskImplCopyWithImpl<$Res>
           ? _value.createdBy
           : createdBy // ignore: cast_nullable_to_non_nullable
               as GroupMemberUser?,
+      attachments: null == attachments
+          ? _value._attachments
+          : attachments // ignore: cast_nullable_to_non_nullable
+              as List<TaskAttachment>,
     ));
   }
 }
@@ -408,7 +421,9 @@ class _$TaskImpl implements _Task {
       required this.createdById,
       this.assigneeId,
       this.assignee,
-      this.createdBy});
+      this.createdBy,
+      final List<TaskAttachment> attachments = const []})
+      : _attachments = attachments;
 
   factory _$TaskImpl.fromJson(Map<String, dynamic> json) =>
       _$$TaskImplFromJson(json);
@@ -455,10 +470,18 @@ class _$TaskImpl implements _Task {
   final GroupMemberUser? assignee;
   @override
   final GroupMemberUser? createdBy;
+  final List<TaskAttachment> _attachments;
+  @override
+  @JsonKey()
+  List<TaskAttachment> get attachments {
+    if (_attachments is EqualUnmodifiableListView) return _attachments;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_attachments);
+  }
 
   @override
   String toString() {
-    return 'Task(id: $id, title: $title, description: $description, deadline: $deadline, priority: $priority, status: $status, points: $points, requiresApproval: $requiresApproval, isRecurring: $isRecurring, recurrenceRule: $recurrenceRule, rotationType: $rotationType, weight: $weight, wasClaimedFromPool: $wasClaimedFromPool, rejectionReason: $rejectionReason, createdAt: $createdAt, completedAt: $completedAt, groupId: $groupId, createdById: $createdById, assigneeId: $assigneeId, assignee: $assignee, createdBy: $createdBy)';
+    return 'Task(id: $id, title: $title, description: $description, deadline: $deadline, priority: $priority, status: $status, points: $points, requiresApproval: $requiresApproval, isRecurring: $isRecurring, recurrenceRule: $recurrenceRule, rotationType: $rotationType, weight: $weight, wasClaimedFromPool: $wasClaimedFromPool, rejectionReason: $rejectionReason, createdAt: $createdAt, completedAt: $completedAt, groupId: $groupId, createdById: $createdById, assigneeId: $assigneeId, assignee: $assignee, createdBy: $createdBy, attachments: $attachments)';
   }
 
   @override
@@ -501,7 +524,9 @@ class _$TaskImpl implements _Task {
             (identical(other.assignee, assignee) ||
                 other.assignee == assignee) &&
             (identical(other.createdBy, createdBy) ||
-                other.createdBy == createdBy));
+                other.createdBy == createdBy) &&
+            const DeepCollectionEquality()
+                .equals(other._attachments, _attachments));
   }
 
   @JsonKey(ignore: true)
@@ -528,7 +553,8 @@ class _$TaskImpl implements _Task {
         createdById,
         assigneeId,
         assignee,
-        createdBy
+        createdBy,
+        const DeepCollectionEquality().hash(_attachments)
       ]);
 
   @JsonKey(ignore: true)
@@ -567,7 +593,8 @@ abstract class _Task implements Task {
       required final String createdById,
       final String? assigneeId,
       final GroupMemberUser? assignee,
-      final GroupMemberUser? createdBy}) = _$TaskImpl;
+      final GroupMemberUser? createdBy,
+      final List<TaskAttachment> attachments}) = _$TaskImpl;
 
   factory _Task.fromJson(Map<String, dynamic> json) = _$TaskImpl.fromJson;
 
@@ -613,6 +640,8 @@ abstract class _Task implements Task {
   GroupMemberUser? get assignee;
   @override
   GroupMemberUser? get createdBy;
+  @override
+  List<TaskAttachment> get attachments;
   @override
   @JsonKey(ignore: true)
   _$$TaskImplCopyWith<_$TaskImpl> get copyWith =>

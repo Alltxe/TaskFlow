@@ -153,3 +153,32 @@ export class ClaimTaskInput {
   @IsString()
   taskId: string;
 }
+
+@InputType()
+export class AddTaskAttachmentInput {
+  @Field(() => String)
+  @IsNotEmpty()
+  @IsString()
+  taskId: string;
+
+  @Field(() => String)
+  @IsNotEmpty()
+  @IsString()
+  url: string;
+
+  @Field(() => String)
+  @IsNotEmpty()
+  @IsString()
+  filename: string;
+
+  @Field(() => Int)
+  @IsNotEmpty()
+  @IsInt()
+  @Min(1)
+  fileSize: number;
+
+  @Field(() => String)
+  @IsNotEmpty()
+  @IsString()
+  mimeType: string;
+}

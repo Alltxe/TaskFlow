@@ -20,6 +20,9 @@ export class UserType {
   @Field(() => Date, { nullable: true })
   awayUntil?: Date | null;
 
+  @Field(() => Date, { nullable: true })
+  emailVerifiedAt?: Date | null;
+
   @Field(() => Date)
   createdAt: Date;
 

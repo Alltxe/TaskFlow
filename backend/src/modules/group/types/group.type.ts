@@ -1,4 +1,22 @@
-import { ObjectType, Field, ID } from '@nestjs/graphql';
+import { ObjectType, Field, ID, Int } from '@nestjs/graphql';
+
+@ObjectType()
+export class GroupPreviewType {
+  @Field(() => ID)
+  id: string;
+
+  @Field(() => String)
+  name: string;
+
+  @Field(() => String, { nullable: true })
+  description?: string | null;
+
+  @Field(() => Int)
+  memberCount: number;
+
+  @Field(() => Boolean)
+  requiresApproval: boolean;
+}
 
 @ObjectType()
 export class GroupMemberUserType {
