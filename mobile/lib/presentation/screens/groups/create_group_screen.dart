@@ -8,6 +8,7 @@ import 'package:taskflow/data/providers/group_providers.dart';
 import 'package:taskflow/l10n/app_localizations.dart';
 import 'package:taskflow/presentation/providers/group_notifier.dart';
 import 'package:taskflow/presentation/widgets/common/app_navigation_back_button.dart';
+import 'package:taskflow/presentation/widgets/groups/rotation_types_help_dialog.dart';
 
 class CreateGroupScreen extends ConsumerStatefulWidget {
   const CreateGroupScreen({super.key});
@@ -136,26 +137,34 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
             Text(l10n.configuration, style: theme.textTheme.titleMedium),
             const SizedBox(height: 12),
 
-            DropdownButtonFormField<String>(
-              initialValue: _rotationType,
-              decoration: InputDecoration(
-                labelText: l10n.rotationType,
-                border: const OutlineInputBorder(),
-                prefixIcon: const Icon(Icons.sync),
-              ),
-              items: RotationType.values.map((type) {
-                return DropdownMenuItem<String>(
-                  value: type.value,
-                  child: Text(rotationTypeLabel(l10n, type)),
-                );
-              }).toList(),
-              onChanged: _isLoading
-                  ? null
-                  : (value) {
-                      if (value != null) {
-                        setState(() => _rotationType = value);
-                      }
-                    },
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: DropdownButtonFormField<String>(
+                    initialValue: _rotationType,
+                    decoration: InputDecoration(
+                      labelText: l10n.rotationType,
+                      border: const OutlineInputBorder(),
+                      prefixIcon: const Icon(Icons.sync),
+                    ),
+                    items: RotationType.values.map((type) {
+                      return DropdownMenuItem<String>(
+                        value: type.value,
+                        child: Text(rotationTypeLabel(l10n, type)),
+                      );
+                    }).toList(),
+                    onChanged: _isLoading
+                        ? null
+                        : (value) {
+                            if (value != null) {
+                              setState(() => _rotationType = value);
+                            }
+                          },
+                  ),
+                ),
+                const RotationTypesHelpIconButton(),
+              ],
             ),
             const SizedBox(height: 16),
 

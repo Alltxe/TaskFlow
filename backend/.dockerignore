@@ -1,0 +1,39 @@
+node_modules
+dist
+build
+coverage
+.nyc_output
+
+# logs
+logs
+*.log
+
+# env / secrets — НЕ кладём в образ, передаём через compose env_file
+.env
+.env.*
+!.env.production.example
+
+# vcs / editor
+.git
+.gitignore
+.idea
+.vscode
+*.sublime-workspace
+
+# tests
+test
+**/*.spec.ts
+
+# docs / misc
+.docs
+docs
+.github
+.claude
+scripts
+*.md
+!README.md
+
+# OS
+.DS_Store
+.temp
+.tmp

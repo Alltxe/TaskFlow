@@ -9,6 +9,7 @@ import 'package:taskflow/data/providers/group_providers.dart';
 import 'package:taskflow/l10n/app_localizations.dart';
 import 'package:taskflow/presentation/providers/group_notifier.dart';
 import 'package:taskflow/presentation/widgets/common/app_navigation_back_button.dart';
+import 'package:taskflow/presentation/widgets/groups/rotation_types_help_dialog.dart';
 
 class GroupSettingsScreen extends ConsumerStatefulWidget {
   final String groupId;
@@ -300,25 +301,33 @@ class _GroupSettingsContentState extends ConsumerState<GroupSettingsContent> {
           Text(AppLocalizations.of(context)!.configuration, style: theme.textTheme.titleMedium),
           const SizedBox(height: 12),
 
-          DropdownButtonFormField<String>(
-            initialValue: _rotationType,
-            decoration: InputDecoration(
-              labelText: AppLocalizations.of(context)!.rotationType,
-              border: const OutlineInputBorder(),
-              prefixIcon: const Icon(Icons.sync),
-            ),
-            items: RotationType.values.map((type) {
-              final l10n = AppLocalizations.of(context)!;
-              return DropdownMenuItem<String>(
-                value: type.value,
-                child: Text(rotationTypeLabel(l10n, type)),
-              );
-            }).toList(),
-            onChanged: _isSaving
-                ? null
-                : (value) {
-                    setState(() => _rotationType = value);
-                  },
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: DropdownButtonFormField<String>(
+                  initialValue: _rotationType,
+                  decoration: InputDecoration(
+                    labelText: AppLocalizations.of(context)!.rotationType,
+                    border: const OutlineInputBorder(),
+                    prefixIcon: const Icon(Icons.sync),
+                  ),
+                  items: RotationType.values.map((type) {
+                    final l10n = AppLocalizations.of(context)!;
+                    return DropdownMenuItem<String>(
+                      value: type.value,
+                      child: Text(rotationTypeLabel(l10n, type)),
+                    );
+                  }).toList(),
+                  onChanged: _isSaving
+                      ? null
+                      : (value) {
+                          setState(() => _rotationType = value);
+                        },
+                ),
+              ),
+              const RotationTypesHelpIconButton(),
+            ],
           ),
           const SizedBox(height: 16),
 

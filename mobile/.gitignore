@@ -47,3 +47,6 @@ app.*.map.json
 # Firebase local config files
 android/app/google-services.json
 ios/Runner/GoogleService-Info.plist
+
+# Environment (копируйте из .env.example)
+.env

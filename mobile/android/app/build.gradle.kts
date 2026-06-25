@@ -6,6 +6,22 @@ plugins {
     id("com.google.gms.google-services")
 }
 
+fun loadDotEnv(): Map<String, String> {
+    val envFile = file("../../.env")
+    if (!envFile.exists()) return emptyMap()
+    return envFile.readLines()
+        .map { it.trim() }
+        .filter { it.isNotEmpty() && !it.startsWith("#") && it.contains("=") }
+        .associate { line ->
+            val parts = line.split("=", limit = 2)
+            val key = parts[0].trim()
+            val value = parts[1].trim().removeSurrounding("\"").removeSurrounding("'")
+            key to value
+        }
+}
+
+val dotEnv = loadDotEnv()
+
 android {
     namespace = "com.example.mobile"
     compileSdk = flutter.compileSdkVersion
@@ -21,23 +37,20 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "com.taskflow.com"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = 26  // Android 8.0 Oreo
+        minSdk = 26
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
-        // Хост для HTTPS App Links. Замените на реальный домен бэкенда.
-        // Должен совпадать с доменом, где размещён /.well-known/assetlinks.json
-        manifestPlaceholders["DEEP_LINK_HOST"] = System.getenv("DEEP_LINK_HOST") ?: "localhost"
+        // Хост для HTTPS App Links — из mobile/.env (DEEP_LINK_HOST)
+        manifestPlaceholders["DEEP_LINK_HOST"] =
+            dotEnv["DEEP_LINK_HOST"]
+                ?: System.getenv("DEEP_LINK_HOST")
+                ?: "localhost"
     }
 
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.getByName("debug")
         }
     }

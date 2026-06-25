@@ -3,6 +3,9 @@
 /node_modules
 /build
 
+# docker export for VPS deploy
+taskflow-backend.tar
+
 # Logs
 logs
 *.log

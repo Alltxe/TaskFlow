@@ -153,20 +153,6 @@ class _TemplateCardState extends ConsumerState<_TemplateCard> {
                 overflow: TextOverflow.ellipsis,
               ),
             ],
-            if (t.recurrenceRule != null) ...[
-              const SizedBox(height: 8),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.secondaryContainer,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Text(
-                  '${l10n.recurrenceRule}: ${t.recurrenceRule}',
-                  style: theme.textTheme.bodySmall,
-                ),
-              ),
-            ],
             const SizedBox(height: 12),
             Align(
               alignment: Alignment.centerRight,

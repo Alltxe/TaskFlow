@@ -178,7 +178,7 @@ class GraphQLClientConfig {
     return NetworkException(
       message:
           'Cannot connect to backend at ${AppConfig.apiBaseUrl}. '
-          'For Android emulator use 10.0.2.2 and make sure backend is running on port 3100.',
+          'Check SERVER_HOST and API_PORT in mobile/.env.',
       details: error.toString(),
     );
   }

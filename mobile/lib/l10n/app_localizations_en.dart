@@ -850,7 +850,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get recurringTemplatesInfoBody =>
-      'Templates are not executable tasks. They generate regular tasks by RRULE. Deadline for generated tasks is configured as a relative interval (for example, 1 day or 1 week).';
+      'Templates are not executable tasks. They automatically create regular tasks on a schedule. Each generated task uses a relative deadline interval (for example, 1 day or 1 week).';
 
   @override
   String get noTasksAssigned => 'No tasks assigned to you';
@@ -1009,6 +1009,33 @@ class AppLocalizationsEn extends AppLocalizations {
   String get rotationTypeDisabled => 'Disabled (Manual)';
 
   @override
+  String get rotationTypesHelpTitle => 'Task assignment modes';
+
+  @override
+  String get rotationTypesHelpIntro =>
+      'Defines how new tasks without a selected assignee are distributed.';
+
+  @override
+  String get rotationTypeHelpRoundRobin =>
+      'Tasks rotate in order: each next member gets a task after the previous one. Members on leave are skipped.';
+
+  @override
+  String get rotationTypeHelpRandom =>
+      'A random available group member is assigned each time.';
+
+  @override
+  String get rotationTypeHelpWeightedRandom =>
+      'Random selection weighted by workload: members with fewer active tasks are picked more often.';
+
+  @override
+  String get rotationTypeHelpLoadBalancing =>
+      'Uses task difficulty from completed work. The next task goes to whoever has the lowest accumulated load. You can set difficulty when creating a task.';
+
+  @override
+  String get rotationTypeHelpDisabled =>
+      'Auto-assignment is off. Tasks go to the shared pool until someone claims them manually.';
+
+  @override
   String get pleaseSelectDeadline => 'Please select a deadline';
 
   @override
@@ -1016,7 +1043,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get recurrenceTemplateSubtitle =>
-      'Generate future tasks automatically using RRULE';
+      'Automatically create tasks on a schedule';
 
   @override
   String get recurringTemplateChip => 'Template';
@@ -1117,7 +1144,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get recurrenceSelectUntilDate => 'Tap to select end date';
 
   @override
-  String get recurrenceRuleLabel => 'RRULE';
+  String get recurrenceRuleLabel => 'Recurrence rule';
 
   @override
   String get recurrenceRuleInvalid =>
@@ -1127,17 +1154,51 @@ class AppLocalizationsEn extends AppLocalizations {
   String get recurrenceRuleInvalidShort => 'invalid';
 
   @override
-  String get recurrenceTestRuleLabel => 'Temporary test RRULE (optional)';
+  String get recurrenceSectionWhen => 'How often to repeat';
 
   @override
-  String get recurrenceTestRuleHint => 'FREQ=MINUTELY;INTERVAL=1';
+  String get recurrenceSummaryTitle => 'Preview';
+
+  @override
+  String recurrencePreviewTask(int number) {
+    return 'Task $number';
+  }
+
+  @override
+  String recurrencePreviewAppears(Object date) {
+    return 'Appears: $date';
+  }
+
+  @override
+  String get recurrencePreviewAppearsImmediately =>
+      'Appears: right after you save';
+
+  @override
+  String recurrencePreviewDeadline(Object date) {
+    return 'Due: $date';
+  }
+
+  @override
+  String recurrencePreviewMoreTasks(int count) {
+    return 'and $count more';
+  }
+
+  @override
+  String get recurrencePreviewRepeatsForever =>
+      'More tasks will follow the same schedule';
+
+  @override
+  String get recurrenceTestRuleLabel => 'Test recurrence rule (debug only)';
+
+  @override
+  String get recurrenceTestRuleHint => 'For developers';
 
   @override
   String get recurrenceTestRuleDescription =>
-      'If filled, this value overrides the visual builder. Use for testing only.';
+      'If filled, overrides the visual editor settings. For testing only.';
 
   @override
-  String get recurrenceTestRuleInvalid => 'Test RRULE must include FREQ=';
+  String get recurrenceTestRuleInvalid => 'Invalid test recurrence rule';
 
   @override
   String get weekdayShortMon => 'Mon';
@@ -1512,9 +1573,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get useGroupDefault => 'Use group default';
 
   @override
-  String taskWeight(Object weight) {
-    return 'Task Weight: $weight';
-  }
+  String get taskDifficultyLabel => 'Difficulty';
+
+  @override
+  String get taskDifficultyHint =>
+      'How hard is this task? (1 = easy, 10 = very hard). Used to balance workload when load balancing rotation is enabled.';
 
   @override
   String get roleParticipant => 'Participant';

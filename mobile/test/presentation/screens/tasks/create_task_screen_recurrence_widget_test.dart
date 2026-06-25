@@ -318,7 +318,7 @@ void main() {
     );
   });
 
-  testWidgets('CreateTaskScreen uses temporary custom RRULE override for testing', (
+  testWidgets('CreateTaskScreen uses temporary custom recurrence rule override for testing', (
     tester,
   ) async {
     final initialDeadline = DateTime(2026, 3, 20, 10, 0);
@@ -384,7 +384,7 @@ void main() {
 
     final customRuleField = find.widgetWithText(
       TextFormField,
-      'Temporary test RRULE (optional)',
+      'Test recurrence rule (debug only)',
     );
     await tester.scrollUntilVisible(customRuleField, 200, scrollable: scrollable);
     await tester.enterText(customRuleField, 'FREQ=MINUTELY;INTERVAL=1');

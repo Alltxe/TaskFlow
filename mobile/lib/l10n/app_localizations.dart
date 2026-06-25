@@ -1649,7 +1649,7 @@ abstract class AppLocalizations {
   /// No description provided for @recurringTemplatesInfoBody.
   ///
   /// In en, this message translates to:
-  /// **'Templates are not executable tasks. They generate regular tasks by RRULE. Deadline for generated tasks is configured as a relative interval (for example, 1 day or 1 week).'**
+  /// **'Templates are not executable tasks. They automatically create regular tasks on a schedule. Each generated task uses a relative deadline interval (for example, 1 day or 1 week).'**
   String get recurringTemplatesInfoBody;
 
   /// No description provided for @noTasksAssigned.
@@ -1934,6 +1934,48 @@ abstract class AppLocalizations {
   /// **'Disabled (Manual)'**
   String get rotationTypeDisabled;
 
+  /// No description provided for @rotationTypesHelpTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Task assignment modes'**
+  String get rotationTypesHelpTitle;
+
+  /// No description provided for @rotationTypesHelpIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Defines how new tasks without a selected assignee are distributed.'**
+  String get rotationTypesHelpIntro;
+
+  /// No description provided for @rotationTypeHelpRoundRobin.
+  ///
+  /// In en, this message translates to:
+  /// **'Tasks rotate in order: each next member gets a task after the previous one. Members on leave are skipped.'**
+  String get rotationTypeHelpRoundRobin;
+
+  /// No description provided for @rotationTypeHelpRandom.
+  ///
+  /// In en, this message translates to:
+  /// **'A random available group member is assigned each time.'**
+  String get rotationTypeHelpRandom;
+
+  /// No description provided for @rotationTypeHelpWeightedRandom.
+  ///
+  /// In en, this message translates to:
+  /// **'Random selection weighted by workload: members with fewer active tasks are picked more often.'**
+  String get rotationTypeHelpWeightedRandom;
+
+  /// No description provided for @rotationTypeHelpLoadBalancing.
+  ///
+  /// In en, this message translates to:
+  /// **'Uses task difficulty from completed work. The next task goes to whoever has the lowest accumulated load. You can set difficulty when creating a task.'**
+  String get rotationTypeHelpLoadBalancing;
+
+  /// No description provided for @rotationTypeHelpDisabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-assignment is off. Tasks go to the shared pool until someone claims them manually.'**
+  String get rotationTypeHelpDisabled;
+
   /// No description provided for @pleaseSelectDeadline.
   ///
   /// In en, this message translates to:
@@ -1949,7 +1991,7 @@ abstract class AppLocalizations {
   /// No description provided for @recurrenceTemplateSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Generate future tasks automatically using RRULE'**
+  /// **'Automatically create tasks on a schedule'**
   String get recurrenceTemplateSubtitle;
 
   /// No description provided for @recurringTemplateChip.
@@ -2129,7 +2171,7 @@ abstract class AppLocalizations {
   /// No description provided for @recurrenceRuleLabel.
   ///
   /// In en, this message translates to:
-  /// **'RRULE'**
+  /// **'Recurrence rule'**
   String get recurrenceRuleLabel;
 
   /// No description provided for @recurrenceRuleInvalid.
@@ -2144,28 +2186,76 @@ abstract class AppLocalizations {
   /// **'invalid'**
   String get recurrenceRuleInvalidShort;
 
+  /// No description provided for @recurrenceSectionWhen.
+  ///
+  /// In en, this message translates to:
+  /// **'How often to repeat'**
+  String get recurrenceSectionWhen;
+
+  /// No description provided for @recurrenceSummaryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview'**
+  String get recurrenceSummaryTitle;
+
+  /// No description provided for @recurrencePreviewTask.
+  ///
+  /// In en, this message translates to:
+  /// **'Task {number}'**
+  String recurrencePreviewTask(int number);
+
+  /// No description provided for @recurrencePreviewAppears.
+  ///
+  /// In en, this message translates to:
+  /// **'Appears: {date}'**
+  String recurrencePreviewAppears(Object date);
+
+  /// No description provided for @recurrencePreviewAppearsImmediately.
+  ///
+  /// In en, this message translates to:
+  /// **'Appears: right after you save'**
+  String get recurrencePreviewAppearsImmediately;
+
+  /// No description provided for @recurrencePreviewDeadline.
+  ///
+  /// In en, this message translates to:
+  /// **'Due: {date}'**
+  String recurrencePreviewDeadline(Object date);
+
+  /// No description provided for @recurrencePreviewMoreTasks.
+  ///
+  /// In en, this message translates to:
+  /// **'and {count} more'**
+  String recurrencePreviewMoreTasks(int count);
+
+  /// No description provided for @recurrencePreviewRepeatsForever.
+  ///
+  /// In en, this message translates to:
+  /// **'More tasks will follow the same schedule'**
+  String get recurrencePreviewRepeatsForever;
+
   /// No description provided for @recurrenceTestRuleLabel.
   ///
   /// In en, this message translates to:
-  /// **'Temporary test RRULE (optional)'**
+  /// **'Test recurrence rule (debug only)'**
   String get recurrenceTestRuleLabel;
 
   /// No description provided for @recurrenceTestRuleHint.
   ///
   /// In en, this message translates to:
-  /// **'FREQ=MINUTELY;INTERVAL=1'**
+  /// **'For developers'**
   String get recurrenceTestRuleHint;
 
   /// No description provided for @recurrenceTestRuleDescription.
   ///
   /// In en, this message translates to:
-  /// **'If filled, this value overrides the visual builder. Use for testing only.'**
+  /// **'If filled, overrides the visual editor settings. For testing only.'**
   String get recurrenceTestRuleDescription;
 
   /// No description provided for @recurrenceTestRuleInvalid.
   ///
   /// In en, this message translates to:
-  /// **'Test RRULE must include FREQ='**
+  /// **'Invalid test recurrence rule'**
   String get recurrenceTestRuleInvalid;
 
   /// No description provided for @weekdayShortMon.
@@ -2864,11 +2954,17 @@ abstract class AppLocalizations {
   /// **'Use group default'**
   String get useGroupDefault;
 
-  /// No description provided for @taskWeight.
+  /// No description provided for @taskDifficultyLabel.
   ///
   /// In en, this message translates to:
-  /// **'Task Weight: {weight}'**
-  String taskWeight(Object weight);
+  /// **'Difficulty'**
+  String get taskDifficultyLabel;
+
+  /// No description provided for @taskDifficultyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'How hard is this task? (1 = easy, 10 = very hard). Used to balance workload when load balancing rotation is enabled.'**
+  String get taskDifficultyHint;
 
   /// No description provided for @roleParticipant.
   ///

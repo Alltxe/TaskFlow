@@ -4,6 +4,7 @@ import 'package:app_links/app_links.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:taskflow/core/config/app_config.dart';
 import 'package:taskflow/core/router/app_router.dart';
 import 'package:taskflow/core/services/push_notification_service.dart';
 import 'package:taskflow/core/theme/app_theme.dart';
@@ -16,6 +17,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await AppConfig.load();
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   runApp(const ProviderScope(child: TaskFlowApp()));

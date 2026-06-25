@@ -858,7 +858,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get recurringTemplatesInfoBody =>
-      'Шаблоны не являются исполняемыми задачами. Они создают обычные задачи по RRULE. Срок для сгенерированных задач задается как относительный интервал (например, 1 день или 1 неделя).';
+      'Шаблоны не являются исполняемыми задачами. По расписанию из них автоматически создаются обычные задачи. Срок для каждой новой задачи задаётся относительным интервалом (например, 1 день или 1 неделя).';
 
   @override
   String get noTasksAssigned => 'Вам не назначены задачи';
@@ -1017,6 +1017,33 @@ class AppLocalizationsRu extends AppLocalizations {
   String get rotationTypeDisabled => 'Отключено (Вручную)';
 
   @override
+  String get rotationTypesHelpTitle => 'Режимы распределения задач';
+
+  @override
+  String get rotationTypesHelpIntro =>
+      'Определяет, как назначаются новые задачи без выбранного исполнителя.';
+
+  @override
+  String get rotationTypeHelpRoundRobin =>
+      'Задачи выдаются по кругу: каждый следующий участник получает задачу после предыдущего. Участники в отпуске пропускаются.';
+
+  @override
+  String get rotationTypeHelpRandom =>
+      'Исполнитель выбирается случайно из доступных участников группы.';
+
+  @override
+  String get rotationTypeHelpWeightedRandom =>
+      'Случайный выбор с учётом нагрузки: у кого меньше активных задач, тот чаще получает новые.';
+
+  @override
+  String get rotationTypeHelpLoadBalancing =>
+      'Учитывает сложность выполненных задач. Новая задача достаётся тому, у кого накоплено меньше тяжёлых задач. При создании задачи можно указать её сложность.';
+
+  @override
+  String get rotationTypeHelpDisabled =>
+      'Автоназначение отключено. Задачи попадают в общий список «доступно всем», пока кто-нибудь не возьмёт их вручную.';
+
+  @override
   String get pleaseSelectDeadline => 'Пожалуйста, выберите срок';
 
   @override
@@ -1024,7 +1051,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get recurrenceTemplateSubtitle =>
-      'Автоматически создаёт будущие задачи через RRULE';
+      'Автоматически создавать задачи по расписанию';
 
   @override
   String get recurringTemplateChip => 'Шаблон';
@@ -1126,7 +1153,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Нажмите, чтобы выбрать дату окончания';
 
   @override
-  String get recurrenceRuleLabel => 'RRULE';
+  String get recurrenceRuleLabel => 'Правило повторения';
 
   @override
   String get recurrenceRuleInvalid =>
@@ -1136,19 +1163,53 @@ class AppLocalizationsRu extends AppLocalizations {
   String get recurrenceRuleInvalidShort => 'некорректно';
 
   @override
-  String get recurrenceTestRuleLabel =>
-      'Временный тестовый RRULE (необязательно)';
+  String get recurrenceSectionWhen => 'Как часто повторять';
 
   @override
-  String get recurrenceTestRuleHint => 'FREQ=MINUTELY;INTERVAL=1';
+  String get recurrenceSummaryTitle => 'Что получится';
+
+  @override
+  String recurrencePreviewTask(int number) {
+    return 'Задача $number';
+  }
+
+  @override
+  String recurrencePreviewAppears(Object date) {
+    return 'Появится: $date';
+  }
+
+  @override
+  String get recurrencePreviewAppearsImmediately =>
+      'Появится: сразу после сохранения';
+
+  @override
+  String recurrencePreviewDeadline(Object date) {
+    return 'Срок: $date';
+  }
+
+  @override
+  String recurrencePreviewMoreTasks(int count) {
+    return 'и ещё $count';
+  }
+
+  @override
+  String get recurrencePreviewRepeatsForever =>
+      'Далее задачи будут появляться по тому же расписанию';
+
+  @override
+  String get recurrenceTestRuleLabel =>
+      'Тестовое правило повторения (только debug)';
+
+  @override
+  String get recurrenceTestRuleHint => 'Для разработчиков';
 
   @override
   String get recurrenceTestRuleDescription =>
-      'Если заполнено, это значение переопределяет визуальный редактор. Используйте только для тестирования.';
+      'Если заполнено, переопределяет настройки визуального редактора. Только для тестирования.';
 
   @override
   String get recurrenceTestRuleInvalid =>
-      'Тестовый RRULE должен содержать FREQ=';
+      'Некорректное тестовое правило повторения';
 
   @override
   String get weekdayShortMon => 'Пн';
@@ -1524,9 +1585,11 @@ class AppLocalizationsRu extends AppLocalizations {
   String get useGroupDefault => 'По умолчанию группы';
 
   @override
-  String taskWeight(Object weight) {
-    return 'Вес задачи: $weight';
-  }
+  String get taskDifficultyLabel => 'Сложность';
+
+  @override
+  String get taskDifficultyHint =>
+      'Насколько тяжёлая эта задача? (1 — лёгкая, 10 — очень сложная). Учитывается при балансировке нагрузки.';
 
   @override
   String get roleParticipant => 'Участник';

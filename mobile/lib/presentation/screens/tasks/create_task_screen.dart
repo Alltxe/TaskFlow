@@ -1,13 +1,17 @@
+import 'package:dartz/dartz.dart' hide Task;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:taskflow/core/errors/failure.dart';
+import 'package:taskflow/core/utils/enum_l10n.dart';
+import 'package:taskflow/core/utils/recurrence_preview_calculator.dart';
 import 'package:taskflow/core/utils/recurrence_rule_builder.dart';
 import 'package:taskflow/data/models/create_task_request.dart';
+import 'package:taskflow/data/models/group.dart';
 import 'package:taskflow/data/models/group_member.dart';
 import 'package:taskflow/data/models/task.dart';
-import 'package:taskflow/core/utils/enum_l10n.dart';
 import 'package:taskflow/data/models/task_enums.dart';
 import 'package:taskflow/data/models/update_task_request.dart';
 import 'package:taskflow/data/providers/auth_providers.dart';
@@ -63,7 +67,8 @@ class _CreateTaskScreenState extends ConsumerState<CreateTaskScreen> {
 
   // Admin-only fields
   String _assigneeType = 'auto'; // 'auto', 'upForGrabs', or userId
-  int _weight = 1;
+  int _difficulty = 1;
+  String? _cachedGroupRotationType;
   bool _isLoadingEditTask = false;
   String? _editTaskLoadError;
   String? _resolvedGroupId;
@@ -117,7 +122,7 @@ class _CreateTaskScreenState extends ConsumerState<CreateTaskScreen> {
     _selectedPriority = TaskPriority.fromString(task.priority);
     _requiresApproval = task.requiresApproval;
     _isRecurring = task.isRecurring;
-    _weight = task.weight;
+    _difficulty = task.weight;
 
     final recurrenceRule = task.recurrenceRule;
     if (recurrenceRule != null && recurrenceRule.isNotEmpty) {
@@ -156,6 +161,25 @@ class _CreateTaskScreenState extends ConsumerState<CreateTaskScreen> {
 
   String _getRotationTypeLabel(BuildContext context, RotationType type) {
     return rotationTypeLabel(AppLocalizations.of(context)!, type);
+  }
+
+  /// Режим ротации, который реально применится к задаче.
+  RotationType? _effectiveRotationType([String? groupRotationType]) {
+    if (_assigneeType != 'auto') return null;
+
+    final groupDefault = groupRotationType ?? _cachedGroupRotationType;
+    if (_selectedRotationType != null) {
+      return _selectedRotationType;
+    }
+    if (groupDefault != null && groupDefault.isNotEmpty) {
+      return RotationType.fromString(groupDefault);
+    }
+    return RotationType.roundRobin;
+  }
+
+  bool _usesLoadBalancing([String? groupRotationType]) {
+    return _effectiveRotationType(groupRotationType) ==
+        RotationType.loadBalancing;
   }
 
   Future<void> _selectDeadline() async {
@@ -331,6 +355,157 @@ class _CreateTaskScreenState extends ConsumerState<CreateTaskScreen> {
     return builder.toRRule();
   }
 
+  String _formatShortDate(DateTime date) {
+    final d = date.day.toString().padLeft(2, '0');
+    final m = date.month.toString().padLeft(2, '0');
+    return '$d.$m.${date.year}';
+  }
+
+  String _formatPreviewDateTime(DateTime date) {
+    final datePart = _formatShortDate(date);
+    if (date.hour == 0 && date.minute == 0) {
+      return datePart;
+    }
+    final h = date.hour.toString().padLeft(2, '0');
+    final m = date.minute.toString().padLeft(2, '0');
+    return '$datePart $h:$m';
+  }
+
+  String? _effectiveRecurrenceRuleForPreview() {
+    if (kDebugMode) {
+      final custom = _normalizeCustomRecurrenceRule(
+        _customRecurrenceRuleController.text,
+      );
+      if (custom != null) {
+        return custom;
+      }
+    }
+    return _buildRecurrenceRule();
+  }
+
+  RecurrencePreviewResult? _buildRecurrencePreview() {
+    final rule = _effectiveRecurrenceRuleForPreview();
+    if (rule == null) {
+      return null;
+    }
+
+    return RecurrencePreviewCalculator.preview(
+      rruleString: rule,
+      templateDeadline: _calculateRecurringTemplateDeadline(),
+      endType: _recurrenceEndType,
+      count: _recurrenceEndType == RecurrenceEndType.count
+          ? _recurrenceCount
+          : null,
+      until: _recurrenceEndType == RecurrenceEndType.until
+          ? _recurrenceUntil
+          : null,
+    );
+  }
+
+  Widget _buildRecurrencePreviewCard(AppLocalizations l10n) {
+    final preview = _buildRecurrencePreview();
+    final theme = Theme.of(context);
+
+    if (preview == null) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.errorContainer,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Text(
+          l10n.recurrenceRuleInvalid,
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: theme.colorScheme.onErrorContainer,
+          ),
+        ),
+      );
+    }
+
+    final onColor = theme.colorScheme.onPrimaryContainer;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.primaryContainer,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.event_repeat,
+                size: 16,
+                color: onColor,
+              ),
+              const SizedBox(width: 6),
+              Text(
+                l10n.recurrenceSummaryTitle,
+                style: theme.textTheme.labelMedium?.copyWith(
+                  color: onColor,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          ...preview.occurrences.map((occurrence) {
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    l10n.recurrencePreviewTask(occurrence.index),
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      color: onColor,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    occurrence.appearsImmediately
+                        ? l10n.recurrencePreviewAppearsImmediately
+                        : l10n.recurrencePreviewAppears(
+                            _formatPreviewDateTime(occurrence.appearsAt),
+                          ),
+                    style: theme.textTheme.bodySmall?.copyWith(color: onColor),
+                  ),
+                  Text(
+                    l10n.recurrencePreviewDeadline(
+                      _formatPreviewDateTime(occurrence.deadline),
+                    ),
+                    style: theme.textTheme.bodySmall?.copyWith(color: onColor),
+                  ),
+                ],
+              ),
+            );
+          }),
+          if (preview.remainingCount != null)
+            Text(
+              l10n.recurrencePreviewMoreTasks(preview.remainingCount!),
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: onColor,
+                fontStyle: FontStyle.italic,
+              ),
+            )
+          else if (preview.repeatsForever)
+            Text(
+              l10n.recurrencePreviewRepeatsForever,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: onColor,
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
   String? _normalizeCustomRecurrenceRule(String rawRule) {
     final trimmed = rawRule.trim();
     if (trimmed.isEmpty) {
@@ -416,9 +591,8 @@ class _CreateTaskScreenState extends ConsumerState<CreateTaskScreen> {
       assigneeId = null;
       rotationType = _selectedRotationType?.value;
 
-      // Include weight if load balancing
-      if (_selectedRotationType == RotationType.loadBalancing) {
-        weight = _weight;
+      if (_usesLoadBalancing()) {
+        weight = _difficulty;
       }
     }
 
@@ -503,24 +677,32 @@ class _CreateTaskScreenState extends ConsumerState<CreateTaskScreen> {
     final authState = ref.watch(authStateProvider);
     final groupId = _effectiveGroupId;
 
-    // Fetch group members
+    // Fetch group members and group settings (rotation type)
     final getMembersUseCase = ref.watch(getGroupMembersUseCaseProvider);
+    final getGroupUseCase = ref.watch(getGroupDetailUseCaseProvider);
 
     if (groupId.isEmpty) {
-      return _buildForm(context, l10n, false, const <GroupMember>[]);
+      return _buildForm(context, l10n, false, const <GroupMember>[], null);
     }
 
     return FutureBuilder(
-      future: getMembersUseCase(groupId),
+      future: Future.wait([
+        getMembersUseCase(groupId),
+        getGroupUseCase(groupId),
+      ]),
       builder: (context, snapshot) {
         // Determine if user is admin and get members list
         bool isAdmin = false;
         List<GroupMember> members = [];
+        String? groupRotationType;
 
         if (snapshot.hasData) {
-          final result = snapshot.data!;
-          result.fold(
-            (failure) {}, // Ignore errors, treat as non-admin
+          final membersResult =
+              snapshot.data![0] as Either<Failure, List<GroupMember>>;
+          final groupResult = snapshot.data![1] as Either<Failure, Group>;
+
+          membersResult.fold(
+            (failure) {},
             (membersList) {
               members = membersList;
               final currentMember = membersList.firstWhere(
@@ -530,14 +712,32 @@ class _CreateTaskScreenState extends ConsumerState<CreateTaskScreen> {
               isAdmin = currentMember.role == 'ADMIN';
             },
           );
+
+          groupResult.fold(
+            (failure) {},
+            (group) => groupRotationType = group.rotationType,
+          );
         }
 
-        return _buildForm(context, l10n, isAdmin, members);
+        return _buildForm(
+          context,
+          l10n,
+          isAdmin,
+          members,
+          groupRotationType,
+        );
       },
     );
   }
 
-  Widget _buildForm(BuildContext context, AppLocalizations l10n, bool isAdmin, List<GroupMember> members) {
+  Widget _buildForm(
+    BuildContext context,
+    AppLocalizations l10n,
+    bool isAdmin,
+    List<GroupMember> members,
+    String? groupRotationType,
+  ) {
+    _cachedGroupRotationType = groupRotationType;
 
     if (_isLoadingEditTask) {
       return Scaffold(
@@ -789,6 +989,11 @@ class _CreateTaskScreenState extends ConsumerState<CreateTaskScreen> {
                               color: Colors.grey.shade700,
                             ),
                       ),
+                      const Divider(height: 24),
+                      Text(
+                        l10n.recurrenceSectionWhen,
+                        style: Theme.of(context).textTheme.titleSmall,
+                      ),
                       const SizedBox(height: 12),
                       DropdownButtonFormField<RecurrenceFrequency>(
                         initialValue: _recurrenceFrequency,
@@ -950,11 +1155,8 @@ class _CreateTaskScreenState extends ConsumerState<CreateTaskScreen> {
                           ),
                         ),
                       ],
-                      const SizedBox(height: 8),
-                      Text(
-                        '${l10n.recurrenceRuleLabel}: ${_buildRecurrenceRule() ?? l10n.recurrenceRuleInvalidShort}',
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
+                      const SizedBox(height: 12),
+                      _buildRecurrencePreviewCard(l10n),
                       if (kDebugMode) ...[
                         const SizedBox(height: 12),
                         TextFormField(
@@ -1048,19 +1250,54 @@ class _CreateTaskScreenState extends ConsumerState<CreateTaskScreen> {
                 const SizedBox(height: 16),
               ],
 
-              // Weight (only if load balancing)
+              // Сложность — только при балансировке нагрузки
+              // (явно на задаче или по умолчанию в группе).
               if (_assigneeType == 'auto' &&
-                  _selectedRotationType == RotationType.loadBalancing) ...[
-                Text(l10n.taskWeight(_weight)),
-                Slider(
-                  value: _weight.toDouble(),
-                  min: 1,
-                  max: 10,
-                  divisions: 9,
-                  label: '$_weight',
-                  onChanged: (value) {
-                    setState(() => _weight = value.toInt());
-                  },
+                  _usesLoadBalancing(groupRotationType)) ...[
+                Text(
+                  l10n.taskDifficultyLabel,
+                  style: Theme.of(context).textTheme.titleSmall,
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    Text(
+                      '1',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                    Expanded(
+                      child: Slider(
+                        value: _difficulty.toDouble(),
+                        min: 1,
+                        max: 10,
+                        divisions: 9,
+                        label: '$_difficulty',
+                        onChanged: (value) {
+                          setState(() => _difficulty = value.toInt());
+                        },
+                      ),
+                    ),
+                    Text(
+                      '10',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ],
+                ),
+                Align(
+                  alignment: Alignment.center,
+                  child: Text(
+                    '$_difficulty',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 4, bottom: 4),
+                  child: Text(
+                    l10n.taskDifficultyHint,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Colors.grey.shade700,
+                        ),
+                  ),
                 ),
                 const SizedBox(height: 16),
               ],
