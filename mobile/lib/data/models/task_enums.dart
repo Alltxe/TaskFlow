@@ -2,7 +2,8 @@
 enum TaskPriority {
   low('LOW'),
   medium('MEDIUM'),
-  high('HIGH');
+  high('HIGH'),
+  critical('CRITICAL');
 
   const TaskPriority(this.value);
   final String value;
@@ -20,7 +21,8 @@ enum TaskStatus {
   pending('PENDING'), // Assigned, not started
   awaitingApproval('AWAITING_APPROVAL'), // Completed, pending admin review
   completed('COMPLETED'), // Approved and points awarded
-  overdue('OVERDUE'); // Deadline passed
+  overdue('OVERDUE'), // Deadline passed
+  cancelled('CANCELLED'); // Cancelled task
 
   const TaskStatus(this.value);
   final String value;
@@ -37,6 +39,7 @@ enum TaskStatus {
 enum RotationType {
   roundRobin('ROUND_ROBIN'), // Cyclic rotation (oldest completion first)
   random('RANDOM'), // Random assignment
+  weightedRandom('WEIGHTED_RANDOM'), // Weighted random assignment
   loadBalancing('LOAD_BALANCING'), // Weight-based balancing
   disabled('DISABLED'); // Manual assignment only (Up-for-Grabs pool)
 

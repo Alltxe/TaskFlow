@@ -110,4 +110,8 @@ class _FakeTaskRepository implements TaskRepository {
     bool approved, {
     String? rejectionReason,
   }) => Future.value(const dartz.Left(UnknownFailure(message: 'Not implemented')));
+
+  @override
+  Future<dartz.Either<Failure, Task>> generateNextRecurringTask(String taskId) =>
+      Future.value(const dartz.Left(UnknownFailure(message: 'Not implemented')));
 }

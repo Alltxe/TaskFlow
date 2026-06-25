@@ -544,6 +544,43 @@ class TaskRemoteDataSource {
     }
   }
 
+  /// Manually generate the next task from a recurring template (admin only).
+  Future<Task> generateNextRecurringTask(String taskId) async {
+    const mutation = r'''
+      mutation GenerateNextRecurringTask($taskId: String!) {
+        generateNextRecurringTask(taskId: $taskId) {
+          ...TaskFields
+        }
+      }
+    ''';
+
+    try {
+      final gqlRequest = Request(
+        operation: Operation(
+          document: gql_lang.parseString(mutation + _taskFragment + _userFragment),
+          operationName: 'GenerateNextRecurringTask',
+        ),
+        variables: {'taskId': taskId},
+      );
+
+      final response = await GraphQLClientConfig.request(gqlRequest);
+
+      if (response.errors != null && response.errors!.isNotEmpty) {
+        _handleGraphQLErrors(response.errors!);
+      }
+
+      final data = response.data?['generateNextRecurringTask'];
+      if (data == null) {
+        throw const app_exceptions.ServerException(message: 'Failed to generate next task');
+      }
+
+      return Task.fromJson(data as Map<String, dynamic>);
+    } catch (e) {
+      if (e is app_exceptions.AppException) rethrow;
+      throw app_exceptions.ServerException(message: e.toString());
+    }
+  }
+
   // Error handling
 
   void _handleGraphQLErrors(List<GraphQLError> errors) {

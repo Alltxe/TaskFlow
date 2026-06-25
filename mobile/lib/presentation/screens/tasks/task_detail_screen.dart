@@ -2,17 +2,21 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:intl/intl.dart';
 import 'package:mime/mime.dart';
+import 'package:taskflow/core/utils/date_l10n.dart';
 import 'package:taskflow/core/utils/media_permission_helper.dart';
 import 'package:taskflow/data/datasources/task_remote_datasource.dart';
+import 'package:taskflow/data/models/task.dart';
 import 'package:taskflow/data/models/task_attachment.dart';
 import 'package:taskflow/data/models/task_enums.dart';
+import 'package:taskflow/data/providers/auth_providers.dart';
+import 'package:taskflow/data/providers/group_providers.dart';
 import 'package:taskflow/l10n/app_localizations.dart';
 import 'package:taskflow/presentation/providers/task_state_provider.dart';
 import 'package:taskflow/presentation/widgets/task/deadline_countdown.dart';
 import 'package:taskflow/presentation/widgets/task/priority_badge.dart';
 import 'package:taskflow/presentation/widgets/task/status_badge.dart';
+import 'package:taskflow/presentation/widgets/common/app_navigation_back_button.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 /// Task detail screen with full information (PRD 3.4.3)
@@ -36,7 +40,7 @@ class _TaskDetailScreenState extends ConsumerState<TaskDetailScreen> {
     if (!hasPermission) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Нет разрешения на доступ к медиафайлам')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.mediaPermissionDenied)),
         );
       }
       return;
@@ -65,7 +69,7 @@ class _TaskDetailScreenState extends ConsumerState<TaskDetailScreen> {
       ref.invalidate(taskDetailsProvider(widget.taskId));
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Вложение добавлено')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.attachmentAdded)),
         );
       }
     } catch (e) {
@@ -85,18 +89,21 @@ class _TaskDetailScreenState extends ConsumerState<TaskDetailScreen> {
   Future<void> _deleteAttachment(String attachmentId) async {
     final confirm = await showDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Удалить вложение?'),
-        content: const Text('Файл будет удалён без возможности восстановления.'),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Отмена')),
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Удалить'),
-          ),
-        ],
-      ),
+      builder: (ctx) {
+        final l10n = AppLocalizations.of(ctx)!;
+        return AlertDialog(
+          title: Text(l10n.deleteAttachmentTitle),
+          content: Text(l10n.deleteAttachmentMessage),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l10n.cancel)),
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              style: TextButton.styleFrom(foregroundColor: Colors.red),
+              child: Text(l10n.delete),
+            ),
+          ],
+        );
+      },
     );
     if (confirm != true) return;
 
@@ -106,7 +113,7 @@ class _TaskDetailScreenState extends ConsumerState<TaskDetailScreen> {
       ref.invalidate(taskDetailsProvider(widget.taskId));
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Вложение удалено')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.attachmentDeleted)),
         );
       }
     } catch (e) {
@@ -122,6 +129,7 @@ class _TaskDetailScreenState extends ConsumerState<TaskDetailScreen> {
   }
 
   Future<ImageSource?> _showAttachmentSourceDialog() {
+    final l10n = AppLocalizations.of(context)!;
     return showModalBottomSheet<ImageSource>(
       context: context,
       builder: (ctx) => SafeArea(
@@ -130,17 +138,17 @@ class _TaskDetailScreenState extends ConsumerState<TaskDetailScreen> {
           children: [
             ListTile(
               leading: const Icon(Icons.photo_library_outlined),
-              title: const Text('Из галереи'),
+              title: Text(l10n.fromGallery),
               onTap: () => Navigator.pop(ctx, ImageSource.gallery),
             ),
             ListTile(
               leading: const Icon(Icons.camera_alt_outlined),
-              title: const Text('Сделать фото'),
+              title: Text(l10n.takePhoto),
               onTap: () => Navigator.pop(ctx, ImageSource.camera),
             ),
             ListTile(
               leading: const Icon(Icons.close),
-              title: const Text('Отмена'),
+              title: Text(l10n.cancel),
               onTap: () => Navigator.pop(ctx),
             ),
           ],
@@ -157,60 +165,65 @@ class _TaskDetailScreenState extends ConsumerState<TaskDetailScreen> {
     final taskAsync = ref.watch(taskDetailsProvider(widget.taskId));
     final colorScheme = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context)!;
+    final currentTask = taskAsync.asData?.value;
+    final currentStatus =
+        currentTask != null ? TaskStatus.fromString(currentTask.status) : null;
 
     return Scaffold(
       appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: const Text('Task Details'),
+        leading: const AppNavigationBackButton(fallbackRoute: '/home'),
+        title: Text(l10n.taskDetailsTitle),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.edit),
-            onPressed: () => context.push('/tasks/${widget.taskId}/edit'),
-          ),
-          PopupMenuButton(
-            itemBuilder: (context) => [
-              const PopupMenuItem(
-                value: 'delete',
-                child: Row(
-                  children: [
-                    Icon(Icons.delete, color: Colors.red),
-                    SizedBox(width: 8),
-                    Text('Delete Task'),
-                  ],
-                ),
-              ),
-            ],
-            onSelected: (value) async {
-              if (value == 'delete') {
-                final confirm = await showDialog<bool>(
-                  context: context,
-                  builder: (context) => AlertDialog(
-                    title: const Text('Delete Task'),
-                    content: const Text('Are you sure you want to delete this task?'),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(context, false),
-                        child: const Text('Cancel'),
-                      ),
-                      TextButton(
-                        onPressed: () => Navigator.pop(context, true),
-                        style: TextButton.styleFrom(foregroundColor: Colors.red),
-                        child: const Text('Delete'),
-                      ),
+          if (currentStatus != TaskStatus.cancelled) ...[
+            IconButton(
+              icon: const Icon(Icons.edit),
+              onPressed: () => context.push('/tasks/${widget.taskId}/edit'),
+            ),
+            PopupMenuButton(
+              itemBuilder: (context) => [
+                PopupMenuItem(
+                  value: 'delete',
+                  child: Row(
+                    children: [
+                      const Icon(Icons.delete, color: Colors.red),
+                      const SizedBox(width: 8),
+                      Text(l10n.deleteTask),
                     ],
                   ),
-                );
+                ),
+              ],
+              onSelected: (value) async {
+                if (value == 'delete') {
+                  final confirm = await showDialog<bool>(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: Text(l10n.deleteTaskConfirmTitle),
+                      content: Text(l10n.deleteTaskConfirmMessage),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, false),
+                          child: Text(l10n.cancel),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, true),
+                          style: TextButton.styleFrom(foregroundColor: Colors.red),
+                          child: Text(l10n.delete),
+                        ),
+                      ],
+                    ),
+                  );
 
-                if (confirm == true && context.mounted) {
-                  final t = await ref.read(taskDetailsProvider(widget.taskId).future);
-                  await ref
-                      .read(taskActionsProvider.notifier)
-                      .deleteTask(widget.taskId, groupId: t.groupId);
-                  if (context.mounted) context.pop();
+                  if (confirm == true && context.mounted) {
+                    final t = await ref.read(taskDetailsProvider(widget.taskId).future);
+                    await ref
+                        .read(taskActionsProvider.notifier)
+                        .deleteTask(widget.taskId, groupId: t.groupId);
+                    if (context.mounted) context.pop();
+                  }
                 }
-              }
-            },
-          ),
+              },
+            ),
+          ],
         ],
       ),
       body: taskAsync.when(
@@ -219,6 +232,8 @@ class _TaskDetailScreenState extends ConsumerState<TaskDetailScreen> {
           final status = TaskStatus.fromString(task.status);
           final isTemplateWithoutAssignee = task.isRecurring && task.assignee == null;
           final isUpForGrabsTask = !task.isRecurring && task.assignee == null;
+          final currentUserId = ref.watch(authStateProvider).user?.id;
+          final isAdmin = ref.watch(isGroupAdminProvider(task.groupId)).value ?? false;
 
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16),
@@ -287,7 +302,7 @@ class _TaskDetailScreenState extends ConsumerState<TaskDetailScreen> {
                             Text(
                               task.assignee?.username ??
                                   (isTemplateWithoutAssignee
-                                      ? l10n.recurrenceTemplateLabel
+                                      ? l10n.recurringTemplateChip
                                       : l10n.upForGrabs),
                               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                             ),
@@ -316,22 +331,22 @@ class _TaskDetailScreenState extends ConsumerState<TaskDetailScreen> {
                 const SizedBox(height: 16),
 
                 _InfoCard(
-                  title: 'Deadline',
+                  title: l10n.deadlineLabel,
                   child: DeadlineCountdown(deadline: task.deadline, status: status),
                 ),
 
                 const SizedBox(height: 16),
 
                 _InfoCard(
-                  title: 'Reward',
+                  title: l10n.reward,
                   child: Row(
                     children: [
                       Icon(Icons.stars, color: colorScheme.primary),
                       const SizedBox(width: 8),
                       Text(
                         task.wasClaimedFromPool
-                            ? '${(task.points * 1.5).round()} points (+50% bonus)'
-                            : '${task.points} points',
+                            ? '${(task.points * 1.5).round()} ${l10n.pts} (${l10n.bonusPoints})'
+                            : '${task.points} ${l10n.pts}',
                         style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                       ),
                     ],
@@ -341,14 +356,14 @@ class _TaskDetailScreenState extends ConsumerState<TaskDetailScreen> {
                 if (task.description != null) ...[
                   const SizedBox(height: 16),
                   _InfoCard(
-                    title: 'Description',
+                    title: l10n.description,
                     child: Text(task.description!, style: const TextStyle(fontSize: 14)),
                   ),
                 ],
 
                 const SizedBox(height: 16),
                 _InfoCard(
-                  title: 'Created By',
+                  title: l10n.createdBy,
                   child: Row(
                     children: [
                       CircleAvatar(
@@ -369,7 +384,7 @@ class _TaskDetailScreenState extends ConsumerState<TaskDetailScreen> {
                       Text(task.createdBy?.username ?? 'Unknown', style: const TextStyle(fontSize: 14)),
                       const Spacer(),
                       Text(
-                        DateFormat('MMM dd, yyyy').format(task.createdAt),
+                        formatMonthDayYear(context, task.createdAt),
                         style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
                       ),
                     ],
@@ -393,7 +408,7 @@ class _TaskDetailScreenState extends ConsumerState<TaskDetailScreen> {
                             Icon(Icons.info_outline, color: Colors.red.shade700),
                             const SizedBox(width: 8),
                             Text(
-                              'Rejection Reason',
+                              l10n.rejectionReason,
                               style: TextStyle(
                                 fontWeight: FontWeight.w600,
                                 color: Colors.red.shade700,
@@ -408,13 +423,20 @@ class _TaskDetailScreenState extends ConsumerState<TaskDetailScreen> {
                   ),
                 ],
 
-                // ── Attachments ──────────────────────────────────────────────
                 const SizedBox(height: 24),
-                _buildAttachmentsSection(context, task.attachments),
+                _buildAttachmentsSection(context, task.attachments, l10n),
 
                 const SizedBox(height: 32),
 
-                _buildActionButtons(context, ref, task, status),
+                _buildActionButtons(
+                  context,
+                  ref,
+                  task,
+                  status,
+                  l10n,
+                  currentUserId: currentUserId,
+                  isAdmin: isAdmin,
+                ),
               ],
             ),
           );
@@ -426,13 +448,13 @@ class _TaskDetailScreenState extends ConsumerState<TaskDetailScreen> {
             children: [
               const Icon(Icons.error_outline, size: 64, color: Colors.red),
               const SizedBox(height: 16),
-              const Text('Error loading task'),
+              Text(l10n.errorLoadingTask),
               const SizedBox(height: 8),
               Text(error.toString(), style: const TextStyle(fontSize: 12)),
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () => ref.invalidate(taskDetailsProvider(widget.taskId)),
-                child: const Text('Retry'),
+                child: Text(l10n.retry),
               ),
             ],
           ),
@@ -441,14 +463,18 @@ class _TaskDetailScreenState extends ConsumerState<TaskDetailScreen> {
     );
   }
 
-  Widget _buildAttachmentsSection(BuildContext context, List<TaskAttachment> attachments) {
+  Widget _buildAttachmentsSection(
+    BuildContext context,
+    List<TaskAttachment> attachments,
+    AppLocalizations l10n,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
             Text(
-              'Вложения',
+              l10n.attachments,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w600,
               ),
@@ -463,7 +489,7 @@ class _TaskDetailScreenState extends ConsumerState<TaskDetailScreen> {
                 : TextButton.icon(
                     onPressed: _pickAndAddAttachment,
                     icon: const Icon(Icons.attach_file, size: 18),
-                    label: const Text('Добавить'),
+                    label: Text(l10n.addAttachment),
                   ),
           ],
         ),
@@ -508,8 +534,21 @@ class _TaskDetailScreenState extends ConsumerState<TaskDetailScreen> {
     );
   }
 
-  Widget _buildActionButtons(BuildContext context, WidgetRef ref, task, TaskStatus status) {
-    final isAssignedToMe = task.assigneeId != null;
+  Widget _buildActionButtons(
+    BuildContext context,
+    WidgetRef ref,
+    Task task,
+    TaskStatus status,
+    AppLocalizations l10n, {
+    required String? currentUserId,
+    required bool isAdmin,
+  }) {
+    if (status == TaskStatus.cancelled || status == TaskStatus.completed || status == TaskStatus.overdue) {
+      return const SizedBox.shrink();
+    }
+
+    final isAssignedToMe =
+        currentUserId != null && task.assigneeId != null && task.assigneeId == currentUserId;
 
     switch (status) {
       case TaskStatus.pending:
@@ -523,7 +562,7 @@ class _TaskDetailScreenState extends ConsumerState<TaskDetailScreen> {
                     .completeTask(widget.taskId, groupId: task.groupId);
               },
               icon: const Icon(Icons.check_circle),
-              label: const Text('Mark as Complete'),
+              label: Text(l10n.markAsComplete),
               style: ElevatedButton.styleFrom(padding: const EdgeInsets.all(16)),
             ),
           );
@@ -531,12 +570,35 @@ class _TaskDetailScreenState extends ConsumerState<TaskDetailScreen> {
         return const SizedBox.shrink();
 
       case TaskStatus.awaitingApproval:
+        if (!isAdmin) {
+          return Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.orange.shade50,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.orange.shade200),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.hourglass_top, color: Colors.orange.shade700),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    l10n.taskCompletedAwaitingApproval,
+                    style: TextStyle(color: Colors.orange.shade900),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
         return Row(
           children: [
             Expanded(
               child: OutlinedButton.icon(
                 onPressed: () async {
-                  final reason = await _showRejectDialog(context);
+                  final reason = await _showRejectDialog(context, l10n);
                   if (reason != null) {
                     await ref.read(taskActionsProvider.notifier).approveTask(
                       widget.taskId,
@@ -547,7 +609,7 @@ class _TaskDetailScreenState extends ConsumerState<TaskDetailScreen> {
                   }
                 },
                 icon: const Icon(Icons.close),
-                label: const Text('Reject'),
+                label: Text(l10n.reject),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: Colors.red,
                   padding: const EdgeInsets.all(16),
@@ -563,7 +625,7 @@ class _TaskDetailScreenState extends ConsumerState<TaskDetailScreen> {
                       .approveTask(widget.taskId, true, groupId: task.groupId);
                 },
                 icon: const Icon(Icons.check),
-                label: const Text('Approve'),
+                label: Text(l10n.approve),
                 style: ElevatedButton.styleFrom(padding: const EdgeInsets.all(16)),
               ),
             ),
@@ -575,25 +637,25 @@ class _TaskDetailScreenState extends ConsumerState<TaskDetailScreen> {
     }
   }
 
-  Future<String?> _showRejectDialog(BuildContext context) {
+  Future<String?> _showRejectDialog(BuildContext context, AppLocalizations l10n) {
     final controller = TextEditingController();
     return showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Reject Task'),
+        title: Text(l10n.rejectTaskTitle),
         content: TextField(
           controller: controller,
-          decoration: const InputDecoration(
-            labelText: 'Rejection Reason',
-            hintText: 'Enter reason for rejection',
+          decoration: InputDecoration(
+            labelText: l10n.rejectionReason,
+            hintText: l10n.rejectionReasonHint,
           ),
           maxLines: 3,
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(context), child: Text(l10n.cancel)),
           TextButton(
             onPressed: () => Navigator.pop(context, controller.text),
-            child: const Text('Reject'),
+            child: Text(l10n.reject),
           ),
         ],
       ),

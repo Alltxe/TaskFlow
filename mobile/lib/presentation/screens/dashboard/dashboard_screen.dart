@@ -1,8 +1,9 @@
-﻿import 'package:dartz/dartz.dart' hide Task;
+import 'package:dartz/dartz.dart' hide Task;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:taskflow/core/utils/date_l10n.dart';
 import 'package:taskflow/core/errors/failure.dart';
 import 'package:taskflow/data/models/group_summary.dart';
 import 'package:taskflow/data/models/task.dart';
@@ -258,8 +259,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               tooltip: AppLocalizations.of(context)!.previousWeek,
             ),
             Text(
-              '${DateFormat('MMM d').format(weekDays.first)} – '
-              '${DateFormat('MMM d, y').format(weekDays.last)}',
+              formatWeekRange(context, weekDays.first, weekDays.last),
               style: Theme.of(context).textTheme.titleMedium,
             ),
             IconButton(
@@ -388,7 +388,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               children: [
                 Text(
                   AppLocalizations.of(context)!.tasksForDate(
-                    DateFormat('MMM d, y').format(_selectedDate),
+                    formatMonthDayYear(context, _selectedDate),
                   ),
                   style: Theme.of(context).textTheme.titleLarge,
                 ),

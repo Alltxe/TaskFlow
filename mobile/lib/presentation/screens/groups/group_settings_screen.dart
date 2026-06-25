@@ -1,11 +1,14 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:taskflow/core/utils/enum_l10n.dart';
 import 'package:taskflow/data/models/group.dart';
+import 'package:taskflow/data/models/task_enums.dart';
 import 'package:taskflow/data/models/update_group_request.dart';
 import 'package:taskflow/data/providers/group_providers.dart';
 import 'package:taskflow/l10n/app_localizations.dart';
 import 'package:taskflow/presentation/providers/group_notifier.dart';
+import 'package:taskflow/presentation/widgets/common/app_navigation_back_button.dart';
 
 class GroupSettingsScreen extends ConsumerStatefulWidget {
   final String groupId;
@@ -46,20 +49,27 @@ class _GroupSettingsScreenState extends ConsumerState<GroupSettingsScreen> {
   Widget build(BuildContext context) {
     if (_isLoading) {
       return Scaffold(
-        appBar: AppBar(title: Text(AppLocalizations.of(context)!.groupSettingsTitle)),
+        appBar: AppBar(
+          leading: AppNavigationBackButton(fallbackRoute: '/groups/${widget.groupId}'),
+          title: Text(AppLocalizations.of(context)!.groupSettingsTitle),
+        ),
         body: const Center(child: CircularProgressIndicator()),
       );
     }
 
     if (_group == null) {
       return Scaffold(
-        appBar: AppBar(title: Text(AppLocalizations.of(context)!.groupSettingsTitle)),
+        appBar: AppBar(
+          leading: AppNavigationBackButton(fallbackRoute: '/groups/${widget.groupId}'),
+          title: Text(AppLocalizations.of(context)!.groupSettingsTitle),
+        ),
         body: Center(child: Text(AppLocalizations.of(context)!.failedToLoadGroupSettings)),
       );
     }
 
     return Scaffold(
       appBar: AppBar(
+        leading: AppNavigationBackButton(fallbackRoute: '/groups/${widget.groupId}'),
         title: Text(AppLocalizations.of(context)!.groupSettingsTitle),
       ),
       body: GroupSettingsContent(groupId: widget.groupId, group: _group!),
@@ -88,13 +98,6 @@ class _GroupSettingsContentState extends ConsumerState<GroupSettingsContent> {
   bool? _gamificationEnabled;
   bool? _requiresApproval;
   bool _isSaving = false;
-
-  final List<Map<String, String>> _rotationTypes = [
-    {'value': 'ROUND_ROBIN', 'label': 'Round Robin'},
-    {'value': 'RANDOM', 'label': 'Random'},
-    {'value': 'LOAD_BALANCING', 'label': 'Load Balancing'},
-    {'value': 'DISABLED', 'label': 'Disabled'},
-  ];
 
   @override
   void initState() {
@@ -254,25 +257,12 @@ class _GroupSettingsContentState extends ConsumerState<GroupSettingsContent> {
 
     return Form(
       key: _formKey,
-      child: ListView(
-        padding: const EdgeInsets.all(16),
+      child: Column(
         children: [
-          // Save button at top
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              FilledButton.icon(
-                onPressed: _isSaving ? null : _saveChanges,
-                icon: _isSaving ? const SizedBox(
-                  width: 16,
-                  height: 16,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                ) : const Icon(Icons.save),
-                label: Text(AppLocalizations.of(context)!.save),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+              children: [
           // Basic info section
           Text(AppLocalizations.of(context)!.basicInformation, style: theme.textTheme.titleMedium),
           const SizedBox(height: 12),
@@ -317,8 +307,12 @@ class _GroupSettingsContentState extends ConsumerState<GroupSettingsContent> {
               border: const OutlineInputBorder(),
               prefixIcon: const Icon(Icons.sync),
             ),
-            items: _rotationTypes.map((type) {
-              return DropdownMenuItem<String>(value: type['value'], child: Text(type['label']!));
+            items: RotationType.values.map((type) {
+              final l10n = AppLocalizations.of(context)!;
+              return DropdownMenuItem<String>(
+                value: type.value,
+                child: Text(rotationTypeLabel(l10n, type)),
+              );
             }).toList(),
             onChanged: _isSaving
                 ? null
@@ -367,6 +361,26 @@ class _GroupSettingsContentState extends ConsumerState<GroupSettingsContent> {
             icon: const Icon(Icons.refresh),
             label: Text(AppLocalizations.of(context)!.regenerateInviteToken),
           ),
+          const SizedBox(height: 12),
+          ListTile(
+            leading: const Icon(Icons.history),
+            title: Text(AppLocalizations.of(context)!.groupAuditLog),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.push('/groups/${widget.groupId}/audit-log'),
+          ),
+          ListTile(
+            leading: const Icon(Icons.rotate_right),
+            title: Text(AppLocalizations.of(context)!.viewRotation),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.push('/groups/${widget.groupId}/rotation'),
+          ),
+          ListTile(
+            leading: const Icon(Icons.repeat),
+            title: Text(AppLocalizations.of(context)!.viewRecurringTemplates),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () =>
+                context.push('/groups/${widget.groupId}/recurring-templates'),
+          ),
           const SizedBox(height: 32),
 
           // Danger zone
@@ -383,6 +397,29 @@ class _GroupSettingsContentState extends ConsumerState<GroupSettingsContent> {
             style: OutlinedButton.styleFrom(
               foregroundColor: colorScheme.error,
               side: BorderSide(color: colorScheme.error),
+            ),
+          ),
+              ],
+            ),
+          ),
+          SafeArea(
+            top: false,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+              child: SizedBox(
+                width: double.infinity,
+                child: FilledButton.icon(
+                  onPressed: _isSaving ? null : _saveChanges,
+                  icon: _isSaving
+                      ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.save),
+                  label: Text(AppLocalizations.of(context)!.save),
+                ),
+              ),
             ),
           ),
         ],

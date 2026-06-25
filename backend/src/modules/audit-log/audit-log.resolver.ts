@@ -61,7 +61,7 @@ export class AuditLogResolver {
     @CurrentUser() user: User,
     @Args('taskId') taskId: string,
   ) {
-    return this.auditLogService.getLogsByEntity('Task', taskId);
+    return this.auditLogService.getLogsByTask(taskId);
   }
 
   /**
@@ -75,7 +75,7 @@ export class AuditLogResolver {
     @CurrentUser() user: User,
     @Args('groupId') groupId: string,
   ) {
-    return this.auditLogService.getLogsByEntity('Group', groupId);
+    return this.auditLogService.getLogsByGroup(groupId);
   }
 
   /**

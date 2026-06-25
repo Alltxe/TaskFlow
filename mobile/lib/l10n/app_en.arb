@@ -580,5 +580,254 @@
     "profileUpdatedSuccess": "Profile updated successfully",
     "passwordChangedSuccess": "Password changed successfully",
     "usernameHint": "Enter new username",
-    "changePasswordTitle": "Change Password"
+    "changePasswordTitle": "Change Password",
+    "rotationTypeWeightedRandom": "Weighted Random",
+    "priorityCritical": "Critical",
+    "statusCancelled": "Cancelled",
+    "roleAdmin": "Admin",
+    "roleMember": "Member",
+    "memberStatusActive": "Active",
+    "changeRole": "Change Role",
+    "dateToday": "Today",
+    "dateJustNow": "just now",
+    "dateMinutesAgo": "{count}m ago",
+    "@dateMinutesAgo": {
+        "placeholders": { "count": {} }
+    },
+    "dateHoursAgo": "{count}h ago",
+    "@dateHoursAgo": {
+        "placeholders": { "count": {} }
+    },
+    "dateDaysAgo": "{count}d ago",
+    "@dateDaysAgo": {
+        "placeholders": { "count": {} }
+    },
+    "dateWeeksAgo": "{count}w ago",
+    "@dateWeeksAgo": {
+        "placeholders": { "count": {} }
+    },
+    "dateMonthsAgo": "{count}mo ago",
+    "@dateMonthsAgo": {
+        "placeholders": { "count": {} }
+    },
+    "dateYearsAgo": "{count}y ago",
+    "@dateYearsAgo": {
+        "placeholders": { "count": {} }
+    },
+    "joinGroupByToken": "Join by Invite Code",
+    "enterInviteToken": "Enter invite token",
+    "pasteFromClipboard": "Paste from clipboard",
+    "invalidInviteToken": "Invalid invite token",
+    "groupPreviewTitle": "Group Preview",
+    "memberCount": "{count} members",
+    "@memberCount": {
+        "placeholders": { "count": {} }
+    },
+    "joinGroupConfirm": "Join Group",
+    "joinOrCreateGroupHint": "Create a new group or join one with an invite code",
+    "enterInviteCode": "Enter Invite Code",
+    "groupNameHint": "Enter group name",
+    "groupNameMinLength": "Group name must be at least 3 characters",
+    "groupDescriptionOptional": "Description (Optional)",
+    "groupDescriptionHint": "Enter group description",
+    "assignTo": "Assign to",
+    "autoByRotation": "Auto (by rotation)",
+    "upForGrabsBonus": "Up-for-Grabs (+50% bonus)",
+    "useGroupDefault": "Use group default",
+    "taskWeight": "Task Weight: {weight}",
+    "@taskWeight": {
+        "placeholders": { "weight": {} }
+    },
+    "roleParticipant": "Participant",
+    "auditLogTitle": "Audit Log",
+    "groupAuditLog": "Group Audit Log",
+    "taskHistory": "History",
+    "myActions": "My Actions",
+    "auditAction": "Action",
+    "auditEntity": "Entity",
+    "auditPerformedBy": "Performed by",
+    "auditPerformedAt": "Date",
+    "noAuditLogs": "No audit logs yet",
+    "auditActionUserStatusChanged": "Status changed",
+    "auditActionUserProfileUpdated": "Profile updated",
+    "auditActionGroupCreated": "Group created",
+    "auditActionGroupUpdated": "Group settings updated",
+    "auditActionGroupDeleted": "Group deleted",
+    "auditActionMemberAdded": "Member joined",
+    "auditActionMemberRemoved": "Member removed",
+    "auditActionMemberRoleChanged": "Role changed",
+    "auditActionTaskCreated": "Task created",
+    "auditActionTaskUpdated": "Task updated",
+    "auditActionTaskDeleted": "Task deleted",
+    "auditActionTaskAssigned": "Task assigned",
+    "auditActionTaskCompleted": "Task completed",
+    "auditActionTaskApproved": "Task approved",
+    "auditActionTaskRejected": "Task rejected",
+    "auditActionTaskOverdue": "Task overdue",
+    "auditActionRewardCreated": "Reward created",
+    "auditActionRewardUpdated": "Reward updated",
+    "auditActionRewardDeleted": "Reward deleted",
+    "auditActionRewardRequested": "Reward requested",
+    "auditActionRewardRequestApproved": "Reward granted",
+    "auditActionRewardRequestRejected": "Reward request rejected",
+    "auditActionPointsEarned": "Points earned",
+    "auditActionPointsReserved": "Points reserved",
+    "auditActionPointsSpent": "Points spent",
+    "auditActionPointsRefunded": "Points refunded",
+    "auditActionUnknown": "Action",
+    "auditDetailTaskTitle": "“{title}”",
+    "@auditDetailTaskTitle": {
+        "placeholders": { "title": {} }
+    },
+    "auditDetailTaskTemplate": "Template “{title}”",
+    "@auditDetailTaskTemplate": {
+        "placeholders": { "title": {} }
+    },
+    "auditDetailGroupName": "“{name}”",
+    "@auditDetailGroupName": {
+        "placeholders": { "name": {} }
+    },
+    "auditDetailGroupRenamed": "“{oldName}” → “{newName}”",
+    "@auditDetailGroupRenamed": {
+        "placeholders": { "oldName": {}, "newName": {} }
+    },
+    "auditDetailRoleChanged": "{oldRole} → {newRole}",
+    "@auditDetailRoleChanged": {
+        "placeholders": { "oldRole": {}, "newRole": {} }
+    },
+    "auditDetailPoints": "+{amount} points",
+    "@auditDetailPoints": {
+        "placeholders": { "amount": {} }
+    },
+    "auditDetailPointsWithDescription": "+{amount} points · {description}",
+    "@auditDetailPointsWithDescription": {
+        "placeholders": { "amount": {}, "description": {} }
+    },
+    "auditDetailPointsSpent": "−{amount} points",
+    "@auditDetailPointsSpent": {
+        "placeholders": { "amount": {} }
+    },
+    "auditDetailRejectionReason": "Reason: {reason}",
+    "@auditDetailRejectionReason": {
+        "placeholders": { "reason": {} }
+    },
+    "auditDetailTaskAwaitingApproval": "Awaiting approval",
+    "auditDetailMemberJoined": "Joined the group",
+    "auditDetailMemberLeft": "Left the group",
+    "auditDetailMemberRemovedByAdmin": "Removed from the group",
+    "auditLogEntryMeta": "{user} · {date}",
+    "@auditLogEntryMeta": {
+        "placeholders": { "user": {}, "date": {} }
+    },
+    "auditLogInGroup": "Group \"{name}\"",
+    "@auditLogInGroup": {
+        "placeholders": { "name": {} }
+    },
+    "auditLogPersonalScope": "Personal account",
+    "auditLogSystemUser": "System",
+    "auditDetailPointsTaskCompleted": "For completing a task",
+    "auditDetailPointsTaskApproved": "For task approval",
+    "auditDetailPointsTaskCompletedBonus": "For completing a task (Up-for-Grabs bonus)",
+    "auditDetailPointsTaskApprovedBonus": "For task approval (Up-for-Grabs bonus)",
+    "notifications": "Notifications",
+    "notificationsEmpty": "No notifications",
+    "notificationsEmptyHint": "You're all caught up!",
+    "markAllRead": "Mark all as read",
+    "markRead": "Mark as read",
+    "notificationTypeTaskAssigned": "Task Assigned",
+    "notificationTypeTaskCompleted": "Task Completed",
+    "notificationTypeTaskApproved": "Task Approved",
+    "notificationTypeTaskRejected": "Task Rejected",
+    "notificationTypeRewardRequested": "Reward Requested",
+    "notificationTypeRewardApproved": "Reward Approved",
+    "notificationTypeRewardRejected": "Reward Rejected",
+    "notificationTypePointAwarded": "Points Awarded",
+    "notificationTypeInvitation": "Group Invitation",
+    "notificationTypeSystem": "System",
+    "notificationTypeTaskClaimed": "Task claimed",
+    "notificationTypeTaskPendingReview": "Task pending review",
+    "notificationTypeRewardRequest": "Reward request",
+    "notificationMessageTaskAssigned": "You have been assigned: {title}",
+    "@notificationMessageTaskAssigned": {
+        "placeholders": { "title": {} }
+    },
+    "notificationMessageTaskClaimed": "You claimed: {title}",
+    "@notificationMessageTaskClaimed": {
+        "placeholders": { "title": {} }
+    },
+    "notificationMessageTaskAwaitingApproval": "Task \"{title}\" is awaiting approval",
+    "@notificationMessageTaskAwaitingApproval": {
+        "placeholders": { "title": {} }
+    },
+    "notificationMessageTaskApproved": "Your task \"{title}\" has been approved",
+    "@notificationMessageTaskApproved": {
+        "placeholders": { "title": {} }
+    },
+    "notificationMessageTaskRejected": "Your task \"{title}\" was rejected: {reason}",
+    "@notificationMessageTaskRejected": {
+        "placeholders": { "title": {}, "reason": {} }
+    },
+    "notificationMessagePointsEarnedCompletion": "You earned {points} points for completing \"{title}\"{bonus}",
+    "@notificationMessagePointsEarnedCompletion": {
+        "placeholders": { "points": {}, "title": {}, "bonus": {} }
+    },
+    "notificationMessagePointsEarnedApproval": "You earned {points} points for \"{title}\" approval{bonus}",
+    "@notificationMessagePointsEarnedApproval": {
+        "placeholders": { "points": {}, "title": {}, "bonus": {} }
+    },
+    "notificationMessageUpForGrabsBonus": " (Up-for-Grabs bonus!)",
+    "notificationMessageRewardRequested": "New reward request for \"{name}\"",
+    "@notificationMessageRewardRequested": {
+        "placeholders": { "name": {} }
+    },
+    "notificationMessageRewardApproved": "Your reward request for \"{name}\" has been approved",
+    "@notificationMessageRewardApproved": {
+        "placeholders": { "name": {} }
+    },
+    "notificationMessageRewardRejected": "Your reward request for \"{name}\" was rejected: {reason}",
+    "@notificationMessageRewardRejected": {
+        "placeholders": { "name": {}, "reason": {} }
+    },
+    "notificationMessageDeadline24h": "\"{title}\" is due in 24 hours",
+    "@notificationMessageDeadline24h": {
+        "placeholders": { "title": {} }
+    },
+    "notificationMessageDeadline1h": "\"{title}\" is due in 1 hour",
+    "@notificationMessageDeadline1h": {
+        "placeholders": { "title": {} }
+    },
+    "notificationNoReason": "No reason provided",
+    "unreadOnly": "Unread only",
+    "rotationSchedule": "Rotation Schedule",
+    "rotationHistory": "Rotation History",
+    "rotationPattern": "Rotation Pattern",
+    "rotationScheduleTitle": "Upcoming Assignments",
+    "rotationHistoryTitle": "Assignment History",
+    "rotationScheduleEmpty": "No upcoming assignments",
+    "rotationHistoryEmpty": "No assignment history",
+    "scheduledFor": "Scheduled for {date}",
+    "@scheduledFor": { "placeholders": { "date": {} } },
+    "assignedTo": "Assigned to {name}",
+    "@assignedTo": { "placeholders": { "name": {} } },
+    "pointsEarned": "{points} pts earned",
+    "@pointsEarned": { "placeholders": { "points": {} } },
+    "viewRotation": "View Rotation",
+    "recurringTemplates": "Recurring Templates",
+    "recurringTemplatesEmpty": "No recurring task templates",
+    "generateNextTask": "Generate Next Task",
+    "generateNextTaskConfirm": "Generate the next task instance from this template?",
+    "taskGenerated": "Next task generated successfully",
+    "recurrenceRule": "Recurrence Rule",
+    "viewRecurringTemplates": "Recurring Templates",
+    "filterTasks": "Filter Tasks",
+    "applyFilters": "Apply",
+    "attachments": "Attachments",
+    "addAttachment": "Add",
+    "deleteAttachmentTitle": "Delete attachment?",
+    "deleteAttachmentMessage": "The file will be permanently deleted.",
+    "attachmentAdded": "Attachment added",
+    "attachmentDeleted": "Attachment deleted",
+    "fromGallery": "From gallery",
+    "takePhoto": "Take photo",
+    "mediaPermissionDenied": "Media access permission denied"
 }

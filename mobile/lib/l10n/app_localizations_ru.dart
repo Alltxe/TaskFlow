@@ -744,28 +744,27 @@ class AppLocalizationsRu extends AppLocalizations {
   String get bonusPoints => '+50% бонус';
 
   @override
-  String get requestRewardTitle => 'Request Reward';
+  String get requestRewardTitle => 'Запросить награду';
 
   @override
   String requestRewardMessage(Object rewardName, Object points) {
-    return 'Would you like to request \"$rewardName\" for $points points?';
+    return 'Запросить \"$rewardName\" за $points очков?';
   }
 
   @override
-  String get rewardRequestedSuccess =>
-      'Reward requested successfully! Awaiting approval.';
+  String get rewardRequestedSuccess => 'Награда запрошена! Ожидает одобрения.';
 
   @override
   String insufficientPoints(Object required, Object available) {
-    return 'Insufficient points. You need $required points but only have $available.';
+    return 'Недостаточно очков. Нужно $required, доступно $available.';
   }
 
   @override
-  String get availableBalance => 'Available Balance';
+  String get availableBalance => 'Доступный баланс';
 
   @override
   String yourBalance(Object points) {
-    return 'Your balance: $points pts';
+    return 'Ваш баланс: $points очк.';
   }
 
   @override
@@ -1173,180 +1172,180 @@ class AppLocalizationsRu extends AppLocalizations {
   String get weekdayShortSun => 'Вс';
 
   @override
-  String get pointsHistory => 'Points History';
+  String get pointsHistory => 'История очков';
 
   @override
-  String get totalEarned => 'Total Earned';
+  String get totalEarned => 'Всего заработано';
 
   @override
-  String get totalSpent => 'Total Spent';
+  String get totalSpent => 'Всего потрачено';
 
   @override
-  String get reservedPending => 'Reserved (Pending)';
+  String get reservedPending => 'Зарезервировано (ожидание)';
 
   @override
-  String get availablePoints => 'Available Points';
+  String get availablePoints => 'Доступные очки';
 
   @override
-  String get transactionHistory => 'Transaction History';
+  String get transactionHistory => 'История транзакций';
 
   @override
-  String get noTransactionsYet => 'No Transactions Yet';
+  String get noTransactionsYet => 'Транзакций пока нет';
 
   @override
-  String get startCompletingTasks => 'Start completing tasks to earn points';
+  String get startCompletingTasks =>
+      'Выполняйте задачи, чтобы зарабатывать очки';
 
   @override
-  String get earned => 'Earned';
+  String get earned => 'Заработано';
 
   @override
-  String get spent => 'Spent';
+  String get spent => 'Потрачено';
 
   @override
-  String get taskCompleted => 'Task Completed';
+  String get taskCompleted => 'Задача выполнена';
 
   @override
-  String get rewardRequested => 'Reward Requested';
+  String get rewardRequested => 'Награда запрошена';
 
   @override
-  String get adminRewardsManagement => 'Rewards Management (Admin)';
+  String get adminRewardsManagement => 'Управление наградами (админ)';
 
   @override
-  String get createReward => 'Create Reward';
+  String get createReward => 'Создать награду';
 
   @override
-  String get editReward => 'Edit Reward';
+  String get editReward => 'Редактировать награду';
 
   @override
-  String get deleteReward => 'Delete Reward';
+  String get deleteReward => 'Удалить награду';
 
   @override
-  String get rewardName => 'Reward Name';
+  String get rewardName => 'Название награды';
 
   @override
-  String get rewardDescription => 'Description (Optional)';
+  String get rewardDescription => 'Описание (необязательно)';
 
   @override
-  String get rewardCost => 'Cost (in points)';
+  String get rewardCost => 'Стоимость (в очках)';
 
   @override
-  String get rewardImageUrl => 'Image URL (Optional)';
+  String get rewardImageUrl => 'URL изображения (необязательно)';
 
   @override
-  String get enterRewardName => 'Enter reward name';
+  String get enterRewardName => 'Введите название награды';
 
   @override
-  String get enterRewardDescription => 'Describe the reward...';
+  String get enterRewardDescription => 'Опишите награду...';
 
   @override
-  String get enterRewardCost => 'Enter cost in points';
+  String get enterRewardCost => 'Введите стоимость в очках';
 
   @override
-  String get enterImageUrl => 'Enter image URL';
+  String get enterImageUrl => 'Введите URL изображения';
 
   @override
-  String get rewardNameRequired => 'Reward name is required';
+  String get rewardNameRequired => 'Название награды обязательно';
 
   @override
-  String get rewardNameMinLength => 'Name must be at least 3 characters';
+  String get rewardNameMinLength => 'Название должно быть не короче 3 символов';
 
   @override
-  String get rewardCostRequired => 'Cost is required';
+  String get rewardCostRequired => 'Стоимость обязательна';
 
   @override
-  String get rewardCostMustBePositive => 'Cost must be a positive number';
+  String get rewardCostMustBePositive =>
+      'Стоимость должна быть положительным числом';
 
   @override
-  String get rewardCreatedSuccess => 'Reward created successfully!';
+  String get rewardCreatedSuccess => 'Награда успешно создана!';
 
   @override
-  String get rewardUpdatedSuccess => 'Reward updated successfully!';
+  String get rewardUpdatedSuccess => 'Награда успешно обновлена!';
 
   @override
-  String get rewardDeletedSuccess => 'Reward deleted successfully!';
+  String get rewardDeletedSuccess => 'Награда успешно удалена!';
 
   @override
   String get confirmDeleteReward =>
-      'Are you sure you want to delete this reward?';
+      'Вы уверены, что хотите удалить эту награду?';
 
   @override
   String get confirmDeleteRewardMessage =>
-      'This action cannot be undone. Users who requested this reward will keep their requests.';
+      'Это действие нельзя отменить. Запросы пользователей сохранятся.';
 
   @override
-  String get rewardRequestsQueue => 'Reward Requests (Admin)';
+  String get rewardRequestsQueue => 'Запросы наград (админ)';
 
   @override
-  String get noPendingRequests => 'No Pending Requests';
+  String get noPendingRequests => 'Нет ожидающих запросов';
 
   @override
-  String get noRequestsDescription => 'All reward requests have been processed';
+  String get noRequestsDescription => 'Все запросы наград обработаны';
 
   @override
-  String get approveRequest => 'Approve';
+  String get approveRequest => 'Одобрить';
 
   @override
-  String get rejectRequest => 'Reject';
+  String get rejectRequest => 'Отклонить';
 
   @override
-  String get requestedBy => 'Requested by';
+  String get requestedBy => 'Запросил';
 
   @override
-  String get requestedAt => 'Requested at';
+  String get requestedAt => 'Запрошено';
 
   @override
-  String get pointsWillBeDeducted => 'Points will be deducted';
+  String get pointsWillBeDeducted => 'Очки будут списаны';
 
   @override
-  String get pointsWillBeReturned => 'Points will be returned';
+  String get pointsWillBeReturned => 'Очки будут возвращены';
 
   @override
-  String get confirmApprove => 'Approve Request';
+  String get confirmApprove => 'Одобрить запрос';
 
   @override
-  String get confirmReject => 'Reject Request';
+  String get confirmReject => 'Отклонить запрос';
 
   @override
   String approveRequestMessage(Object points) {
-    return 'Approve this reward request? $points points will be deducted from the user.';
+    return 'Одобрить этот запрос награды? У пользователя будет списано $points очков.';
   }
 
   @override
   String rejectRequestMessage(Object points) {
-    return 'Reject this reward request? $points points will be returned to the user.';
+    return 'Отклонить этот запрос награды? Пользователю будет возвращено $points очков.';
   }
 
   @override
-  String get requestApprovedSuccess =>
-      'Request approved! Points deducted from user.';
+  String get requestApprovedSuccess => 'Запрос одобрен! Очки списаны.';
 
   @override
-  String get requestRejectedSuccess =>
-      'Request rejected. Points returned to user.';
+  String get requestRejectedSuccess => 'Запрос отклонён. Очки возвращены.';
 
   @override
-  String get statusReserved => 'Awaiting Approval';
+  String get statusReserved => 'Ожидает одобрения';
 
   @override
-  String get statusApproved => 'Approved';
+  String get statusApproved => 'Одобрено';
 
   @override
-  String get statusRejected => 'Rejected';
+  String get statusRejected => 'Отклонено';
 
   @override
-  String get manageRewards => 'Manage Rewards';
+  String get manageRewards => 'Управление наградами';
 
   @override
-  String get viewRequests => 'View Requests';
+  String get viewRequests => 'Просмотр запросов';
 
   @override
-  String get insufficientPointsShort => 'Not enough';
+  String get insufficientPointsShort => 'Недостаточно';
 
   @override
-  String get create => 'Create';
+  String get create => 'Создать';
 
   @override
-  String get delete => 'Delete';
+  String get delete => 'Удалить';
 
   @override
   String get error => 'Ошибка';
@@ -1412,4 +1411,542 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get changePasswordTitle => 'Изменить пароль';
+
+  @override
+  String get rotationTypeWeightedRandom => 'Взвешенная случайность';
+
+  @override
+  String get priorityCritical => 'Критический';
+
+  @override
+  String get statusCancelled => 'Отменена';
+
+  @override
+  String get roleAdmin => 'Админ';
+
+  @override
+  String get roleMember => 'Участник';
+
+  @override
+  String get memberStatusActive => 'Активен';
+
+  @override
+  String get changeRole => 'Сменить роль';
+
+  @override
+  String get dateToday => 'Сегодня';
+
+  @override
+  String get dateJustNow => 'только что';
+
+  @override
+  String dateMinutesAgo(Object count) {
+    return '$count мин. назад';
+  }
+
+  @override
+  String dateHoursAgo(Object count) {
+    return '$count ч. назад';
+  }
+
+  @override
+  String dateDaysAgo(Object count) {
+    return '$count дн. назад';
+  }
+
+  @override
+  String dateWeeksAgo(Object count) {
+    return '$count нед. назад';
+  }
+
+  @override
+  String dateMonthsAgo(Object count) {
+    return '$count мес. назад';
+  }
+
+  @override
+  String dateYearsAgo(Object count) {
+    return '$count г. назад';
+  }
+
+  @override
+  String get joinGroupByToken => 'Ввести код приглашения';
+
+  @override
+  String get enterInviteToken => 'Введите токен приглашения';
+
+  @override
+  String get pasteFromClipboard => 'Вставить из буфера';
+
+  @override
+  String get invalidInviteToken => 'Неверный токен приглашения';
+
+  @override
+  String get groupPreviewTitle => 'Предпросмотр группы';
+
+  @override
+  String memberCount(Object count) {
+    return '$count участников';
+  }
+
+  @override
+  String get joinGroupConfirm => 'Присоединиться';
+
+  @override
+  String get joinOrCreateGroupHint =>
+      'Создайте новую группу или присоединитесь по коду приглашения';
+
+  @override
+  String get enterInviteCode => 'Ввести код приглашения';
+
+  @override
+  String get groupNameHint => 'Введите название группы';
+
+  @override
+  String get groupNameMinLength => 'Название должно быть не короче 3 символов';
+
+  @override
+  String get groupDescriptionOptional => 'Описание (необязательно)';
+
+  @override
+  String get groupDescriptionHint => 'Введите описание группы';
+
+  @override
+  String get assignTo => 'Назначить';
+
+  @override
+  String get autoByRotation => 'Авто (по ротации)';
+
+  @override
+  String get upForGrabsBonus => 'Без назначения (+50% бонус)';
+
+  @override
+  String get useGroupDefault => 'По умолчанию группы';
+
+  @override
+  String taskWeight(Object weight) {
+    return 'Вес задачи: $weight';
+  }
+
+  @override
+  String get roleParticipant => 'Участник';
+
+  @override
+  String get auditLogTitle => 'Журнал аудита';
+
+  @override
+  String get groupAuditLog => 'Журнал группы';
+
+  @override
+  String get taskHistory => 'История';
+
+  @override
+  String get myActions => 'Мои действия';
+
+  @override
+  String get auditAction => 'Действие';
+
+  @override
+  String get auditEntity => 'Объект';
+
+  @override
+  String get auditPerformedBy => 'Выполнил';
+
+  @override
+  String get auditPerformedAt => 'Дата';
+
+  @override
+  String get noAuditLogs => 'Записей пока нет';
+
+  @override
+  String get auditActionUserStatusChanged => 'Статус изменён';
+
+  @override
+  String get auditActionUserProfileUpdated => 'Профиль обновлён';
+
+  @override
+  String get auditActionGroupCreated => 'Группа создана';
+
+  @override
+  String get auditActionGroupUpdated => 'Настройки группы изменены';
+
+  @override
+  String get auditActionGroupDeleted => 'Группа удалена';
+
+  @override
+  String get auditActionMemberAdded => 'Участник присоединился';
+
+  @override
+  String get auditActionMemberRemoved => 'Участник удалён';
+
+  @override
+  String get auditActionMemberRoleChanged => 'Роль изменена';
+
+  @override
+  String get auditActionTaskCreated => 'Задача создана';
+
+  @override
+  String get auditActionTaskUpdated => 'Задача изменена';
+
+  @override
+  String get auditActionTaskDeleted => 'Задача удалена';
+
+  @override
+  String get auditActionTaskAssigned => 'Задача назначена';
+
+  @override
+  String get auditActionTaskCompleted => 'Задача выполнена';
+
+  @override
+  String get auditActionTaskApproved => 'Задача одобрена';
+
+  @override
+  String get auditActionTaskRejected => 'Задача отклонена';
+
+  @override
+  String get auditActionTaskOverdue => 'Просрочена задача';
+
+  @override
+  String get auditActionRewardCreated => 'Награда создана';
+
+  @override
+  String get auditActionRewardUpdated => 'Награда изменена';
+
+  @override
+  String get auditActionRewardDeleted => 'Награда удалена';
+
+  @override
+  String get auditActionRewardRequested => 'Запрошена награда';
+
+  @override
+  String get auditActionRewardRequestApproved => 'Награда выдана';
+
+  @override
+  String get auditActionRewardRequestRejected => 'Запрос награды отклонён';
+
+  @override
+  String get auditActionPointsEarned => 'Начислены очки';
+
+  @override
+  String get auditActionPointsReserved => 'Очки зарезервированы';
+
+  @override
+  String get auditActionPointsSpent => 'Очки потрачены';
+
+  @override
+  String get auditActionPointsRefunded => 'Очки возвращены';
+
+  @override
+  String get auditActionUnknown => 'Действие';
+
+  @override
+  String auditDetailTaskTitle(Object title) {
+    return '«$title»';
+  }
+
+  @override
+  String auditDetailTaskTemplate(Object title) {
+    return 'Шаблон «$title»';
+  }
+
+  @override
+  String auditDetailGroupName(Object name) {
+    return '«$name»';
+  }
+
+  @override
+  String auditDetailGroupRenamed(Object oldName, Object newName) {
+    return '«$oldName» → «$newName»';
+  }
+
+  @override
+  String auditDetailRoleChanged(Object oldRole, Object newRole) {
+    return '$oldRole → $newRole';
+  }
+
+  @override
+  String auditDetailPoints(Object amount) {
+    return '+$amount очков';
+  }
+
+  @override
+  String auditDetailPointsWithDescription(Object amount, Object description) {
+    return '+$amount очк. · $description';
+  }
+
+  @override
+  String auditDetailPointsSpent(Object amount) {
+    return '−$amount очков';
+  }
+
+  @override
+  String auditDetailRejectionReason(Object reason) {
+    return 'Причина: $reason';
+  }
+
+  @override
+  String get auditDetailTaskAwaitingApproval => 'Ожидает одобрения';
+
+  @override
+  String get auditDetailMemberJoined => 'Вступил в группу';
+
+  @override
+  String get auditDetailMemberLeft => 'Покинул группу';
+
+  @override
+  String get auditDetailMemberRemovedByAdmin => 'Исключён из группы';
+
+  @override
+  String auditLogEntryMeta(Object user, Object date) {
+    return '$user · $date';
+  }
+
+  @override
+  String auditLogInGroup(Object name) {
+    return 'Группа «$name»';
+  }
+
+  @override
+  String get auditLogPersonalScope => 'Личный профиль';
+
+  @override
+  String get auditLogSystemUser => 'Система';
+
+  @override
+  String get auditDetailPointsTaskCompleted => 'За выполнение задачи';
+
+  @override
+  String get auditDetailPointsTaskApproved => 'За одобрение задачи';
+
+  @override
+  String get auditDetailPointsTaskCompletedBonus =>
+      'За выполнение задачи (бонус Up-for-Grabs)';
+
+  @override
+  String get auditDetailPointsTaskApprovedBonus =>
+      'За одобрение задачи (бонус Up-for-Grabs)';
+
+  @override
+  String get notificationsEmpty => 'Нет уведомлений';
+
+  @override
+  String get notificationsEmptyHint => 'Всё прочитано!';
+
+  @override
+  String get markAllRead => 'Отметить все как прочитанные';
+
+  @override
+  String get markRead => 'Отметить прочитанным';
+
+  @override
+  String get notificationTypeTaskAssigned => 'Задача назначена';
+
+  @override
+  String get notificationTypeTaskCompleted => 'Задача выполнена';
+
+  @override
+  String get notificationTypeTaskApproved => 'Задача одобрена';
+
+  @override
+  String get notificationTypeTaskRejected => 'Задача отклонена';
+
+  @override
+  String get notificationTypeRewardRequested => 'Запрос награды';
+
+  @override
+  String get notificationTypeRewardApproved => 'Награда одобрена';
+
+  @override
+  String get notificationTypeRewardRejected => 'Награда отклонена';
+
+  @override
+  String get notificationTypePointAwarded => 'Начислены очки';
+
+  @override
+  String get notificationTypeInvitation => 'Приглашение в группу';
+
+  @override
+  String get notificationTypeSystem => 'Системное';
+
+  @override
+  String get notificationTypeTaskClaimed => 'Задача взята';
+
+  @override
+  String get notificationTypeTaskPendingReview => 'Задача на проверке';
+
+  @override
+  String get notificationTypeRewardRequest => 'Запрос награды';
+
+  @override
+  String notificationMessageTaskAssigned(Object title) {
+    return 'Вам назначена задача: $title';
+  }
+
+  @override
+  String notificationMessageTaskClaimed(Object title) {
+    return 'Вы взяли задачу: $title';
+  }
+
+  @override
+  String notificationMessageTaskAwaitingApproval(Object title) {
+    return 'Задача «$title» ожидает одобрения';
+  }
+
+  @override
+  String notificationMessageTaskApproved(Object title) {
+    return 'Ваша задача «$title» одобрена';
+  }
+
+  @override
+  String notificationMessageTaskRejected(Object title, Object reason) {
+    return 'Ваша задача «$title» отклонена: $reason';
+  }
+
+  @override
+  String notificationMessagePointsEarnedCompletion(
+    Object points,
+    Object title,
+    Object bonus,
+  ) {
+    return 'Вы получили $points очк. за выполнение «$title»$bonus';
+  }
+
+  @override
+  String notificationMessagePointsEarnedApproval(
+    Object points,
+    Object title,
+    Object bonus,
+  ) {
+    return 'Вы получили $points очк. за одобрение «$title»$bonus';
+  }
+
+  @override
+  String get notificationMessageUpForGrabsBonus =>
+      ' (бонус за взятие из пула!)';
+
+  @override
+  String notificationMessageRewardRequested(Object name) {
+    return 'Новый запрос награды: «$name»';
+  }
+
+  @override
+  String notificationMessageRewardApproved(Object name) {
+    return 'Ваш запрос награды «$name» одобрен';
+  }
+
+  @override
+  String notificationMessageRewardRejected(Object name, Object reason) {
+    return 'Ваш запрос награды «$name» отклонён: $reason';
+  }
+
+  @override
+  String notificationMessageDeadline24h(Object title) {
+    return '«$title» — дедлайн через 24 часа';
+  }
+
+  @override
+  String notificationMessageDeadline1h(Object title) {
+    return '«$title» — дедлайн через 1 час';
+  }
+
+  @override
+  String get notificationNoReason => 'Причина не указана';
+
+  @override
+  String get unreadOnly => 'Только непрочитанные';
+
+  @override
+  String get rotationSchedule => 'Расписание ротации';
+
+  @override
+  String get rotationHistory => 'История ротации';
+
+  @override
+  String get rotationPattern => 'Шаблон ротации';
+
+  @override
+  String get rotationScheduleTitle => 'Предстоящие назначения';
+
+  @override
+  String get rotationHistoryTitle => 'История назначений';
+
+  @override
+  String get rotationScheduleEmpty => 'Нет предстоящих назначений';
+
+  @override
+  String get rotationHistoryEmpty => 'История назначений пуста';
+
+  @override
+  String scheduledFor(Object date) {
+    return 'Запланировано на $date';
+  }
+
+  @override
+  String assignedTo(Object name) {
+    return 'Назначено: $name';
+  }
+
+  @override
+  String pointsEarned(Object points) {
+    return '$points очков заработано';
+  }
+
+  @override
+  String get viewRotation => 'Просмотр ротации';
+
+  @override
+  String get recurringTemplates => 'Шаблоны задач';
+
+  @override
+  String get recurringTemplatesEmpty => 'Нет шаблонов повторяющихся задач';
+
+  @override
+  String get generateNextTask => 'Сгенерировать следующую';
+
+  @override
+  String get generateNextTaskConfirm =>
+      'Создать следующий экземпляр задачи из этого шаблона?';
+
+  @override
+  String get taskGenerated => 'Следующая задача успешно создана';
+
+  @override
+  String get recurrenceRule => 'Правило повторения';
+
+  @override
+  String get viewRecurringTemplates => 'Шаблоны задач';
+
+  @override
+  String get filterTasks => 'Фильтр задач';
+
+  @override
+  String get applyFilters => 'Применить';
+
+  @override
+  String get attachments => 'Вложения';
+
+  @override
+  String get addAttachment => 'Добавить';
+
+  @override
+  String get deleteAttachmentTitle => 'Удалить вложение?';
+
+  @override
+  String get deleteAttachmentMessage =>
+      'Файл будет удалён без возможности восстановления.';
+
+  @override
+  String get attachmentAdded => 'Вложение добавлено';
+
+  @override
+  String get attachmentDeleted => 'Вложение удалено';
+
+  @override
+  String get fromGallery => 'Из галереи';
+
+  @override
+  String get takePhoto => 'Сделать фото';
+
+  @override
+  String get mediaPermissionDenied => 'Нет разрешения на доступ к медиафайлам';
 }

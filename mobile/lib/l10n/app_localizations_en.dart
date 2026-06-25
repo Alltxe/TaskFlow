@@ -1399,4 +1399,540 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get changePasswordTitle => 'Change Password';
+
+  @override
+  String get rotationTypeWeightedRandom => 'Weighted Random';
+
+  @override
+  String get priorityCritical => 'Critical';
+
+  @override
+  String get statusCancelled => 'Cancelled';
+
+  @override
+  String get roleAdmin => 'Admin';
+
+  @override
+  String get roleMember => 'Member';
+
+  @override
+  String get memberStatusActive => 'Active';
+
+  @override
+  String get changeRole => 'Change Role';
+
+  @override
+  String get dateToday => 'Today';
+
+  @override
+  String get dateJustNow => 'just now';
+
+  @override
+  String dateMinutesAgo(Object count) {
+    return '${count}m ago';
+  }
+
+  @override
+  String dateHoursAgo(Object count) {
+    return '${count}h ago';
+  }
+
+  @override
+  String dateDaysAgo(Object count) {
+    return '${count}d ago';
+  }
+
+  @override
+  String dateWeeksAgo(Object count) {
+    return '${count}w ago';
+  }
+
+  @override
+  String dateMonthsAgo(Object count) {
+    return '${count}mo ago';
+  }
+
+  @override
+  String dateYearsAgo(Object count) {
+    return '${count}y ago';
+  }
+
+  @override
+  String get joinGroupByToken => 'Join by Invite Code';
+
+  @override
+  String get enterInviteToken => 'Enter invite token';
+
+  @override
+  String get pasteFromClipboard => 'Paste from clipboard';
+
+  @override
+  String get invalidInviteToken => 'Invalid invite token';
+
+  @override
+  String get groupPreviewTitle => 'Group Preview';
+
+  @override
+  String memberCount(Object count) {
+    return '$count members';
+  }
+
+  @override
+  String get joinGroupConfirm => 'Join Group';
+
+  @override
+  String get joinOrCreateGroupHint =>
+      'Create a new group or join one with an invite code';
+
+  @override
+  String get enterInviteCode => 'Enter Invite Code';
+
+  @override
+  String get groupNameHint => 'Enter group name';
+
+  @override
+  String get groupNameMinLength => 'Group name must be at least 3 characters';
+
+  @override
+  String get groupDescriptionOptional => 'Description (Optional)';
+
+  @override
+  String get groupDescriptionHint => 'Enter group description';
+
+  @override
+  String get assignTo => 'Assign to';
+
+  @override
+  String get autoByRotation => 'Auto (by rotation)';
+
+  @override
+  String get upForGrabsBonus => 'Up-for-Grabs (+50% bonus)';
+
+  @override
+  String get useGroupDefault => 'Use group default';
+
+  @override
+  String taskWeight(Object weight) {
+    return 'Task Weight: $weight';
+  }
+
+  @override
+  String get roleParticipant => 'Participant';
+
+  @override
+  String get auditLogTitle => 'Audit Log';
+
+  @override
+  String get groupAuditLog => 'Group Audit Log';
+
+  @override
+  String get taskHistory => 'History';
+
+  @override
+  String get myActions => 'My Actions';
+
+  @override
+  String get auditAction => 'Action';
+
+  @override
+  String get auditEntity => 'Entity';
+
+  @override
+  String get auditPerformedBy => 'Performed by';
+
+  @override
+  String get auditPerformedAt => 'Date';
+
+  @override
+  String get noAuditLogs => 'No audit logs yet';
+
+  @override
+  String get auditActionUserStatusChanged => 'Status changed';
+
+  @override
+  String get auditActionUserProfileUpdated => 'Profile updated';
+
+  @override
+  String get auditActionGroupCreated => 'Group created';
+
+  @override
+  String get auditActionGroupUpdated => 'Group settings updated';
+
+  @override
+  String get auditActionGroupDeleted => 'Group deleted';
+
+  @override
+  String get auditActionMemberAdded => 'Member joined';
+
+  @override
+  String get auditActionMemberRemoved => 'Member removed';
+
+  @override
+  String get auditActionMemberRoleChanged => 'Role changed';
+
+  @override
+  String get auditActionTaskCreated => 'Task created';
+
+  @override
+  String get auditActionTaskUpdated => 'Task updated';
+
+  @override
+  String get auditActionTaskDeleted => 'Task deleted';
+
+  @override
+  String get auditActionTaskAssigned => 'Task assigned';
+
+  @override
+  String get auditActionTaskCompleted => 'Task completed';
+
+  @override
+  String get auditActionTaskApproved => 'Task approved';
+
+  @override
+  String get auditActionTaskRejected => 'Task rejected';
+
+  @override
+  String get auditActionTaskOverdue => 'Task overdue';
+
+  @override
+  String get auditActionRewardCreated => 'Reward created';
+
+  @override
+  String get auditActionRewardUpdated => 'Reward updated';
+
+  @override
+  String get auditActionRewardDeleted => 'Reward deleted';
+
+  @override
+  String get auditActionRewardRequested => 'Reward requested';
+
+  @override
+  String get auditActionRewardRequestApproved => 'Reward granted';
+
+  @override
+  String get auditActionRewardRequestRejected => 'Reward request rejected';
+
+  @override
+  String get auditActionPointsEarned => 'Points earned';
+
+  @override
+  String get auditActionPointsReserved => 'Points reserved';
+
+  @override
+  String get auditActionPointsSpent => 'Points spent';
+
+  @override
+  String get auditActionPointsRefunded => 'Points refunded';
+
+  @override
+  String get auditActionUnknown => 'Action';
+
+  @override
+  String auditDetailTaskTitle(Object title) {
+    return '“$title”';
+  }
+
+  @override
+  String auditDetailTaskTemplate(Object title) {
+    return 'Template “$title”';
+  }
+
+  @override
+  String auditDetailGroupName(Object name) {
+    return '“$name”';
+  }
+
+  @override
+  String auditDetailGroupRenamed(Object oldName, Object newName) {
+    return '“$oldName” → “$newName”';
+  }
+
+  @override
+  String auditDetailRoleChanged(Object oldRole, Object newRole) {
+    return '$oldRole → $newRole';
+  }
+
+  @override
+  String auditDetailPoints(Object amount) {
+    return '+$amount points';
+  }
+
+  @override
+  String auditDetailPointsWithDescription(Object amount, Object description) {
+    return '+$amount points · $description';
+  }
+
+  @override
+  String auditDetailPointsSpent(Object amount) {
+    return '−$amount points';
+  }
+
+  @override
+  String auditDetailRejectionReason(Object reason) {
+    return 'Reason: $reason';
+  }
+
+  @override
+  String get auditDetailTaskAwaitingApproval => 'Awaiting approval';
+
+  @override
+  String get auditDetailMemberJoined => 'Joined the group';
+
+  @override
+  String get auditDetailMemberLeft => 'Left the group';
+
+  @override
+  String get auditDetailMemberRemovedByAdmin => 'Removed from the group';
+
+  @override
+  String auditLogEntryMeta(Object user, Object date) {
+    return '$user · $date';
+  }
+
+  @override
+  String auditLogInGroup(Object name) {
+    return 'Group \"$name\"';
+  }
+
+  @override
+  String get auditLogPersonalScope => 'Personal account';
+
+  @override
+  String get auditLogSystemUser => 'System';
+
+  @override
+  String get auditDetailPointsTaskCompleted => 'For completing a task';
+
+  @override
+  String get auditDetailPointsTaskApproved => 'For task approval';
+
+  @override
+  String get auditDetailPointsTaskCompletedBonus =>
+      'For completing a task (Up-for-Grabs bonus)';
+
+  @override
+  String get auditDetailPointsTaskApprovedBonus =>
+      'For task approval (Up-for-Grabs bonus)';
+
+  @override
+  String get notificationsEmpty => 'No notifications';
+
+  @override
+  String get notificationsEmptyHint => 'You\'re all caught up!';
+
+  @override
+  String get markAllRead => 'Mark all as read';
+
+  @override
+  String get markRead => 'Mark as read';
+
+  @override
+  String get notificationTypeTaskAssigned => 'Task Assigned';
+
+  @override
+  String get notificationTypeTaskCompleted => 'Task Completed';
+
+  @override
+  String get notificationTypeTaskApproved => 'Task Approved';
+
+  @override
+  String get notificationTypeTaskRejected => 'Task Rejected';
+
+  @override
+  String get notificationTypeRewardRequested => 'Reward Requested';
+
+  @override
+  String get notificationTypeRewardApproved => 'Reward Approved';
+
+  @override
+  String get notificationTypeRewardRejected => 'Reward Rejected';
+
+  @override
+  String get notificationTypePointAwarded => 'Points Awarded';
+
+  @override
+  String get notificationTypeInvitation => 'Group Invitation';
+
+  @override
+  String get notificationTypeSystem => 'System';
+
+  @override
+  String get notificationTypeTaskClaimed => 'Task claimed';
+
+  @override
+  String get notificationTypeTaskPendingReview => 'Task pending review';
+
+  @override
+  String get notificationTypeRewardRequest => 'Reward request';
+
+  @override
+  String notificationMessageTaskAssigned(Object title) {
+    return 'You have been assigned: $title';
+  }
+
+  @override
+  String notificationMessageTaskClaimed(Object title) {
+    return 'You claimed: $title';
+  }
+
+  @override
+  String notificationMessageTaskAwaitingApproval(Object title) {
+    return 'Task \"$title\" is awaiting approval';
+  }
+
+  @override
+  String notificationMessageTaskApproved(Object title) {
+    return 'Your task \"$title\" has been approved';
+  }
+
+  @override
+  String notificationMessageTaskRejected(Object title, Object reason) {
+    return 'Your task \"$title\" was rejected: $reason';
+  }
+
+  @override
+  String notificationMessagePointsEarnedCompletion(
+    Object points,
+    Object title,
+    Object bonus,
+  ) {
+    return 'You earned $points points for completing \"$title\"$bonus';
+  }
+
+  @override
+  String notificationMessagePointsEarnedApproval(
+    Object points,
+    Object title,
+    Object bonus,
+  ) {
+    return 'You earned $points points for \"$title\" approval$bonus';
+  }
+
+  @override
+  String get notificationMessageUpForGrabsBonus => ' (Up-for-Grabs bonus!)';
+
+  @override
+  String notificationMessageRewardRequested(Object name) {
+    return 'New reward request for \"$name\"';
+  }
+
+  @override
+  String notificationMessageRewardApproved(Object name) {
+    return 'Your reward request for \"$name\" has been approved';
+  }
+
+  @override
+  String notificationMessageRewardRejected(Object name, Object reason) {
+    return 'Your reward request for \"$name\" was rejected: $reason';
+  }
+
+  @override
+  String notificationMessageDeadline24h(Object title) {
+    return '\"$title\" is due in 24 hours';
+  }
+
+  @override
+  String notificationMessageDeadline1h(Object title) {
+    return '\"$title\" is due in 1 hour';
+  }
+
+  @override
+  String get notificationNoReason => 'No reason provided';
+
+  @override
+  String get unreadOnly => 'Unread only';
+
+  @override
+  String get rotationSchedule => 'Rotation Schedule';
+
+  @override
+  String get rotationHistory => 'Rotation History';
+
+  @override
+  String get rotationPattern => 'Rotation Pattern';
+
+  @override
+  String get rotationScheduleTitle => 'Upcoming Assignments';
+
+  @override
+  String get rotationHistoryTitle => 'Assignment History';
+
+  @override
+  String get rotationScheduleEmpty => 'No upcoming assignments';
+
+  @override
+  String get rotationHistoryEmpty => 'No assignment history';
+
+  @override
+  String scheduledFor(Object date) {
+    return 'Scheduled for $date';
+  }
+
+  @override
+  String assignedTo(Object name) {
+    return 'Assigned to $name';
+  }
+
+  @override
+  String pointsEarned(Object points) {
+    return '$points pts earned';
+  }
+
+  @override
+  String get viewRotation => 'View Rotation';
+
+  @override
+  String get recurringTemplates => 'Recurring Templates';
+
+  @override
+  String get recurringTemplatesEmpty => 'No recurring task templates';
+
+  @override
+  String get generateNextTask => 'Generate Next Task';
+
+  @override
+  String get generateNextTaskConfirm =>
+      'Generate the next task instance from this template?';
+
+  @override
+  String get taskGenerated => 'Next task generated successfully';
+
+  @override
+  String get recurrenceRule => 'Recurrence Rule';
+
+  @override
+  String get viewRecurringTemplates => 'Recurring Templates';
+
+  @override
+  String get filterTasks => 'Filter Tasks';
+
+  @override
+  String get applyFilters => 'Apply';
+
+  @override
+  String get attachments => 'Attachments';
+
+  @override
+  String get addAttachment => 'Add';
+
+  @override
+  String get deleteAttachmentTitle => 'Delete attachment?';
+
+  @override
+  String get deleteAttachmentMessage => 'The file will be permanently deleted.';
+
+  @override
+  String get attachmentAdded => 'Attachment added';
+
+  @override
+  String get attachmentDeleted => 'Attachment deleted';
+
+  @override
+  String get fromGallery => 'From gallery';
+
+  @override
+  String get takePhoto => 'Take photo';
+
+  @override
+  String get mediaPermissionDenied => 'Media access permission denied';
 }

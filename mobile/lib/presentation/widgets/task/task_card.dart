@@ -1,8 +1,9 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:taskflow/data/models/task.dart';
 import 'package:taskflow/data/models/task_enums.dart';
 import 'package:taskflow/l10n/app_localizations.dart';
+import 'package:taskflow/presentation/widgets/common/app_badge.dart';
 import 'package:taskflow/presentation/widgets/task/deadline_countdown.dart';
 import 'package:taskflow/presentation/widgets/task/priority_badge.dart';
 import 'package:taskflow/presentation/widgets/task/status_badge.dart';
@@ -58,23 +59,11 @@ class TaskCard extends StatelessWidget {
                         ),
                         if (task.isRecurring) ...[
                           const SizedBox(height: 6),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              color: colorScheme.secondaryContainer,
-                              borderRadius: BorderRadius.circular(999),
-                            ),
-                            child: Text(
-                              l10n.recurringTemplateChip,
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w700,
-                                color: colorScheme.onSecondaryContainer,
-                              ),
-                            ),
+                          AppBadge.secondary(
+                            context,
+                            label: l10n.recurringTemplateChip,
+                            icon: Icons.inventory_2_outlined,
+                            compact: true,
                           ),
                         ],
                       ],
@@ -87,66 +76,55 @@ class TaskCard extends StatelessWidget {
 
               const SizedBox(height: 12),
 
-              // Assignee or Up-for-Grabs
-              Row(
-                children: [
-                  CircleAvatar(
-                    radius: 12,
-                    backgroundColor: isTemplateWithoutAssignee
-                        ? colorScheme.secondaryContainer
-                        : isUpForGrabsTask
-                        ? Colors.purple.shade100
-                        : colorScheme.primaryContainer,
-                    child: task.assignee?.avatarUrl != null
-                        ? ClipOval(
-                            child: Image.network(
-                              task.assignee!.avatarUrl!,
-                              width: 24,
-                              height: 24,
-                              fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) => Icon(
-                                Icons.person,
-                                size: 14,
-                                color: colorScheme.onPrimaryContainer,
+              // Assignee or Up-for-Grabs (skip duplicate label for templates)
+              if (!isTemplateWithoutAssignee)
+                Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 12,
+                      backgroundColor: isUpForGrabsTask
+                          ? Colors.purple.shade100
+                          : colorScheme.primaryContainer,
+                      child: task.assignee?.avatarUrl != null
+                          ? ClipOval(
+                              child: Image.network(
+                                task.assignee!.avatarUrl!,
+                                width: 24,
+                                height: 24,
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, __, ___) => Icon(
+                                  Icons.person,
+                                  size: 14,
+                                  color: colorScheme.onPrimaryContainer,
+                                ),
                               ),
+                            )
+                          : Icon(
+                              isUpForGrabsTask
+                                  ? Icons.volunteer_activism
+                                  : Icons.person,
+                              size: 14,
+                              color: isUpForGrabsTask
+                                  ? Colors.purple.shade700
+                                  : colorScheme.onPrimaryContainer,
                             ),
-                          )
-                        : Icon(
-                            isTemplateWithoutAssignee
-                                ? Icons.inventory_2_outlined
-                                : isUpForGrabsTask
-                                ? Icons.volunteer_activism
-                                : Icons.person,
-                            size: 14,
-                            color: isTemplateWithoutAssignee
-                                ? colorScheme.onSecondaryContainer
-                                : isUpForGrabsTask
-                                ? Colors.purple.shade700
-                                : colorScheme.onPrimaryContainer,
-                          ),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    task.assignee?.username ??
-                        (isTemplateWithoutAssignee
-                            ? l10n.recurrenceTemplateLabel
-                            : l10n.upForGrabs),
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: isTemplateWithoutAssignee
-                          ? colorScheme.onSecondaryContainer
-                          : isUpForGrabsTask
-                          ? Colors.purple.shade700
-                          : Colors.grey.shade700,
-                      fontWeight: isTemplateWithoutAssignee || isUpForGrabsTask
-                          ? FontWeight.w600
-                          : FontWeight.normal,
                     ),
-                  ),
-                ],
-              ),
+                    const SizedBox(width: 8),
+                    Text(
+                      task.assignee?.username ?? l10n.upForGrabs,
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: isUpForGrabsTask
+                            ? Colors.purple.shade700
+                            : Colors.grey.shade700,
+                        fontWeight:
+                            isUpForGrabsTask ? FontWeight.w600 : FontWeight.normal,
+                      ),
+                    ),
+                  ],
+                ),
 
-              const SizedBox(height: 12),
+              if (!isTemplateWithoutAssignee) const SizedBox(height: 12),
 
               // Deadline and Points
               Row(

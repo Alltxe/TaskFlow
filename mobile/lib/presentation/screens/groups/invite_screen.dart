@@ -5,6 +5,7 @@ import 'package:taskflow/core/config/app_config.dart';
 import 'package:taskflow/data/models/group.dart';
 import 'package:taskflow/data/providers/group_providers.dart';
 import 'package:taskflow/l10n/app_localizations.dart';
+import 'package:taskflow/presentation/widgets/common/app_navigation_back_button.dart';
 import 'package:share_plus/share_plus.dart';
 
 class InviteScreen extends ConsumerStatefulWidget {
@@ -81,14 +82,20 @@ $_inviteLink
 
     if (_isLoading) {
       return Scaffold(
-        appBar: AppBar(title: Text(AppLocalizations.of(context)!.inviteMembers)),
+        appBar: AppBar(
+          leading: AppNavigationBackButton(fallbackRoute: '/groups/${widget.groupId}'),
+          title: Text(AppLocalizations.of(context)!.inviteMembers),
+        ),
         body: const Center(child: CircularProgressIndicator()),
       );
     }
 
     if (_error != null || _group == null) {
       return Scaffold(
-        appBar: AppBar(title: Text(AppLocalizations.of(context)!.inviteMembers)),
+        appBar: AppBar(
+          leading: AppNavigationBackButton(fallbackRoute: '/groups/${widget.groupId}'),
+          title: Text(AppLocalizations.of(context)!.inviteMembers),
+        ),
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -109,7 +116,10 @@ $_inviteLink
     }
 
     return Scaffold(
-      appBar: AppBar(title: Text(AppLocalizations.of(context)!.inviteMembers)),
+      appBar: AppBar(
+        leading: AppNavigationBackButton(fallbackRoute: '/groups/${widget.groupId}'),
+        title: Text(AppLocalizations.of(context)!.inviteMembers),
+      ),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16),

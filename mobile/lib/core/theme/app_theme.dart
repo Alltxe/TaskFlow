@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:taskflow/core/theme/app_colors.dart';
 import 'package:taskflow/core/theme/app_typography.dart';
 
@@ -153,8 +153,12 @@ class AppTheme {
 
     // Chip theme
     chipTheme: ChipThemeData(
-      backgroundColor: AppColors.surfaceVariantLight,
-      labelStyle: AppTypography.labelSmall,
+      backgroundColor: AppColors.surfaceVariantLight.withValues(alpha: 0.5),
+      selectedColor: AppColors.primaryContainer,
+      secondarySelectedColor: AppColors.secondaryContainer,
+      labelStyle: AppTypography.labelSmall.copyWith(color: AppColors.onSurfaceVariantLight),
+      secondaryLabelStyle: AppTypography.labelSmall.copyWith(color: AppColors.onSurfaceVariantLight),
+      side: BorderSide(color: AppColors.outlineVariantLight.withValues(alpha: 0.6)),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
     ),
@@ -320,8 +324,12 @@ class AppTheme {
 
     // Chip theme
     chipTheme: ChipThemeData(
-      backgroundColor: AppColors.surfaceVariantDark,
-      labelStyle: AppTypography.labelSmall,
+      backgroundColor: AppColors.surfaceVariantDark.withValues(alpha: 0.5),
+      selectedColor: AppColors.primaryContainer,
+      secondarySelectedColor: AppColors.secondaryContainer,
+      labelStyle: AppTypography.labelSmall.copyWith(color: AppColors.onSurfaceVariantDark),
+      secondaryLabelStyle: AppTypography.labelSmall.copyWith(color: AppColors.onSurfaceVariantDark),
+      side: BorderSide(color: AppColors.outlineVariantDark.withValues(alpha: 0.6)),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
     ),

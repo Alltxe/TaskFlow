@@ -15,7 +15,8 @@ import {
 } from './dto/group.input';
 import { Prisma } from '@prisma/client';
 import { randomBytes } from 'crypto';
-import { AuditLogService } from '../audit-log/audit-log.service';
+import { AuditLogService, AuditAction } from '../audit-log/audit-log.service';
+import { NotificationMessages } from '../../common/i18n/notification-messages';
 
 @Injectable()
 export class GroupService {
@@ -57,6 +58,14 @@ export class GroupService {
           },
         },
       },
+    });
+
+    await this.auditLogService.createLog({
+      action: AuditAction.GROUP_CREATED,
+      entityType: 'Group',
+      entityId: group.id,
+      userId,
+      newValues: { name: group.name },
     });
 
     return group;
@@ -195,6 +204,27 @@ export class GroupService {
       },
     });
 
+    await this.auditLogService.createLog({
+      action: AuditAction.GROUP_UPDATED,
+      entityType: 'Group',
+      entityId: groupId,
+      userId,
+      oldValues: {
+        name: group.name,
+        description: group.description,
+        requiresApproval: group.requiresApproval,
+        rotationType: group.rotationType,
+        gamificationEnabled: group.gamificationEnabled,
+      },
+      newValues: {
+        name: updatedGroup.name,
+        description: updatedGroup.description,
+        requiresApproval: updatedGroup.requiresApproval,
+        rotationType: updatedGroup.rotationType,
+        gamificationEnabled: updatedGroup.gamificationEnabled,
+      },
+    });
+
     return updatedGroup;
   }
 
@@ -208,6 +238,14 @@ export class GroupService {
     if (group.createdById !== userId) {
       throw new ForbiddenException('Только создатель может удалить группу');
     }
+
+    await this.auditLogService.createLog({
+      action: AuditAction.GROUP_DELETED,
+      entityType: 'Group',
+      entityId: groupId,
+      userId,
+      oldValues: { name: group.name },
+    });
 
     await this.prisma.group.delete({
       where: { id: groupId },
@@ -274,6 +312,14 @@ export class GroupService {
       },
     });
 
+    await this.auditLogService.createLog({
+      action: AuditAction.MEMBER_ADDED,
+      entityType: 'GroupMember',
+      entityId: `${group.id}-${userId}`,
+      userId,
+      newValues: { groupId: group.id },
+    });
+
     return this.getGroup(group.id, userId);
   }
 
@@ -293,6 +339,14 @@ export class GroupService {
         groupId,
         userId,
       },
+    });
+
+    await this.auditLogService.createLog({
+      action: AuditAction.MEMBER_REMOVED,
+      entityType: 'GroupMember',
+      entityId: `${groupId}-${userId}`,
+      userId,
+      newValues: { groupId },
     });
 
     return true;
@@ -326,6 +380,14 @@ export class GroupService {
         groupId,
         userId: memberUserId,
       },
+    });
+
+    await this.auditLogService.createLog({
+      action: AuditAction.MEMBER_REMOVED,
+      entityType: 'GroupMember',
+      entityId: `${groupId}-${memberUserId}`,
+      userId: adminId,
+      newValues: { groupId, removedUserId: memberUserId },
     });
 
     return true;

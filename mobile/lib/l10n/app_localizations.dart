@@ -2671,6 +2671,926 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Change Password'**
   String get changePasswordTitle;
+
+  /// No description provided for @rotationTypeWeightedRandom.
+  ///
+  /// In en, this message translates to:
+  /// **'Weighted Random'**
+  String get rotationTypeWeightedRandom;
+
+  /// No description provided for @priorityCritical.
+  ///
+  /// In en, this message translates to:
+  /// **'Critical'**
+  String get priorityCritical;
+
+  /// No description provided for @statusCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get statusCancelled;
+
+  /// No description provided for @roleAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin'**
+  String get roleAdmin;
+
+  /// No description provided for @roleMember.
+  ///
+  /// In en, this message translates to:
+  /// **'Member'**
+  String get roleMember;
+
+  /// No description provided for @memberStatusActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get memberStatusActive;
+
+  /// No description provided for @changeRole.
+  ///
+  /// In en, this message translates to:
+  /// **'Change Role'**
+  String get changeRole;
+
+  /// No description provided for @dateToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get dateToday;
+
+  /// No description provided for @dateJustNow.
+  ///
+  /// In en, this message translates to:
+  /// **'just now'**
+  String get dateJustNow;
+
+  /// No description provided for @dateMinutesAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{count}m ago'**
+  String dateMinutesAgo(Object count);
+
+  /// No description provided for @dateHoursAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{count}h ago'**
+  String dateHoursAgo(Object count);
+
+  /// No description provided for @dateDaysAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{count}d ago'**
+  String dateDaysAgo(Object count);
+
+  /// No description provided for @dateWeeksAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{count}w ago'**
+  String dateWeeksAgo(Object count);
+
+  /// No description provided for @dateMonthsAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{count}mo ago'**
+  String dateMonthsAgo(Object count);
+
+  /// No description provided for @dateYearsAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{count}y ago'**
+  String dateYearsAgo(Object count);
+
+  /// No description provided for @joinGroupByToken.
+  ///
+  /// In en, this message translates to:
+  /// **'Join by Invite Code'**
+  String get joinGroupByToken;
+
+  /// No description provided for @enterInviteToken.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter invite token'**
+  String get enterInviteToken;
+
+  /// No description provided for @pasteFromClipboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste from clipboard'**
+  String get pasteFromClipboard;
+
+  /// No description provided for @invalidInviteToken.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid invite token'**
+  String get invalidInviteToken;
+
+  /// No description provided for @groupPreviewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Group Preview'**
+  String get groupPreviewTitle;
+
+  /// No description provided for @memberCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} members'**
+  String memberCount(Object count);
+
+  /// No description provided for @joinGroupConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Join Group'**
+  String get joinGroupConfirm;
+
+  /// No description provided for @joinOrCreateGroupHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a new group or join one with an invite code'**
+  String get joinOrCreateGroupHint;
+
+  /// No description provided for @enterInviteCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter Invite Code'**
+  String get enterInviteCode;
+
+  /// No description provided for @groupNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter group name'**
+  String get groupNameHint;
+
+  /// No description provided for @groupNameMinLength.
+  ///
+  /// In en, this message translates to:
+  /// **'Group name must be at least 3 characters'**
+  String get groupNameMinLength;
+
+  /// No description provided for @groupDescriptionOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Description (Optional)'**
+  String get groupDescriptionOptional;
+
+  /// No description provided for @groupDescriptionHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter group description'**
+  String get groupDescriptionHint;
+
+  /// No description provided for @assignTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Assign to'**
+  String get assignTo;
+
+  /// No description provided for @autoByRotation.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto (by rotation)'**
+  String get autoByRotation;
+
+  /// No description provided for @upForGrabsBonus.
+  ///
+  /// In en, this message translates to:
+  /// **'Up-for-Grabs (+50% bonus)'**
+  String get upForGrabsBonus;
+
+  /// No description provided for @useGroupDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Use group default'**
+  String get useGroupDefault;
+
+  /// No description provided for @taskWeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Task Weight: {weight}'**
+  String taskWeight(Object weight);
+
+  /// No description provided for @roleParticipant.
+  ///
+  /// In en, this message translates to:
+  /// **'Participant'**
+  String get roleParticipant;
+
+  /// No description provided for @auditLogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Audit Log'**
+  String get auditLogTitle;
+
+  /// No description provided for @groupAuditLog.
+  ///
+  /// In en, this message translates to:
+  /// **'Group Audit Log'**
+  String get groupAuditLog;
+
+  /// No description provided for @taskHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get taskHistory;
+
+  /// No description provided for @myActions.
+  ///
+  /// In en, this message translates to:
+  /// **'My Actions'**
+  String get myActions;
+
+  /// No description provided for @auditAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Action'**
+  String get auditAction;
+
+  /// No description provided for @auditEntity.
+  ///
+  /// In en, this message translates to:
+  /// **'Entity'**
+  String get auditEntity;
+
+  /// No description provided for @auditPerformedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Performed by'**
+  String get auditPerformedBy;
+
+  /// No description provided for @auditPerformedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get auditPerformedAt;
+
+  /// No description provided for @noAuditLogs.
+  ///
+  /// In en, this message translates to:
+  /// **'No audit logs yet'**
+  String get noAuditLogs;
+
+  /// No description provided for @auditActionUserStatusChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Status changed'**
+  String get auditActionUserStatusChanged;
+
+  /// No description provided for @auditActionUserProfileUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile updated'**
+  String get auditActionUserProfileUpdated;
+
+  /// No description provided for @auditActionGroupCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Group created'**
+  String get auditActionGroupCreated;
+
+  /// No description provided for @auditActionGroupUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Group settings updated'**
+  String get auditActionGroupUpdated;
+
+  /// No description provided for @auditActionGroupDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Group deleted'**
+  String get auditActionGroupDeleted;
+
+  /// No description provided for @auditActionMemberAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Member joined'**
+  String get auditActionMemberAdded;
+
+  /// No description provided for @auditActionMemberRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Member removed'**
+  String get auditActionMemberRemoved;
+
+  /// No description provided for @auditActionMemberRoleChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Role changed'**
+  String get auditActionMemberRoleChanged;
+
+  /// No description provided for @auditActionTaskCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Task created'**
+  String get auditActionTaskCreated;
+
+  /// No description provided for @auditActionTaskUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Task updated'**
+  String get auditActionTaskUpdated;
+
+  /// No description provided for @auditActionTaskDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Task deleted'**
+  String get auditActionTaskDeleted;
+
+  /// No description provided for @auditActionTaskAssigned.
+  ///
+  /// In en, this message translates to:
+  /// **'Task assigned'**
+  String get auditActionTaskAssigned;
+
+  /// No description provided for @auditActionTaskCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Task completed'**
+  String get auditActionTaskCompleted;
+
+  /// No description provided for @auditActionTaskApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Task approved'**
+  String get auditActionTaskApproved;
+
+  /// No description provided for @auditActionTaskRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Task rejected'**
+  String get auditActionTaskRejected;
+
+  /// No description provided for @auditActionTaskOverdue.
+  ///
+  /// In en, this message translates to:
+  /// **'Task overdue'**
+  String get auditActionTaskOverdue;
+
+  /// No description provided for @auditActionRewardCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Reward created'**
+  String get auditActionRewardCreated;
+
+  /// No description provided for @auditActionRewardUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Reward updated'**
+  String get auditActionRewardUpdated;
+
+  /// No description provided for @auditActionRewardDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Reward deleted'**
+  String get auditActionRewardDeleted;
+
+  /// No description provided for @auditActionRewardRequested.
+  ///
+  /// In en, this message translates to:
+  /// **'Reward requested'**
+  String get auditActionRewardRequested;
+
+  /// No description provided for @auditActionRewardRequestApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Reward granted'**
+  String get auditActionRewardRequestApproved;
+
+  /// No description provided for @auditActionRewardRequestRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Reward request rejected'**
+  String get auditActionRewardRequestRejected;
+
+  /// No description provided for @auditActionPointsEarned.
+  ///
+  /// In en, this message translates to:
+  /// **'Points earned'**
+  String get auditActionPointsEarned;
+
+  /// No description provided for @auditActionPointsReserved.
+  ///
+  /// In en, this message translates to:
+  /// **'Points reserved'**
+  String get auditActionPointsReserved;
+
+  /// No description provided for @auditActionPointsSpent.
+  ///
+  /// In en, this message translates to:
+  /// **'Points spent'**
+  String get auditActionPointsSpent;
+
+  /// No description provided for @auditActionPointsRefunded.
+  ///
+  /// In en, this message translates to:
+  /// **'Points refunded'**
+  String get auditActionPointsRefunded;
+
+  /// No description provided for @auditActionUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Action'**
+  String get auditActionUnknown;
+
+  /// No description provided for @auditDetailTaskTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'“{title}”'**
+  String auditDetailTaskTitle(Object title);
+
+  /// No description provided for @auditDetailTaskTemplate.
+  ///
+  /// In en, this message translates to:
+  /// **'Template “{title}”'**
+  String auditDetailTaskTemplate(Object title);
+
+  /// No description provided for @auditDetailGroupName.
+  ///
+  /// In en, this message translates to:
+  /// **'“{name}”'**
+  String auditDetailGroupName(Object name);
+
+  /// No description provided for @auditDetailGroupRenamed.
+  ///
+  /// In en, this message translates to:
+  /// **'“{oldName}” → “{newName}”'**
+  String auditDetailGroupRenamed(Object oldName, Object newName);
+
+  /// No description provided for @auditDetailRoleChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'{oldRole} → {newRole}'**
+  String auditDetailRoleChanged(Object oldRole, Object newRole);
+
+  /// No description provided for @auditDetailPoints.
+  ///
+  /// In en, this message translates to:
+  /// **'+{amount} points'**
+  String auditDetailPoints(Object amount);
+
+  /// No description provided for @auditDetailPointsWithDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'+{amount} points · {description}'**
+  String auditDetailPointsWithDescription(Object amount, Object description);
+
+  /// No description provided for @auditDetailPointsSpent.
+  ///
+  /// In en, this message translates to:
+  /// **'−{amount} points'**
+  String auditDetailPointsSpent(Object amount);
+
+  /// No description provided for @auditDetailRejectionReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason: {reason}'**
+  String auditDetailRejectionReason(Object reason);
+
+  /// No description provided for @auditDetailTaskAwaitingApproval.
+  ///
+  /// In en, this message translates to:
+  /// **'Awaiting approval'**
+  String get auditDetailTaskAwaitingApproval;
+
+  /// No description provided for @auditDetailMemberJoined.
+  ///
+  /// In en, this message translates to:
+  /// **'Joined the group'**
+  String get auditDetailMemberJoined;
+
+  /// No description provided for @auditDetailMemberLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'Left the group'**
+  String get auditDetailMemberLeft;
+
+  /// No description provided for @auditDetailMemberRemovedByAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'Removed from the group'**
+  String get auditDetailMemberRemovedByAdmin;
+
+  /// No description provided for @auditLogEntryMeta.
+  ///
+  /// In en, this message translates to:
+  /// **'{user} · {date}'**
+  String auditLogEntryMeta(Object user, Object date);
+
+  /// No description provided for @auditLogInGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Group \"{name}\"'**
+  String auditLogInGroup(Object name);
+
+  /// No description provided for @auditLogPersonalScope.
+  ///
+  /// In en, this message translates to:
+  /// **'Personal account'**
+  String get auditLogPersonalScope;
+
+  /// No description provided for @auditLogSystemUser.
+  ///
+  /// In en, this message translates to:
+  /// **'System'**
+  String get auditLogSystemUser;
+
+  /// No description provided for @auditDetailPointsTaskCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'For completing a task'**
+  String get auditDetailPointsTaskCompleted;
+
+  /// No description provided for @auditDetailPointsTaskApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'For task approval'**
+  String get auditDetailPointsTaskApproved;
+
+  /// No description provided for @auditDetailPointsTaskCompletedBonus.
+  ///
+  /// In en, this message translates to:
+  /// **'For completing a task (Up-for-Grabs bonus)'**
+  String get auditDetailPointsTaskCompletedBonus;
+
+  /// No description provided for @auditDetailPointsTaskApprovedBonus.
+  ///
+  /// In en, this message translates to:
+  /// **'For task approval (Up-for-Grabs bonus)'**
+  String get auditDetailPointsTaskApprovedBonus;
+
+  /// No description provided for @notificationsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No notifications'**
+  String get notificationsEmpty;
+
+  /// No description provided for @notificationsEmptyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re all caught up!'**
+  String get notificationsEmptyHint;
+
+  /// No description provided for @markAllRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark all as read'**
+  String get markAllRead;
+
+  /// No description provided for @markRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as read'**
+  String get markRead;
+
+  /// No description provided for @notificationTypeTaskAssigned.
+  ///
+  /// In en, this message translates to:
+  /// **'Task Assigned'**
+  String get notificationTypeTaskAssigned;
+
+  /// No description provided for @notificationTypeTaskCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Task Completed'**
+  String get notificationTypeTaskCompleted;
+
+  /// No description provided for @notificationTypeTaskApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Task Approved'**
+  String get notificationTypeTaskApproved;
+
+  /// No description provided for @notificationTypeTaskRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Task Rejected'**
+  String get notificationTypeTaskRejected;
+
+  /// No description provided for @notificationTypeRewardRequested.
+  ///
+  /// In en, this message translates to:
+  /// **'Reward Requested'**
+  String get notificationTypeRewardRequested;
+
+  /// No description provided for @notificationTypeRewardApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Reward Approved'**
+  String get notificationTypeRewardApproved;
+
+  /// No description provided for @notificationTypeRewardRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Reward Rejected'**
+  String get notificationTypeRewardRejected;
+
+  /// No description provided for @notificationTypePointAwarded.
+  ///
+  /// In en, this message translates to:
+  /// **'Points Awarded'**
+  String get notificationTypePointAwarded;
+
+  /// No description provided for @notificationTypeInvitation.
+  ///
+  /// In en, this message translates to:
+  /// **'Group Invitation'**
+  String get notificationTypeInvitation;
+
+  /// No description provided for @notificationTypeSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'System'**
+  String get notificationTypeSystem;
+
+  /// No description provided for @notificationTypeTaskClaimed.
+  ///
+  /// In en, this message translates to:
+  /// **'Task claimed'**
+  String get notificationTypeTaskClaimed;
+
+  /// No description provided for @notificationTypeTaskPendingReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Task pending review'**
+  String get notificationTypeTaskPendingReview;
+
+  /// No description provided for @notificationTypeRewardRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Reward request'**
+  String get notificationTypeRewardRequest;
+
+  /// No description provided for @notificationMessageTaskAssigned.
+  ///
+  /// In en, this message translates to:
+  /// **'You have been assigned: {title}'**
+  String notificationMessageTaskAssigned(Object title);
+
+  /// No description provided for @notificationMessageTaskClaimed.
+  ///
+  /// In en, this message translates to:
+  /// **'You claimed: {title}'**
+  String notificationMessageTaskClaimed(Object title);
+
+  /// No description provided for @notificationMessageTaskAwaitingApproval.
+  ///
+  /// In en, this message translates to:
+  /// **'Task \"{title}\" is awaiting approval'**
+  String notificationMessageTaskAwaitingApproval(Object title);
+
+  /// No description provided for @notificationMessageTaskApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Your task \"{title}\" has been approved'**
+  String notificationMessageTaskApproved(Object title);
+
+  /// No description provided for @notificationMessageTaskRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Your task \"{title}\" was rejected: {reason}'**
+  String notificationMessageTaskRejected(Object title, Object reason);
+
+  /// No description provided for @notificationMessagePointsEarnedCompletion.
+  ///
+  /// In en, this message translates to:
+  /// **'You earned {points} points for completing \"{title}\"{bonus}'**
+  String notificationMessagePointsEarnedCompletion(
+    Object points,
+    Object title,
+    Object bonus,
+  );
+
+  /// No description provided for @notificationMessagePointsEarnedApproval.
+  ///
+  /// In en, this message translates to:
+  /// **'You earned {points} points for \"{title}\" approval{bonus}'**
+  String notificationMessagePointsEarnedApproval(
+    Object points,
+    Object title,
+    Object bonus,
+  );
+
+  /// No description provided for @notificationMessageUpForGrabsBonus.
+  ///
+  /// In en, this message translates to:
+  /// **' (Up-for-Grabs bonus!)'**
+  String get notificationMessageUpForGrabsBonus;
+
+  /// No description provided for @notificationMessageRewardRequested.
+  ///
+  /// In en, this message translates to:
+  /// **'New reward request for \"{name}\"'**
+  String notificationMessageRewardRequested(Object name);
+
+  /// No description provided for @notificationMessageRewardApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Your reward request for \"{name}\" has been approved'**
+  String notificationMessageRewardApproved(Object name);
+
+  /// No description provided for @notificationMessageRewardRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Your reward request for \"{name}\" was rejected: {reason}'**
+  String notificationMessageRewardRejected(Object name, Object reason);
+
+  /// No description provided for @notificationMessageDeadline24h.
+  ///
+  /// In en, this message translates to:
+  /// **'\"{title}\" is due in 24 hours'**
+  String notificationMessageDeadline24h(Object title);
+
+  /// No description provided for @notificationMessageDeadline1h.
+  ///
+  /// In en, this message translates to:
+  /// **'\"{title}\" is due in 1 hour'**
+  String notificationMessageDeadline1h(Object title);
+
+  /// No description provided for @notificationNoReason.
+  ///
+  /// In en, this message translates to:
+  /// **'No reason provided'**
+  String get notificationNoReason;
+
+  /// No description provided for @unreadOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Unread only'**
+  String get unreadOnly;
+
+  /// No description provided for @rotationSchedule.
+  ///
+  /// In en, this message translates to:
+  /// **'Rotation Schedule'**
+  String get rotationSchedule;
+
+  /// No description provided for @rotationHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Rotation History'**
+  String get rotationHistory;
+
+  /// No description provided for @rotationPattern.
+  ///
+  /// In en, this message translates to:
+  /// **'Rotation Pattern'**
+  String get rotationPattern;
+
+  /// No description provided for @rotationScheduleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming Assignments'**
+  String get rotationScheduleTitle;
+
+  /// No description provided for @rotationHistoryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Assignment History'**
+  String get rotationHistoryTitle;
+
+  /// No description provided for @rotationScheduleEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No upcoming assignments'**
+  String get rotationScheduleEmpty;
+
+  /// No description provided for @rotationHistoryEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No assignment history'**
+  String get rotationHistoryEmpty;
+
+  /// No description provided for @scheduledFor.
+  ///
+  /// In en, this message translates to:
+  /// **'Scheduled for {date}'**
+  String scheduledFor(Object date);
+
+  /// No description provided for @assignedTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Assigned to {name}'**
+  String assignedTo(Object name);
+
+  /// No description provided for @pointsEarned.
+  ///
+  /// In en, this message translates to:
+  /// **'{points} pts earned'**
+  String pointsEarned(Object points);
+
+  /// No description provided for @viewRotation.
+  ///
+  /// In en, this message translates to:
+  /// **'View Rotation'**
+  String get viewRotation;
+
+  /// No description provided for @recurringTemplates.
+  ///
+  /// In en, this message translates to:
+  /// **'Recurring Templates'**
+  String get recurringTemplates;
+
+  /// No description provided for @recurringTemplatesEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No recurring task templates'**
+  String get recurringTemplatesEmpty;
+
+  /// No description provided for @generateNextTask.
+  ///
+  /// In en, this message translates to:
+  /// **'Generate Next Task'**
+  String get generateNextTask;
+
+  /// No description provided for @generateNextTaskConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Generate the next task instance from this template?'**
+  String get generateNextTaskConfirm;
+
+  /// No description provided for @taskGenerated.
+  ///
+  /// In en, this message translates to:
+  /// **'Next task generated successfully'**
+  String get taskGenerated;
+
+  /// No description provided for @recurrenceRule.
+  ///
+  /// In en, this message translates to:
+  /// **'Recurrence Rule'**
+  String get recurrenceRule;
+
+  /// No description provided for @viewRecurringTemplates.
+  ///
+  /// In en, this message translates to:
+  /// **'Recurring Templates'**
+  String get viewRecurringTemplates;
+
+  /// No description provided for @filterTasks.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter Tasks'**
+  String get filterTasks;
+
+  /// No description provided for @applyFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply'**
+  String get applyFilters;
+
+  /// No description provided for @attachments.
+  ///
+  /// In en, this message translates to:
+  /// **'Attachments'**
+  String get attachments;
+
+  /// No description provided for @addAttachment.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get addAttachment;
+
+  /// No description provided for @deleteAttachmentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete attachment?'**
+  String get deleteAttachmentTitle;
+
+  /// No description provided for @deleteAttachmentMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'The file will be permanently deleted.'**
+  String get deleteAttachmentMessage;
+
+  /// No description provided for @attachmentAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Attachment added'**
+  String get attachmentAdded;
+
+  /// No description provided for @attachmentDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Attachment deleted'**
+  String get attachmentDeleted;
+
+  /// No description provided for @fromGallery.
+  ///
+  /// In en, this message translates to:
+  /// **'From gallery'**
+  String get fromGallery;
+
+  /// No description provided for @takePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Take photo'**
+  String get takePhoto;
+
+  /// No description provided for @mediaPermissionDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Media access permission denied'**
+  String get mediaPermissionDenied;
 }
 
 class _AppLocalizationsDelegate

@@ -10,6 +10,7 @@ import 'package:taskflow/presentation/screens/groups/group_members_screen.dart';
 import 'package:taskflow/presentation/screens/groups/group_rewards_screen.dart';
 import 'package:taskflow/presentation/screens/groups/group_settings_screen.dart';
 import 'package:taskflow/presentation/screens/tasks/tasks_screen.dart';
+import 'package:taskflow/presentation/widgets/common/app_navigation_back_button.dart';
 
 /// Layout for group screens with tabs
 class GroupLayoutScreen extends ConsumerStatefulWidget {
@@ -184,6 +185,7 @@ class _GroupLayoutScreenState extends ConsumerState<GroupLayoutScreen>
 
     return Scaffold(
       appBar: AppBar(
+        leading: const AppNavigationBackButton(fallbackRoute: '/groups'),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -249,97 +251,5 @@ class _GroupLayoutScreenState extends ConsumerState<GroupLayoutScreen>
 
   Widget _buildSettingsTab() {
     return GroupSettingsContent(groupId: widget.groupId, group: _group!);
-  }
-
-  Future<void> _removeMember(GroupMember member) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(AppLocalizations.of(context)!.removeMemberTitle),
-        content: Text(AppLocalizations.of(context)!.removeMemberConfirm(member.user.username)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text(AppLocalizations.of(context)!.cancel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: FilledButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.error),
-            child: Text(AppLocalizations.of(context)!.removeLabel),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed != true || !mounted) return;
-
-    final removeMemberUseCase = ref.read(removeMemberUseCaseProvider);
-    final result = await removeMemberUseCase(widget.groupId, member.userId);
-
-    if (!mounted) return;
-
-    result.fold(
-      (failure) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(AppLocalizations.of(context)!.errorWithMessage(failure.message)),
-            backgroundColor: Theme.of(context).colorScheme.error,
-          ),
-        );
-      },
-      (_) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.memberRemovedSuccess)));
-        _loadData(); // Reload members
-      },
-    );
-  }
-
-  Future<void> _changeRole(GroupMember member) async {
-    final newRole = member.role == 'ADMIN' ? 'MEMBER' : 'ADMIN';
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(AppLocalizations.of(context)!.changeRoleTitle),
-        content: Text(
-          AppLocalizations.of(context)!.changeRoleConfirm(member.user.username, newRole),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text(AppLocalizations.of(context)!.cancel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: Text(AppLocalizations.of(context)!.change),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed != true || !mounted) return;
-
-    final updateRoleUseCase = ref.read(updateMemberRoleUseCaseProvider);
-    final result = await updateRoleUseCase(widget.groupId, member.userId, newRole);
-
-    if (!mounted) return;
-
-    result.fold(
-      (failure) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error: ${failure.message}'),
-            backgroundColor: Theme.of(context).colorScheme.error,
-          ),
-        );
-      },
-      (_) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context)!.roleChangedTo(newRole))),
-        );
-        _loadData(); // Reload members
-      },
-    );
   }
 }

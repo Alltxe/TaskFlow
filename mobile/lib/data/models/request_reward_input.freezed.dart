@@ -21,7 +21,6 @@ RequestRewardInput _$RequestRewardInputFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$RequestRewardInput {
   String get rewardId => throw _privateConstructorUsedError;
-  String get groupId => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -35,7 +34,7 @@ abstract class $RequestRewardInputCopyWith<$Res> {
           RequestRewardInput value, $Res Function(RequestRewardInput) then) =
       _$RequestRewardInputCopyWithImpl<$Res, RequestRewardInput>;
   @useResult
-  $Res call({String rewardId, String groupId});
+  $Res call({String rewardId});
 }
 
 /// @nodoc
@@ -52,16 +51,11 @@ class _$RequestRewardInputCopyWithImpl<$Res, $Val extends RequestRewardInput>
   @override
   $Res call({
     Object? rewardId = null,
-    Object? groupId = null,
   }) {
     return _then(_value.copyWith(
       rewardId: null == rewardId
           ? _value.rewardId
           : rewardId // ignore: cast_nullable_to_non_nullable
-              as String,
-      groupId: null == groupId
-          ? _value.groupId
-          : groupId // ignore: cast_nullable_to_non_nullable
               as String,
     ) as $Val);
   }
@@ -75,7 +69,7 @@ abstract class _$$RequestRewardInputImplCopyWith<$Res>
       __$$RequestRewardInputImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({String rewardId, String groupId});
+  $Res call({String rewardId});
 }
 
 /// @nodoc
@@ -90,16 +84,11 @@ class __$$RequestRewardInputImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? rewardId = null,
-    Object? groupId = null,
   }) {
     return _then(_$RequestRewardInputImpl(
       rewardId: null == rewardId
           ? _value.rewardId
           : rewardId // ignore: cast_nullable_to_non_nullable
-              as String,
-      groupId: null == groupId
-          ? _value.groupId
-          : groupId // ignore: cast_nullable_to_non_nullable
               as String,
     ));
   }
@@ -108,20 +97,17 @@ class __$$RequestRewardInputImplCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$RequestRewardInputImpl implements _RequestRewardInput {
-  const _$RequestRewardInputImpl(
-      {required this.rewardId, required this.groupId});
+  const _$RequestRewardInputImpl({required this.rewardId});
 
   factory _$RequestRewardInputImpl.fromJson(Map<String, dynamic> json) =>
       _$$RequestRewardInputImplFromJson(json);
 
   @override
   final String rewardId;
-  @override
-  final String groupId;
 
   @override
   String toString() {
-    return 'RequestRewardInput(rewardId: $rewardId, groupId: $groupId)';
+    return 'RequestRewardInput(rewardId: $rewardId)';
   }
 
   @override
@@ -130,13 +116,12 @@ class _$RequestRewardInputImpl implements _RequestRewardInput {
         (other.runtimeType == runtimeType &&
             other is _$RequestRewardInputImpl &&
             (identical(other.rewardId, rewardId) ||
-                other.rewardId == rewardId) &&
-            (identical(other.groupId, groupId) || other.groupId == groupId));
+                other.rewardId == rewardId));
   }
 
   @JsonKey(ignore: true)
   @override
-  int get hashCode => Object.hash(runtimeType, rewardId, groupId);
+  int get hashCode => Object.hash(runtimeType, rewardId);
 
   @JsonKey(ignore: true)
   @override
@@ -154,17 +139,14 @@ class _$RequestRewardInputImpl implements _RequestRewardInput {
 }
 
 abstract class _RequestRewardInput implements RequestRewardInput {
-  const factory _RequestRewardInput(
-      {required final String rewardId,
-      required final String groupId}) = _$RequestRewardInputImpl;
+  const factory _RequestRewardInput({required final String rewardId}) =
+      _$RequestRewardInputImpl;
 
   factory _RequestRewardInput.fromJson(Map<String, dynamic> json) =
       _$RequestRewardInputImpl.fromJson;
 
   @override
   String get rewardId;
-  @override
-  String get groupId;
   @override
   @JsonKey(ignore: true)
   _$$RequestRewardInputImplCopyWith<_$RequestRewardInputImpl> get copyWith =>

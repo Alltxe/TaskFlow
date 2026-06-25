@@ -155,10 +155,7 @@ class _GroupRewardsScreenState extends ConsumerState<GroupRewardsScreen>
 
     // Request the reward
     final requestRewardUseCase = ref.read(requestRewardUseCaseProvider);
-    final input = RequestRewardInput(
-      rewardId: reward.id,
-      groupId: widget.groupId,
-    );
+    final input = RequestRewardInput(rewardId: reward.id);
 
     final result = await requestRewardUseCase(input);
 
@@ -421,30 +418,26 @@ class _GroupRewardsScreenState extends ConsumerState<GroupRewardsScreen>
     final l10n = AppLocalizations.of(context)!;
 
     if (_isLoading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Center(child: CircularProgressIndicator());
     }
 
     if (_error != null) {
-      return Scaffold(
-        body: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.error_outline, size: 64, color: colorScheme.error),
-                const SizedBox(height: 16),
-                Text(_error!, textAlign: TextAlign.center),
-                const SizedBox(height: 16),
-                FilledButton.icon(
-                  onPressed: _loadData,
-                  icon: const Icon(Icons.refresh),
-                  label: Text(l10n.retry),
-                ),
-              ],
-            ),
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.error_outline, size: 64, color: colorScheme.error),
+              const SizedBox(height: 16),
+              Text(_error!, textAlign: TextAlign.center),
+              const SizedBox(height: 16),
+              FilledButton.icon(
+                onPressed: _loadData,
+                icon: const Icon(Icons.refresh),
+                label: Text(l10n.retry),
+              ),
+            ],
           ),
         ),
       );
@@ -453,6 +446,7 @@ class _GroupRewardsScreenState extends ConsumerState<GroupRewardsScreen>
     return Scaffold(
       appBar: _isAdmin
           ? AppBar(
+              automaticallyImplyLeading: false,
               title: Text(l10n.rewards),
               bottom: TabBar(
                 controller: _tabController,
@@ -463,6 +457,7 @@ class _GroupRewardsScreenState extends ConsumerState<GroupRewardsScreen>
               ),
             )
           : AppBar(
+              automaticallyImplyLeading: false,
               title: Text(l10n.rewards),
             ),
       body: _isAdmin

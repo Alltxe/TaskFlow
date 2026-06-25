@@ -88,6 +88,8 @@ export class FirebaseService implements OnModuleInit {
         notification: {
           sound: 'default',
           priority: 'high',
+          icon: 'ic_notification',
+          color: '#2196F3',
         },
       },
       apns: {

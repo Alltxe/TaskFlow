@@ -495,5 +495,337 @@
     "profileUpdatedSuccess": "Профиль успешно обновлён",
     "passwordChangedSuccess": "Пароль успешно изменён",
     "usernameHint": "Введите новое имя пользователя",
-    "changePasswordTitle": "Изменить пароль"
+    "changePasswordTitle": "Изменить пароль",
+    "pointsHistory": "История очков",
+    "totalEarned": "Всего заработано",
+    "totalSpent": "Всего потрачено",
+    "reservedPending": "Зарезервировано (ожидание)",
+    "availablePoints": "Доступные очки",
+    "transactionHistory": "История транзакций",
+    "noTransactionsYet": "Транзакций пока нет",
+    "startCompletingTasks": "Выполняйте задачи, чтобы зарабатывать очки",
+    "earned": "Заработано",
+    "spent": "Потрачено",
+    "taskCompleted": "Задача выполнена",
+    "rewardRequested": "Награда запрошена",
+    "adminRewardsManagement": "Управление наградами (админ)",
+    "createReward": "Создать награду",
+    "editReward": "Редактировать награду",
+    "deleteReward": "Удалить награду",
+    "rewardName": "Название награды",
+    "rewardDescription": "Описание (необязательно)",
+    "rewardCost": "Стоимость (в очках)",
+    "rewardImageUrl": "URL изображения (необязательно)",
+    "enterRewardName": "Введите название награды",
+    "enterRewardDescription": "Опишите награду...",
+    "enterRewardCost": "Введите стоимость в очках",
+    "enterImageUrl": "Введите URL изображения",
+    "rewardNameRequired": "Название награды обязательно",
+    "rewardNameMinLength": "Название должно быть не короче 3 символов",
+    "rewardCostRequired": "Стоимость обязательна",
+    "rewardCostMustBePositive": "Стоимость должна быть положительным числом",
+    "rewardCreatedSuccess": "Награда успешно создана!",
+    "rewardUpdatedSuccess": "Награда успешно обновлена!",
+    "rewardDeletedSuccess": "Награда успешно удалена!",
+    "confirmDeleteReward": "Вы уверены, что хотите удалить эту награду?",
+    "confirmDeleteRewardMessage": "Это действие нельзя отменить. Запросы пользователей сохранятся.",
+    "rewardRequestsQueue": "Запросы наград (админ)",
+    "noPendingRequests": "Нет ожидающих запросов",
+    "noRequestsDescription": "Все запросы наград обработаны",
+    "approveRequest": "Одобрить",
+    "rejectRequest": "Отклонить",
+    "requestedBy": "Запросил",
+    "requestedAt": "Запрошено",
+    "pointsWillBeDeducted": "Очки будут списаны",
+    "pointsWillBeReturned": "Очки будут возвращены",
+    "confirmApprove": "Одобрить запрос",
+    "confirmReject": "Отклонить запрос",
+    "approveRequestMessage": "Одобрить этот запрос награды? У пользователя будет списано {points} очков.",
+    "@approveRequestMessage": {
+        "placeholders": { "points": {} }
+    },
+    "rejectRequestMessage": "Отклонить этот запрос награды? Пользователю будет возвращено {points} очков.",
+    "@rejectRequestMessage": {
+        "placeholders": { "points": {} }
+    },
+    "requestApprovedSuccess": "Запрос одобрен! Очки списаны.",
+    "requestRejectedSuccess": "Запрос отклонён. Очки возвращены.",
+    "statusReserved": "Ожидает одобрения",
+    "statusApproved": "Одобрено",
+    "statusRejected": "Отклонено",
+    "manageRewards": "Управление наградами",
+    "viewRequests": "Просмотр запросов",
+    "insufficientPointsShort": "Недостаточно",
+    "create": "Создать",
+    "delete": "Удалить",
+    "requestRewardTitle": "Запросить награду",
+    "requestRewardMessage": "Запросить \"{rewardName}\" за {points} очков?",
+    "@requestRewardMessage": {
+        "placeholders": {
+            "rewardName": {},
+            "points": {}
+        }
+    },
+    "rewardRequestedSuccess": "Награда запрошена! Ожидает одобрения.",
+    "insufficientPoints": "Недостаточно очков. Нужно {required}, доступно {available}.",
+    "@insufficientPoints": {
+        "placeholders": {
+            "required": {},
+            "available": {}
+        }
+    },
+    "availableBalance": "Доступный баланс",
+    "yourBalance": "Ваш баланс: {points} очк.",
+    "@yourBalance": {
+        "placeholders": { "points": {} }
+    },
+    "rotationTypeWeightedRandom": "Взвешенная случайность",
+    "priorityCritical": "Критический",
+    "statusCancelled": "Отменена",
+    "roleAdmin": "Админ",
+    "roleMember": "Участник",
+    "memberStatusActive": "Активен",
+    "changeRole": "Сменить роль",
+    "dateToday": "Сегодня",
+    "dateJustNow": "только что",
+    "dateMinutesAgo": "{count} мин. назад",
+    "@dateMinutesAgo": {
+        "placeholders": { "count": {} }
+    },
+    "dateHoursAgo": "{count} ч. назад",
+    "@dateHoursAgo": {
+        "placeholders": { "count": {} }
+    },
+    "dateDaysAgo": "{count} дн. назад",
+    "@dateDaysAgo": {
+        "placeholders": { "count": {} }
+    },
+    "dateWeeksAgo": "{count} нед. назад",
+    "@dateWeeksAgo": {
+        "placeholders": { "count": {} }
+    },
+    "dateMonthsAgo": "{count} мес. назад",
+    "@dateMonthsAgo": {
+        "placeholders": { "count": {} }
+    },
+    "dateYearsAgo": "{count} г. назад",
+    "@dateYearsAgo": {
+        "placeholders": { "count": {} }
+    },
+    "joinGroupByToken": "Ввести код приглашения",
+    "enterInviteToken": "Введите токен приглашения",
+    "pasteFromClipboard": "Вставить из буфера",
+    "invalidInviteToken": "Неверный токен приглашения",
+    "groupPreviewTitle": "Предпросмотр группы",
+    "memberCount": "{count} участников",
+    "@memberCount": {
+        "placeholders": { "count": {} }
+    },
+    "joinGroupConfirm": "Присоединиться",
+    "joinOrCreateGroupHint": "Создайте новую группу или присоединитесь по коду приглашения",
+    "enterInviteCode": "Ввести код приглашения",
+    "groupNameHint": "Введите название группы",
+    "groupNameMinLength": "Название должно быть не короче 3 символов",
+    "groupDescriptionOptional": "Описание (необязательно)",
+    "groupDescriptionHint": "Введите описание группы",
+    "assignTo": "Назначить",
+    "autoByRotation": "Авто (по ротации)",
+    "upForGrabsBonus": "Без назначения (+50% бонус)",
+    "useGroupDefault": "По умолчанию группы",
+    "taskWeight": "Вес задачи: {weight}",
+    "@taskWeight": {
+        "placeholders": { "weight": {} }
+    },
+    "roleParticipant": "Участник",
+    "auditLogTitle": "Журнал аудита",
+    "groupAuditLog": "Журнал группы",
+    "taskHistory": "История",
+    "myActions": "Мои действия",
+    "auditAction": "Действие",
+    "auditEntity": "Объект",
+    "auditPerformedBy": "Выполнил",
+    "auditPerformedAt": "Дата",
+    "noAuditLogs": "Записей пока нет",
+    "auditActionUserStatusChanged": "Статус изменён",
+    "auditActionUserProfileUpdated": "Профиль обновлён",
+    "auditActionGroupCreated": "Группа создана",
+    "auditActionGroupUpdated": "Настройки группы изменены",
+    "auditActionGroupDeleted": "Группа удалена",
+    "auditActionMemberAdded": "Участник присоединился",
+    "auditActionMemberRemoved": "Участник удалён",
+    "auditActionMemberRoleChanged": "Роль изменена",
+    "auditActionTaskCreated": "Задача создана",
+    "auditActionTaskUpdated": "Задача изменена",
+    "auditActionTaskDeleted": "Задача удалена",
+    "auditActionTaskAssigned": "Задача назначена",
+    "auditActionTaskCompleted": "Задача выполнена",
+    "auditActionTaskApproved": "Задача одобрена",
+    "auditActionTaskRejected": "Задача отклонена",
+    "auditActionTaskOverdue": "Просрочена задача",
+    "auditActionRewardCreated": "Награда создана",
+    "auditActionRewardUpdated": "Награда изменена",
+    "auditActionRewardDeleted": "Награда удалена",
+    "auditActionRewardRequested": "Запрошена награда",
+    "auditActionRewardRequestApproved": "Награда выдана",
+    "auditActionRewardRequestRejected": "Запрос награды отклонён",
+    "auditActionPointsEarned": "Начислены очки",
+    "auditActionPointsReserved": "Очки зарезервированы",
+    "auditActionPointsSpent": "Очки потрачены",
+    "auditActionPointsRefunded": "Очки возвращены",
+    "auditActionUnknown": "Действие",
+    "auditDetailTaskTitle": "«{title}»",
+    "@auditDetailTaskTitle": {
+        "placeholders": { "title": {} }
+    },
+    "auditDetailTaskTemplate": "Шаблон «{title}»",
+    "@auditDetailTaskTemplate": {
+        "placeholders": { "title": {} }
+    },
+    "auditDetailGroupName": "«{name}»",
+    "@auditDetailGroupName": {
+        "placeholders": { "name": {} }
+    },
+    "auditDetailGroupRenamed": "«{oldName}» → «{newName}»",
+    "@auditDetailGroupRenamed": {
+        "placeholders": { "oldName": {}, "newName": {} }
+    },
+    "auditDetailRoleChanged": "{oldRole} → {newRole}",
+    "@auditDetailRoleChanged": {
+        "placeholders": { "oldRole": {}, "newRole": {} }
+    },
+    "auditDetailPoints": "+{amount} очков",
+    "@auditDetailPoints": {
+        "placeholders": { "amount": {} }
+    },
+    "auditDetailPointsWithDescription": "+{amount} очк. · {description}",
+    "@auditDetailPointsWithDescription": {
+        "placeholders": { "amount": {}, "description": {} }
+    },
+    "auditDetailPointsSpent": "−{amount} очков",
+    "@auditDetailPointsSpent": {
+        "placeholders": { "amount": {} }
+    },
+    "auditDetailRejectionReason": "Причина: {reason}",
+    "@auditDetailRejectionReason": {
+        "placeholders": { "reason": {} }
+    },
+    "auditDetailTaskAwaitingApproval": "Ожидает одобрения",
+    "auditDetailMemberJoined": "Вступил в группу",
+    "auditDetailMemberLeft": "Покинул группу",
+    "auditDetailMemberRemovedByAdmin": "Исключён из группы",
+    "auditLogEntryMeta": "{user} · {date}",
+    "@auditLogEntryMeta": {
+        "placeholders": { "user": {}, "date": {} }
+    },
+    "auditLogInGroup": "Группа «{name}»",
+    "@auditLogInGroup": {
+        "placeholders": { "name": {} }
+    },
+    "auditLogPersonalScope": "Личный профиль",
+    "auditLogSystemUser": "Система",
+    "auditDetailPointsTaskCompleted": "За выполнение задачи",
+    "auditDetailPointsTaskApproved": "За одобрение задачи",
+    "auditDetailPointsTaskCompletedBonus": "За выполнение задачи (бонус Up-for-Grabs)",
+    "auditDetailPointsTaskApprovedBonus": "За одобрение задачи (бонус Up-for-Grabs)",
+    "notifications": "Уведомления",
+    "notificationsEmpty": "Нет уведомлений",
+    "notificationsEmptyHint": "Всё прочитано!",
+    "markAllRead": "Отметить все как прочитанные",
+    "markRead": "Отметить прочитанным",
+    "notificationTypeTaskAssigned": "Задача назначена",
+    "notificationTypeTaskCompleted": "Задача выполнена",
+    "notificationTypeTaskApproved": "Задача одобрена",
+    "notificationTypeTaskRejected": "Задача отклонена",
+    "notificationTypeRewardRequested": "Запрос награды",
+    "notificationTypeRewardApproved": "Награда одобрена",
+    "notificationTypeRewardRejected": "Награда отклонена",
+    "notificationTypePointAwarded": "Начислены очки",
+    "notificationTypeInvitation": "Приглашение в группу",
+    "notificationTypeSystem": "Системное",
+    "notificationTypeTaskClaimed": "Задача взята",
+    "notificationTypeTaskPendingReview": "Задача на проверке",
+    "notificationTypeRewardRequest": "Запрос награды",
+    "notificationMessageTaskAssigned": "Вам назначена задача: {title}",
+    "@notificationMessageTaskAssigned": {
+        "placeholders": { "title": {} }
+    },
+    "notificationMessageTaskClaimed": "Вы взяли задачу: {title}",
+    "@notificationMessageTaskClaimed": {
+        "placeholders": { "title": {} }
+    },
+    "notificationMessageTaskAwaitingApproval": "Задача «{title}» ожидает одобрения",
+    "@notificationMessageTaskAwaitingApproval": {
+        "placeholders": { "title": {} }
+    },
+    "notificationMessageTaskApproved": "Ваша задача «{title}» одобрена",
+    "@notificationMessageTaskApproved": {
+        "placeholders": { "title": {} }
+    },
+    "notificationMessageTaskRejected": "Ваша задача «{title}» отклонена: {reason}",
+    "@notificationMessageTaskRejected": {
+        "placeholders": { "title": {}, "reason": {} }
+    },
+    "notificationMessagePointsEarnedCompletion": "Вы получили {points} очк. за выполнение «{title}»{bonus}",
+    "@notificationMessagePointsEarnedCompletion": {
+        "placeholders": { "points": {}, "title": {}, "bonus": {} }
+    },
+    "notificationMessagePointsEarnedApproval": "Вы получили {points} очк. за одобрение «{title}»{bonus}",
+    "@notificationMessagePointsEarnedApproval": {
+        "placeholders": { "points": {}, "title": {}, "bonus": {} }
+    },
+    "notificationMessageUpForGrabsBonus": " (бонус за взятие из пула!)",
+    "notificationMessageRewardRequested": "Новый запрос награды: «{name}»",
+    "@notificationMessageRewardRequested": {
+        "placeholders": { "name": {} }
+    },
+    "notificationMessageRewardApproved": "Ваш запрос награды «{name}» одобрен",
+    "@notificationMessageRewardApproved": {
+        "placeholders": { "name": {} }
+    },
+    "notificationMessageRewardRejected": "Ваш запрос награды «{name}» отклонён: {reason}",
+    "@notificationMessageRewardRejected": {
+        "placeholders": { "name": {}, "reason": {} }
+    },
+    "notificationMessageDeadline24h": "«{title}» — дедлайн через 24 часа",
+    "@notificationMessageDeadline24h": {
+        "placeholders": { "title": {} }
+    },
+    "notificationMessageDeadline1h": "«{title}» — дедлайн через 1 час",
+    "@notificationMessageDeadline1h": {
+        "placeholders": { "title": {} }
+    },
+    "notificationNoReason": "Причина не указана",
+    "unreadOnly": "Только непрочитанные",
+    "rotationSchedule": "Расписание ротации",
+    "rotationHistory": "История ротации",
+    "rotationPattern": "Шаблон ротации",
+    "rotationScheduleTitle": "Предстоящие назначения",
+    "rotationHistoryTitle": "История назначений",
+    "rotationScheduleEmpty": "Нет предстоящих назначений",
+    "rotationHistoryEmpty": "История назначений пуста",
+    "scheduledFor": "Запланировано на {date}",
+    "@scheduledFor": { "placeholders": { "date": {} } },
+    "assignedTo": "Назначено: {name}",
+    "@assignedTo": { "placeholders": { "name": {} } },
+    "pointsEarned": "{points} очков заработано",
+    "@pointsEarned": { "placeholders": { "points": {} } },
+    "viewRotation": "Просмотр ротации",
+    "recurringTemplates": "Шаблоны задач",
+    "recurringTemplatesEmpty": "Нет шаблонов повторяющихся задач",
+    "generateNextTask": "Сгенерировать следующую",
+    "generateNextTaskConfirm": "Создать следующий экземпляр задачи из этого шаблона?",
+    "taskGenerated": "Следующая задача успешно создана",
+    "recurrenceRule": "Правило повторения",
+    "viewRecurringTemplates": "Шаблоны задач",
+    "filterTasks": "Фильтр задач",
+    "applyFilters": "Применить",
+    "attachments": "Вложения",
+    "addAttachment": "Добавить",
+    "deleteAttachmentTitle": "Удалить вложение?",
+    "deleteAttachmentMessage": "Файл будет удалён без возможности восстановления.",
+    "attachmentAdded": "Вложение добавлено",
+    "attachmentDeleted": "Вложение удалено",
+    "fromGallery": "Из галереи",
+    "takePhoto": "Сделать фото",
+    "mediaPermissionDenied": "Нет разрешения на доступ к медиафайлам"
 }

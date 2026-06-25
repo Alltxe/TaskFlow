@@ -1,6 +1,7 @@
 ﻿import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:taskflow/data/providers/task_providers.dart';
 import 'package:taskflow/domain/usecases/task/approve_task_usecase.dart';
+import 'package:taskflow/domain/usecases/task/generate_next_recurring_task_usecase.dart';
 import 'package:taskflow/domain/usecases/task/claim_task_usecase.dart';
 import 'package:taskflow/domain/usecases/task/complete_task_usecase.dart';
 import 'package:taskflow/domain/usecases/task/create_task_usecase.dart';
@@ -62,4 +63,10 @@ final completeTaskUseCaseProvider = Provider<CompleteTaskUseCase>((ref) {
 final approveTaskUseCaseProvider = Provider<ApproveTaskUseCase>((ref) {
   final repository = ref.watch(taskRepositoryProvider);
   return ApproveTaskUseCase(repository);
+});
+
+final generateNextRecurringTaskUseCaseProvider =
+    Provider<GenerateNextRecurringTaskUseCase>((ref) {
+  final repository = ref.watch(taskRepositoryProvider);
+  return GenerateNextRecurringTaskUseCase(repository);
 });

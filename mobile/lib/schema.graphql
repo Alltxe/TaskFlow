@@ -59,6 +59,14 @@ type AuthResponseType {
   user: UserType!
 }
 
+type GroupPreviewType {
+  id: ID!
+  name: String!
+  description: String
+  memberCount: Int!
+  requiresApproval: Boolean!
+}
+
 type GroupMemberUserType {
   id: ID!
   username: String!
@@ -148,6 +156,18 @@ type TaskType {
   createdBy: GroupMemberUserType!
   childTasks: [TaskType!]
   parentTask: TaskType
+}
+
+type TaskAttachmentType {
+  id: ID!
+  url: String!
+  filename: String!
+  fileSize: Int!
+  mimeType: String!
+  uploadedAt: DateTime!
+  taskId: String!
+  groupId: String!
+  uploadedById: String!
 }
 
 type RotationScheduleEntry {
@@ -384,6 +404,7 @@ type Query {
   me: UserType!
   getGroup(groupId: String!): GroupType!
   getUserGroups: [GroupType!]!
+  getGroupPreviewByInviteToken(inviteToken: String!): GroupPreviewType!
   getGroupMembers(groupId: String!): [GroupMemberType!]!
 
   """Get audit logs with filtering and pagination (admin only)"""
@@ -445,6 +466,12 @@ type Query {
     limit: Int = 50
     offset: Int = 0
   ): PointTransactionHistoryResult!
+
+  """Get recurring task templates for a group (admin only)"""
+  getRecurringTemplates(groupId: String!): [TaskType!]!
+
+  """Get user statistics"""
+  myStatistics(groupId: String): UserStatistics!
 }
 
 input GetAuditLogsInput {
@@ -509,6 +536,12 @@ type Mutation {
 
   """Manually generate next task from recurring template (admin only)"""
   generateNextRecurringTask(taskId: String!): TaskType!
+
+  """Add file attachment to a task"""
+  addTaskAttachment(input: AddTaskAttachmentInput!): TaskAttachmentType!
+
+  """Delete a task attachment"""
+  deleteTaskAttachment(attachmentId: String!): Boolean!
 
   """Mark notifications as read (PRD 3.6.3)"""
   markNotificationsRead(input: MarkNotificationsReadInput!): Boolean!
@@ -699,4 +732,12 @@ input ApproveRewardRequestInput {
   requestId: ID!
   approved: Boolean!
   reason: String
+}
+
+input AddTaskAttachmentInput {
+  taskId: String!
+  url: String!
+  filename: String!
+  fileSize: Int!
+  mimeType: String!
 }

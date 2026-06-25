@@ -3,6 +3,7 @@ import 'package:taskflow/core/errors/failure.dart';
 import 'package:taskflow/data/models/create_group_request.dart';
 import 'package:taskflow/data/models/group.dart';
 import 'package:taskflow/data/models/group_member.dart';
+import 'package:taskflow/data/models/group_preview.dart';
 import 'package:taskflow/data/models/join_group_request.dart';
 import 'package:taskflow/data/models/update_group_request.dart';
 
@@ -18,4 +19,5 @@ abstract class GroupRepository {
   Future<Either<Failure, void>> removeMember(String groupId, String userId);
   Future<Either<Failure, GroupMember>> updateMemberRole(String groupId, String userId, String role);
   Future<Either<Failure, Group>> regenerateInviteToken(String groupId);
+  Future<Either<Failure, GroupPreview>> getGroupPreviewByInviteToken(String inviteToken);
 }

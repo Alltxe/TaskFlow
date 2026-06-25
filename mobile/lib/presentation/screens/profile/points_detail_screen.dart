@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:taskflow/core/utils/date_l10n.dart';
 import 'package:taskflow/data/models/point_balance.dart';
 import 'package:taskflow/data/models/point_transaction.dart';
 import 'package:taskflow/domain/usecases/reward/reward_usecase_providers.dart';
 import 'package:taskflow/l10n/app_localizations.dart';
-import 'package:intl/intl.dart';
 
 class PointsDetailScreen extends ConsumerStatefulWidget {
   final String? groupId;
@@ -344,7 +344,7 @@ class _PointsDetailScreenState extends ConsumerState<PointsDetailScreen> {
     final isEarned = transaction.type == 'EARNED';
     final color = isEarned ? Colors.green : Colors.red;
     final icon = isEarned ? Icons.add_circle : Icons.remove_circle;
-    final dateFormat = DateFormat('MMM dd, yyyy \'at\' HH:mm');
+    final dateText = formatMonthDayYearTime(context, transaction.createdAt);
 
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
@@ -377,7 +377,7 @@ class _PointsDetailScreenState extends ConsumerState<PointsDetailScreen> {
               ),
             const SizedBox(height: 2),
             Text(
-              dateFormat.format(transaction.createdAt),
+              dateText,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: colorScheme.onSurfaceVariant,
                   ),

@@ -5,6 +5,7 @@ import 'package:taskflow/data/repositories/group_repository.dart';
 import 'package:taskflow/data/repositories/group_repository_impl.dart';
 import 'package:taskflow/domain/usecases/group/create_group_usecase.dart';
 import 'package:taskflow/domain/usecases/group/delete_group_usecase.dart';
+import 'package:taskflow/domain/usecases/group/get_group_preview_by_invite_token_usecase.dart';
 import 'package:taskflow/domain/usecases/group/get_group_detail_usecase.dart';
 import 'package:taskflow/domain/usecases/group/get_group_members_usecase.dart';
 import 'package:taskflow/domain/usecases/group/get_groups_usecase.dart';
@@ -80,6 +81,11 @@ final updateMemberRoleUseCaseProvider = Provider<UpdateMemberRoleUseCase>((ref) 
 final regenerateInviteTokenUseCaseProvider = Provider<RegenerateInviteTokenUseCase>((ref) {
   final repository = ref.watch(groupRepositoryProvider);
   return RegenerateInviteTokenUseCase(repository);
+});
+
+final getGroupPreviewByInviteTokenUseCaseProvider = Provider<GetGroupPreviewByInviteTokenUseCase>((ref) {
+  final repository = ref.watch(groupRepositoryProvider);
+  return GetGroupPreviewByInviteTokenUseCase(repository);
 });
 
 // Provider to check if current user is admin in a specific group

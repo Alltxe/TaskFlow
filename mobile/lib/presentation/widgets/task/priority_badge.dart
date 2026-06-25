@@ -1,4 +1,5 @@
 ﻿import 'package:flutter/material.dart';
+import 'package:taskflow/core/theme/app_colors.dart';
 import 'package:taskflow/data/models/task_enums.dart';
 import 'package:taskflow/l10n/app_localizations.dart';
 
@@ -18,6 +19,11 @@ class PriorityBadge extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
 
     final (color, icon, label) = switch (priority) {
+      TaskPriority.critical => (
+        AppColors.priorityCritical,
+        Icons.priority_high_rounded,
+        l10n.priorityCritical,
+      ),
       TaskPriority.high => (
         Colors.red.shade700,
         Icons.keyboard_double_arrow_up_rounded,

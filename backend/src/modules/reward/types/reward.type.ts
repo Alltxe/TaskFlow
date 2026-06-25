@@ -62,6 +62,12 @@ export class RewardTransactionType {
 
   @Field(() => ID, { nullable: true })
   approvedById?: string;
+
+  @Field(() => UserType, { nullable: true })
+  user?: UserType;
+
+  @Field(() => RewardType, { nullable: true })
+  reward?: RewardType;
 }
 
 @ObjectType()

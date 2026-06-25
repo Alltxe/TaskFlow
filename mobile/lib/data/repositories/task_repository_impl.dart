@@ -184,4 +184,20 @@ class TaskRepositoryImpl implements TaskRepository {
       return Left(UnknownFailure(message: e.toString()));
     }
   }
+
+  @override
+  Future<Either<Failure, Task>> generateNextRecurringTask(String taskId) async {
+    try {
+      final task = await remoteDataSource.generateNextRecurringTask(taskId);
+      return Right(task);
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(message: e.message));
+    } on ServerException catch (e) {
+      return Left(ServerFailure(message: e.message));
+    } on AuthException catch (e) {
+      return Left(AuthFailure(message: e.message));
+    } catch (e) {
+      return Left(UnknownFailure(message: e.toString()));
+    }
+  }
 }

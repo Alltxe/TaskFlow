@@ -16,6 +16,40 @@ import 'package:taskflow/data/models/user_statistics.dart';
 class RewardRemoteDataSource {
   RewardRemoteDataSource();
 
+  static const String _rewardTransactionFields = r'''
+    id
+    pointsSpent
+    status
+    requestedAt
+    approvedAt
+    rejectedAt
+    rejectionReason
+    rewardId
+    userId
+    approvedById
+    user {
+      id
+      username
+      email
+      avatarUrl
+      isAway
+      awayUntil
+      createdAt
+      updatedAt
+    }
+    reward {
+      id
+      name
+      description
+      cost
+      isActive
+      imageUrl
+      createdAt
+      groupId
+      createdById
+    }
+  ''';
+
   // Get group rewards
   Future<List<Reward>> getGroupRewards(String groupId) async {
     const query = r'''
@@ -61,8 +95,8 @@ class RewardRemoteDataSource {
   // Get user statistics for a group
   Future<UserStatistics> getUserStatistics(String groupId) async {
     const query = r'''
-      query GetUserStatistics($groupId: String) {
-        getUserStatistics(groupId: $groupId) {
+      query GetMyStatistics($groupId: String) {
+        myStatistics(groupId: $groupId) {
           userId
           currentPointBalance
           totalPointsEarned
@@ -82,7 +116,7 @@ class RewardRemoteDataSource {
       final gqlRequest = Request(
         operation: Operation(
           document: gql_lang.parseString(query),
-          operationName: 'GetUserStatistics',
+          operationName: 'GetMyStatistics',
         ),
         variables: {'groupId': groupId},
       );
@@ -93,7 +127,7 @@ class RewardRemoteDataSource {
         _handleGraphQLErrors(response.errors!);
       }
 
-      final statsData = response.data?['getUserStatistics'];
+      final statsData = response.data?['myStatistics'];
       if (statsData == null) {
         throw const ServerException(message: 'Stats not found');
       }
@@ -171,7 +205,7 @@ class RewardRemoteDataSource {
           operationName: 'RequestReward',
         ),
         variables: {
-          'input': {'rewardId': input.rewardId, 'groupId': input.groupId},
+          'input': {'rewardId': input.rewardId},
         },
       );
 
@@ -188,7 +222,6 @@ class RewardRemoteDataSource {
 
       // server doesn't return groupId on RewardTransactionType; inject it from the input
       final Map<String, dynamic> transactionMap = Map<String, dynamic>.from(transactionData as Map);
-      transactionMap['groupId'] = input.groupId;
       return RewardTransaction.fromJson(transactionMap);
     } on AppException {
       rethrow;
@@ -199,19 +232,10 @@ class RewardRemoteDataSource {
 
   // Get my reward requests
   Future<List<RewardTransaction>> getMyRewardRequests({String? groupId}) async {
-    const query = r'''
-      query GetMyRewardRequests($groupId: String) {
-        getMyRewardRequests(groupId: $groupId) {
-          id
-          pointsSpent
-          status
-          requestedAt
-          approvedAt
-          rejectedAt
-          rejectionReason
-          rewardId
-          userId
-          approvedById
+    final query = '''
+      query GetMyRewardRequests(\$groupId: String) {
+        getMyRewardRequests(groupId: \$groupId) {
+$_rewardTransactionFields
         }
       }
     ''';
@@ -498,19 +522,10 @@ class RewardRemoteDataSource {
 
   // Get group reward requests (admin only)
   Future<List<RewardTransaction>> getGroupRewardRequests(String groupId) async {
-    const query = r'''
-      query GetGroupRewardRequests($groupId: String!) {
-        getGroupRewardRequests(groupId: $groupId) {
-          id
-          pointsSpent
-          status
-          requestedAt
-          approvedAt
-          rejectedAt
-          rejectionReason
-          rewardId
-          userId
-          approvedById
+    final query = '''
+      query GetGroupRewardRequests(\$groupId: String!) {
+        getGroupRewardRequests(groupId: \$groupId) {
+$_rewardTransactionFields
         }
       }
     ''';

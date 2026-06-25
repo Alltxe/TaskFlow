@@ -235,6 +235,8 @@ class _RewardRequestsQueueScreenState
         itemBuilder: (context, index) {
           final request = _requests[index];
           final dateFormat = DateFormat('dd.MM.yyyy HH:mm');
+          final requesterName = request.user?.username ?? '—';
+          final rewardName = request.reward?.name ?? '—';
 
           return Card(
             margin: const EdgeInsets.only(bottom: 12),
@@ -250,8 +252,15 @@ class _RewardRequestsQueueScreenState
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              '${l10n.requestedBy}: ${request.userId}',
-                              style: theme.textTheme.titleSmall,
+                              rewardName,
+                              style: theme.textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              '${l10n.requestedBy}: $requesterName',
+                              style: theme.textTheme.bodyMedium,
                             ),
                             const SizedBox(height: 4),
                             Text(

@@ -2,6 +2,7 @@ import { Injectable, ForbiddenException, NotFoundException, BadRequestException 
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateRewardInput, UpdateRewardInput, RequestRewardInput, ApproveRewardRequestInput } from './dto/reward.input';
 import { AuditLogService } from '../audit-log/audit-log.service';
+import { NotificationMessages } from '../../common/i18n/notification-messages';
 import { NotificationService } from '../notification/notification.service';
 import { NotificationType as NotificationTypeEnum } from '@prisma/client';
 
@@ -144,8 +145,8 @@ export class RewardService {
 
     // Notify group admins about reward request (PRD 3.6.3)
     await this.notifications.notifyGroupAdmins(reward.groupId, () => ({
-      title: 'Reward request',
-      message: `New reward request for "${reward.name}"`,
+      title: NotificationMessages.rewardRequestTitle(),
+      message: NotificationMessages.rewardRequested(reward.name),
       type: NotificationTypeEnum.REWARD_REQUESTED,
       relatedEntityType: 'RewardTransaction',
       relatedEntityId: created.id,
@@ -208,8 +209,11 @@ export class RewardService {
       // Notify requester about rejection
       await this.notifications.notify({
         userId: request.userId,
-        title: 'Reward request rejected',
-        message: `Your reward request for "${request.reward.name}" was rejected: ${input.reason || 'No reason provided'}`,
+        title: NotificationMessages.rewardRejectedTitle(),
+        message: NotificationMessages.rewardRejected(
+          request.reward.name,
+          input.reason || NotificationMessages.noReason(),
+        ),
         type: NotificationTypeEnum.REWARD_REJECTED,
         relatedEntityType: 'RewardTransaction',
         relatedEntityId: request.id,
@@ -258,8 +262,8 @@ export class RewardService {
     // Notify requester about approval
     await this.notifications.notify({
       userId: request.userId,
-      title: 'Reward request approved',
-      message: `Your reward request for "${request.reward.name}" has been approved`,
+      title: NotificationMessages.rewardApprovedTitle(),
+      message: NotificationMessages.rewardApproved(request.reward.name),
       type: NotificationTypeEnum.REWARD_APPROVED,
       relatedEntityType: 'RewardTransaction',
       relatedEntityId: request.id,
@@ -272,6 +276,12 @@ export class RewardService {
   async listMyRewardRequests(userId: string, groupId?: string) {
     return this.prisma.rewardTransaction.findMany({
       where: { userId, ...(groupId && { reward: { groupId } }) },
+      include: {
+        user: {
+          select: { id: true, username: true, email: true, avatarUrl: true, isAway: true, awayUntil: true, createdAt: true, updatedAt: true },
+        },
+        reward: true,
+      },
       orderBy: { requestedAt: 'desc' },
     });
   }
@@ -280,6 +290,12 @@ export class RewardService {
     await this.assertGroupAdmin(groupId, userId);
     return this.prisma.rewardTransaction.findMany({
       where: { reward: { groupId } },
+      include: {
+        user: {
+          select: { id: true, username: true, email: true, avatarUrl: true, isAway: true, awayUntil: true, createdAt: true, updatedAt: true },
+        },
+        reward: true,
+      },
       orderBy: { requestedAt: 'desc' },
     });
   }

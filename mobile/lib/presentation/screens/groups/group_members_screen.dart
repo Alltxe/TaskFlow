@@ -1,10 +1,12 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:taskflow/core/utils/enum_l10n.dart';
 import 'package:taskflow/data/models/group_member.dart';
 import 'package:taskflow/data/providers/auth_providers.dart';
 import 'package:taskflow/data/providers/group_providers.dart';
 import 'package:taskflow/l10n/app_localizations.dart';
 import 'package:taskflow/presentation/screens/groups/invite_screen.dart';
+import 'package:taskflow/presentation/widgets/common/app_badge.dart';
 
 class GroupMembersScreen extends ConsumerStatefulWidget {
   final String groupId;
@@ -33,7 +35,6 @@ class _GroupMembersScreenState extends ConsumerState<GroupMembersScreen> {
       _error = null;
     });
 
-    // Get current user ID
     final authState = ref.read(authStateProvider);
     if (authState.status == AuthStatus.authenticated && authState.user != null) {
       _currentUserId = authState.user!.id;
@@ -63,10 +64,96 @@ class _GroupMembersScreenState extends ConsumerState<GroupMembersScreen> {
     );
   }
 
+  Future<void> _removeMember(GroupMember member) async {
+    final l10n = AppLocalizations.of(context)!;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.removeMemberTitle),
+        content: Text(l10n.removeMemberConfirm(member.user.username)),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: Text(l10n.cancel)),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: FilledButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.error),
+            child: Text(l10n.removeLabel),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !mounted) return;
+
+    final result = await ref.read(removeMemberUseCaseProvider).call(widget.groupId, member.userId);
+    if (!mounted) return;
+
+    result.fold(
+      (failure) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(l10n.errorWithMessage(failure.message)),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      },
+      (_) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.memberRemovedSuccess)),
+        );
+        _loadMembers();
+      },
+    );
+  }
+
+  Future<void> _changeRole(GroupMember member) async {
+    final l10n = AppLocalizations.of(context)!;
+    final newRole = member.role == 'ADMIN' ? 'MEMBER' : 'ADMIN';
+    final newRoleLabel = memberRoleLabel(l10n, newRole);
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.changeRoleTitle),
+        content: Text(l10n.changeRoleConfirm(member.user.username, newRoleLabel)),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: Text(l10n.cancel)),
+          FilledButton(onPressed: () => Navigator.pop(context, true), child: Text(l10n.change)),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !mounted) return;
+
+    final result = await ref
+        .read(updateMemberRoleUseCaseProvider)
+        .call(widget.groupId, member.userId, newRole);
+
+    if (!mounted) return;
+
+    result.fold(
+      (failure) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(l10n.errorWithMessage(failure.message)),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      },
+      (_) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.roleChangedTo(newRoleLabel))),
+        );
+        _loadMembers();
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final l10n = AppLocalizations.of(context)!;
+    final isAdminAsync = ref.watch(isGroupAdminProvider(widget.groupId));
 
     if (_isLoading) {
       return const Center(child: CircularProgressIndicator());
@@ -87,7 +174,7 @@ class _GroupMembersScreenState extends ConsumerState<GroupMembersScreen> {
               FilledButton.icon(
                 onPressed: _loadMembers,
                 icon: const Icon(Icons.refresh),
-                label: Text(AppLocalizations.of(context)!.retry),
+                label: Text(l10n.retry),
               ),
             ],
           ),
@@ -110,10 +197,7 @@ class _GroupMembersScreenState extends ConsumerState<GroupMembersScreen> {
                       children: [
                         Icon(Icons.people, size: 64, color: colorScheme.onSurfaceVariant),
                         const SizedBox(height: 16),
-                        Text(
-                          AppLocalizations.of(context)!.noDataYet,
-                          style: theme.textTheme.titleLarge,
-                        ),
+                        Text(l10n.noDataYet, style: theme.textTheme.titleLarge),
                       ],
                     ),
                   ),
@@ -127,12 +211,14 @@ class _GroupMembersScreenState extends ConsumerState<GroupMembersScreen> {
             child: FloatingActionButton.extended(
               onPressed: _navigateToInvite,
               icon: const Icon(Icons.person_add),
-              label: Text(AppLocalizations.of(context)!.inviteMembers),
+              label: Text(l10n.inviteMembers),
             ),
           ),
         ],
       );
     }
+
+    final isAdmin = isAdminAsync.value ?? false;
 
     return Stack(
       children: [
@@ -144,6 +230,7 @@ class _GroupMembersScreenState extends ConsumerState<GroupMembersScreen> {
             itemBuilder: (context, index) {
               final member = _members[index];
               final isCurrentUser = member.userId == _currentUserId;
+              final canManage = isAdmin && !isCurrentUser;
 
               return Container(
                 margin: const EdgeInsets.only(bottom: 12),
@@ -169,8 +256,8 @@ class _GroupMembersScreenState extends ConsumerState<GroupMembersScreen> {
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Avatar with status indicator
                       Stack(
                         children: [
                           CircleAvatar(
@@ -191,7 +278,6 @@ class _GroupMembersScreenState extends ConsumerState<GroupMembersScreen> {
                               ),
                             ),
                           ),
-                          // Status indicator
                           Positioned(
                             right: 0,
                             bottom: 0,
@@ -200,29 +286,21 @@ class _GroupMembersScreenState extends ConsumerState<GroupMembersScreen> {
                               height: 16,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: member.user.isAway
-                                    ? colorScheme.error
-                                    : Colors.green,
-                                border: Border.all(
-                                  color: colorScheme.surface,
-                                  width: 2,
-                                ),
+                                color: member.user.isAway ? colorScheme.error : Colors.green,
+                                border: Border.all(color: colorScheme.surface, width: 2),
                               ),
                             ),
                           ),
                         ],
                       ),
                       const SizedBox(width: 16),
-
-                      // User info
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // Username and "You" badge
                             Row(
                               children: [
-                                Flexible(
+                                Expanded(
                                   child: Text(
                                     member.user.username,
                                     style: theme.textTheme.titleMedium?.copyWith(
@@ -235,16 +313,13 @@ class _GroupMembersScreenState extends ConsumerState<GroupMembersScreen> {
                                 if (isCurrentUser) ...[
                                   const SizedBox(width: 8),
                                   Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                      vertical: 2,
-                                    ),
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                                     decoration: BoxDecoration(
                                       color: colorScheme.primary,
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                     child: Text(
-                                      AppLocalizations.of(context)!.you,
+                                      l10n.you,
                                       style: TextStyle(
                                         fontSize: 10,
                                         fontWeight: FontWeight.bold,
@@ -256,88 +331,53 @@ class _GroupMembersScreenState extends ConsumerState<GroupMembersScreen> {
                               ],
                             ),
                             const SizedBox(height: 8),
-
-                            // Role and Status badges
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 6,
+                              children: [
+                                member.role == 'ADMIN'
+                                    ? AppBadge.primary(
+                                        context,
+                                        label: memberRoleLabel(l10n, member.role),
+                                        icon: Icons.admin_panel_settings,
+                                        compact: true,
+                                      )
+                                    : AppBadge.neutral(
+                                        context,
+                                        label: memberRoleLabel(l10n, member.role),
+                                        icon: Icons.person,
+                                        compact: true,
+                                      ),
+                                member.user.isAway
+                                    ? AppBadge.error(
+                                        context,
+                                        label: l10n.away,
+                                        icon: Icons.access_time,
+                                        compact: true,
+                                      )
+                                    : AppBadge.success(
+                                        label: l10n.memberStatusActive,
+                                        icon: Icons.check_circle,
+                                        compact: true,
+                                      ),
+                              ],
+                            ),
+                            const SizedBox(height: 6),
                             Row(
                               children: [
-                                // Role badge
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 10,
-                                    vertical: 4,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: member.role == 'ADMIN'
-                                        ? colorScheme.primaryContainer
-                                        : colorScheme.surfaceContainerHighest,
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Icon(
-                                        member.role == 'ADMIN'
-                                            ? Icons.admin_panel_settings
-                                            : Icons.person,
-                                        size: 14,
-                                        color: member.role == 'ADMIN'
-                                            ? colorScheme.onPrimaryContainer
-                                            : colorScheme.onSurfaceVariant,
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        member.role == 'ADMIN' ? 'Admin' : 'Member',
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w500,
-                                          color: member.role == 'ADMIN'
-                                              ? colorScheme.onPrimaryContainer
-                                              : colorScheme.onSurfaceVariant,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
+                                Icon(
+                                  Icons.calendar_today,
+                                  size: 14,
+                                  color: colorScheme.onSurfaceVariant,
                                 ),
-                                const SizedBox(width: 8),
-
-                                // Status badge
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 10,
-                                    vertical: 4,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: member.user.isAway
-                                        ? colorScheme.errorContainer.withValues(alpha: 0.5)
-                                        : Colors.green.withValues(alpha: 0.15),
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Icon(
-                                        member.user.isAway
-                                            ? Icons.access_time
-                                            : Icons.check_circle,
-                                        size: 14,
-                                        color: member.user.isAway
-                                            ? colorScheme.error
-                                            : Colors.green.shade700,
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        member.user.isAway
-                                            ? AppLocalizations.of(context)!.away
-                                            : 'Active',
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w500,
-                                          color: member.user.isAway
-                                              ? colorScheme.error
-                                              : Colors.green.shade700,
-                                        ),
-                                      ),
-                                    ],
+                                const SizedBox(width: 4),
+                                Flexible(
+                                  child: Text(
+                                    formatRelativeJoinDate(l10n, member.joinedAt),
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      color: colorScheme.onSurfaceVariant,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
                               ],
@@ -345,34 +385,31 @@ class _GroupMembersScreenState extends ConsumerState<GroupMembersScreen> {
                           ],
                         ),
                       ),
-
-                      // Join date
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.calendar_today,
-                              size: 16,
-                              color: colorScheme.onSurfaceVariant,
+                      if (canManage)
+                        PopupMenuButton<String>(
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(minWidth: 40),
+                          onSelected: (value) {
+                            if (value == 'role') {
+                              _changeRole(member);
+                            } else if (value == 'remove') {
+                              _removeMember(member);
+                            }
+                          },
+                          itemBuilder: (context) => [
+                            PopupMenuItem(
+                              value: 'role',
+                              child: Text(l10n.changeRole),
                             ),
-                            const SizedBox(height: 4),
-                            Text(
-                              _formatDate(member.joinedAt),
-                              style: theme.textTheme.bodySmall?.copyWith(
-                                color: colorScheme.onSurfaceVariant,
-                                fontWeight: FontWeight.w600,
-                                fontSize: 11,
+                            PopupMenuItem(
+                              value: 'remove',
+                              child: Text(
+                                l10n.removeFromGroup,
+                                style: TextStyle(color: colorScheme.error),
                               ),
                             ),
                           ],
                         ),
-                      ),
                     ],
                   ),
                 ),
@@ -386,27 +423,10 @@ class _GroupMembersScreenState extends ConsumerState<GroupMembersScreen> {
           child: FloatingActionButton.extended(
             onPressed: _navigateToInvite,
             icon: const Icon(Icons.person_add),
-            label: Text(AppLocalizations.of(context)!.inviteMembers),
+            label: Text(l10n.inviteMembers),
           ),
         ),
       ],
     );
-  }
-
-  String _formatDate(DateTime date) {
-    final now = DateTime.now();
-    final difference = now.difference(date);
-
-    if (difference.inDays < 1) {
-      return 'Today';
-    } else if (difference.inDays < 7) {
-      return '${difference.inDays}d ago';
-    } else if (difference.inDays < 30) {
-      return '${(difference.inDays / 7).floor()}w ago';
-    } else if (difference.inDays < 365) {
-      return '${(difference.inDays / 30).floor()}mo ago';
-    } else {
-      return '${(difference.inDays / 365).floor()}y ago';
-    }
   }
 }

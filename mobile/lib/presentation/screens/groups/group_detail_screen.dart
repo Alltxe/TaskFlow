@@ -1,13 +1,15 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
+import 'package:taskflow/core/utils/date_l10n.dart';
+import 'package:taskflow/core/utils/enum_l10n.dart';
 import 'package:taskflow/data/models/group.dart';
 import 'package:taskflow/data/models/group_member.dart';
 import 'package:taskflow/data/providers/auth_providers.dart';
 import 'package:taskflow/data/providers/group_providers.dart';
 import 'package:taskflow/l10n/app_localizations.dart';
 import 'package:taskflow/presentation/providers/group_notifier.dart';
+import 'package:taskflow/presentation/widgets/common/app_badge.dart';
 
 class GroupDetailScreen extends ConsumerStatefulWidget {
   final String groupId;
@@ -214,18 +216,21 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen> {
                       runSpacing: 8,
                       children: [
                         if (_group!.gamificationEnabled)
-                          Chip(
-                            label: Text(AppLocalizations.of(context)!.gamificationLabel),
-                            avatar: const Icon(Icons.emoji_events, size: 16),
+                          AppBadge.primary(
+                            context,
+                            label: AppLocalizations.of(context)!.gamificationLabel,
+                            icon: Icons.emoji_events,
                           ),
-                        Chip(
-                          label: Text(_group!.rotationType.replaceAll('_', ' ')),
-                          avatar: const Icon(Icons.sync, size: 16),
+                        AppBadge.neutral(
+                          context,
+                          label: rotationTypeValueLabel(AppLocalizations.of(context)!, _group!.rotationType),
+                          icon: Icons.sync,
                         ),
                         if (_group!.requiresApproval)
-                          Chip(
-                            label: Text(AppLocalizations.of(context)!.requiresApproval),
-                            avatar: const Icon(Icons.check_circle, size: 16),
+                          AppBadge.neutral(
+                            context,
+                            label: AppLocalizations.of(context)!.requiresApproval,
+                            icon: Icons.check_circle,
                           ),
                       ],
                     ),
@@ -306,21 +311,21 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen> {
                     subtitle: Text(
                       AppLocalizations.of(
                         context,
-                      )!.joinedDate(DateFormat('MMM d, y').format(member.joinedAt)),
+                      )!.joinedDate(formatMonthDayYear(context, member.joinedAt)),
                     ),
-                    trailing: Chip(
-                      label: Text(
-                        member.role,
-                        style: TextStyle(
-                          color: member.role == 'ADMIN'
-                              ? colorScheme.onPrimaryContainer
-                              : colorScheme.onSecondaryContainer,
-                        ),
-                      ),
-                      backgroundColor: member.role == 'ADMIN'
-                          ? colorScheme.primaryContainer
-                          : colorScheme.secondaryContainer,
-                    ),
+                    trailing: member.role == 'ADMIN'
+                        ? AppBadge.primary(
+                            context,
+                            label: member.role,
+                            icon: Icons.admin_panel_settings,
+                            compact: true,
+                          )
+                        : AppBadge.secondary(
+                            context,
+                            label: member.role,
+                            icon: Icons.person,
+                            compact: true,
+                          ),
                   ),
                 );
               }),

@@ -1,7 +1,7 @@
-﻿import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'dart:async';
+
+import 'package:taskflow/core/utils/date_l10n.dart';
 import 'package:taskflow/data/models/task_enums.dart';
 import 'package:taskflow/l10n/app_localizations.dart';
 
@@ -107,8 +107,7 @@ class _DeadlineCountdownState extends State<DeadlineCountdown> {
     }
 
     // Format deadline date
-    final dateFormatter = DateFormat('MMM dd, HH:mm');
-    final dateText = dateFormatter.format(widget.deadline);
+    final dateText = formatMonthDayTime(context, widget.deadline);
 
     if (widget.compact) {
       return Row(

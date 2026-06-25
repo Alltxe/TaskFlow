@@ -5,6 +5,7 @@ import 'package:taskflow/core/errors/exceptions.dart' as app_exceptions;
 import 'package:taskflow/data/models/create_group_request.dart';
 import 'package:taskflow/data/models/group.dart';
 import 'package:taskflow/data/models/group_member.dart';
+import 'package:taskflow/data/models/group_preview.dart';
 import 'package:taskflow/data/models/join_group_request.dart';
 import 'package:taskflow/data/models/update_group_request.dart';
 
@@ -51,8 +52,6 @@ class GroupRemoteDataSource {
       }
     }
   ''';
-
-  // Queries
 
   Future<List<Group>> getUserGroups() async {
     const query = r'''
@@ -116,6 +115,48 @@ class GroupRemoteDataSource {
     } catch (e) {
       if (e is app_exceptions.AppException) rethrow;
       throw app_exceptions.NetworkException(message: 'Failed to fetch group: ${e.toString()}');
+    }
+  }
+
+  Future<GroupPreview> getGroupPreviewByInviteToken(String inviteToken) async {
+    const query = r'''
+      query GetGroupPreviewByInviteToken($inviteToken: String!) {
+        getGroupPreviewByInviteToken(inviteToken: $inviteToken) {
+          id
+          name
+          description
+          memberCount
+          requiresApproval
+        }
+      }
+    ''';
+
+    try {
+      final gqlRequest = Request(
+        operation: Operation(
+          document: gql_lang.parseString(query),
+          operationName: 'GetGroupPreviewByInviteToken',
+        ),
+        variables: {'inviteToken': inviteToken},
+      );
+
+      final response = await GraphQLClientConfig.request(gqlRequest);
+
+      if (response.errors != null && response.errors!.isNotEmpty) {
+        _handleGraphQLErrors(response.errors!);
+      }
+
+      final data = response.data?['getGroupPreviewByInviteToken'];
+      if (data == null) {
+        throw const app_exceptions.ServerException(message: 'Invalid invite token');
+      }
+
+      return GroupPreview.fromJson(data as Map<String, dynamic>);
+    } catch (e) {
+      if (e is app_exceptions.AppException) rethrow;
+      throw app_exceptions.NetworkException(
+        message: 'Failed to fetch group preview: ${e.toString()}',
+      );
     }
   }
 

@@ -9,7 +9,9 @@ import 'package:taskflow/data/models/group_summary.dart';
 import 'package:taskflow/data/models/user_statistics.dart';
 import 'package:taskflow/data/providers/auth_providers.dart';
 import 'package:taskflow/data/providers/profile_providers.dart';
+import 'package:taskflow/data/providers/notification_providers.dart';
 import 'package:taskflow/l10n/app_localizations.dart';
+import 'package:taskflow/presentation/widgets/common/app_badge.dart';
 import 'package:dartz/dartz.dart';
 
 /// Profile tab screen
@@ -142,6 +144,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.profileTitle),
         actions: [
+          _NotificationBadgeButton(),
           IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () => context.push('/settings'),
@@ -265,20 +268,24 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             ),
             const SizedBox(height: 12),
             if (user.isAway)
-              Chip(
-                avatar: const Icon(Icons.flight_takeoff, size: 16),
-                label: Text(
-                  user.awayUntil != null
-                      ? AppLocalizations.of(context)!.awayUntil(_formatDate(context, user.awayUntil!))
-                      : AppLocalizations.of(context)!.away,
-                ),
-                backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
+              AppBadge.secondary(
+                context,
+                label: user.awayUntil != null
+                    ? AppLocalizations.of(context)!.awayUntil(_formatDate(context, user.awayUntil!))
+                    : AppLocalizations.of(context)!.away,
+                icon: Icons.flight_takeoff,
               ),
             const SizedBox(height: 16),
             FilledButton.tonalIcon(
               onPressed: () => context.push('/edit-profile'),
               icon: const Icon(Icons.edit),
               label: Text(AppLocalizations.of(context)!.editProfile),
+            ),
+            const SizedBox(height: 8),
+            OutlinedButton.icon(
+              onPressed: () => context.push('/my-audit-logs'),
+              icon: const Icon(Icons.history),
+              label: Text(AppLocalizations.of(context)!.myActions),
             ),
           ],
         ),
@@ -424,12 +431,19 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 leading: CircleAvatar(child: Text(group.name[0].toUpperCase())),
                 title: Text(group.name),
                 subtitle: Text(group.description ?? AppLocalizations.of(context)!.noDescription),
-                trailing: Chip(
-                  label: Text(group.role),
-                  backgroundColor: group.role == 'admin'
-                      ? Theme.of(context).colorScheme.primaryContainer
-                      : null,
-                ),
+                trailing: group.role == 'admin'
+                    ? AppBadge.primary(
+                        context,
+                        label: AppLocalizations.of(context)!.roleAdmin,
+                        icon: Icons.admin_panel_settings,
+                        compact: true,
+                      )
+                    : AppBadge.neutral(
+                        context,
+                        label: AppLocalizations.of(context)!.roleParticipant,
+                        icon: Icons.person,
+                        compact: true,
+                      ),
               ),
             ),
           ),
@@ -465,5 +479,22 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     if (difference == 1) return AppLocalizations.of(context)!.tomorrow;
     if (difference < 7) return AppLocalizations.of(context)!.inDays(difference);
     return '${date.day}/${date.month}/${date.year}';
+  }
+}
+
+class _NotificationBadgeButton extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final countAsync = ref.watch(unreadNotificationCountProvider);
+    final count = countAsync.valueOrNull ?? 0;
+
+    return IconButton(
+      icon: Badge(
+        isLabelVisible: count > 0,
+        label: count > 99 ? const Text('99+') : Text('$count'),
+        child: const Icon(Icons.notifications_outlined),
+      ),
+      onPressed: () => context.push('/notifications'),
+    );
   }
 }

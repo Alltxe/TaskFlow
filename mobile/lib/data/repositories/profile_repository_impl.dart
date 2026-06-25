@@ -69,12 +69,23 @@ class ProfileRepositoryImpl implements ProfileRepository {
     DateTime? awayUntil,
   }) async {
     try {
-      final user = await remoteDataSource.updateProfile(
-        username: username,
-        avatarUrl: avatarUrl,
-        isAway: isAway,
-        awayUntil: awayUntil,
-      );
+      User user;
+      if (username != null || avatarUrl != null) {
+        user = await remoteDataSource.updateProfile(
+          username: username,
+          avatarUrl: avatarUrl,
+        );
+      } else {
+        user = await remoteDataSource.getCurrentUserProfile();
+      }
+
+      if (isAway != null) {
+        user = await remoteDataSource.setUserAwayStatus(
+          isAway: isAway,
+          awayUntil: awayUntil,
+        );
+      }
+
       return Right(user);
     } on ServerException catch (e) {
       return Left(ServerFailure(message: e.message));

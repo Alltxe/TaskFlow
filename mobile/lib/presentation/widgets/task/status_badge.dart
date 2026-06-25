@@ -22,6 +22,7 @@ class StatusBadge extends StatelessWidget {
       TaskStatus.awaitingApproval => (Colors.orange, Icons.pending, l10n.statusPendingReview),
       TaskStatus.completed => (Colors.green, Icons.check_circle, l10n.statusCompleted),
       TaskStatus.overdue => (Colors.red, Icons.warning, l10n.statusOverdue),
+      TaskStatus.cancelled => (Colors.grey, Icons.cancel, l10n.statusCancelled),
     };
 
     if (compact) {

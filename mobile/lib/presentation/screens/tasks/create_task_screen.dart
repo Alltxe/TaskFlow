@@ -7,6 +7,7 @@ import 'package:taskflow/core/utils/recurrence_rule_builder.dart';
 import 'package:taskflow/data/models/create_task_request.dart';
 import 'package:taskflow/data/models/group_member.dart';
 import 'package:taskflow/data/models/task.dart';
+import 'package:taskflow/core/utils/enum_l10n.dart';
 import 'package:taskflow/data/models/task_enums.dart';
 import 'package:taskflow/data/models/update_task_request.dart';
 import 'package:taskflow/data/providers/auth_providers.dart';
@@ -14,6 +15,7 @@ import 'package:taskflow/data/providers/group_providers.dart';
 import 'package:taskflow/domain/usecases/task/task_usecase_providers.dart';
 import 'package:taskflow/l10n/app_localizations.dart';
 import 'package:taskflow/presentation/providers/task_state_provider.dart';
+import 'package:taskflow/presentation/widgets/common/app_navigation_back_button.dart';
 
 /// Create/Edit Task Screen with form and validation (PRD 3.4.4, 3.4.5)
 class CreateTaskScreen extends ConsumerStatefulWidget {
@@ -153,17 +155,7 @@ class _CreateTaskScreenState extends ConsumerState<CreateTaskScreen> {
   }
 
   String _getRotationTypeLabel(BuildContext context, RotationType type) {
-    final l10n = AppLocalizations.of(context)!;
-    switch (type) {
-      case RotationType.roundRobin:
-        return l10n.rotationTypeRoundRobin;
-      case RotationType.random:
-        return l10n.rotationTypeRandom;
-      case RotationType.loadBalancing:
-        return l10n.rotationTypeLoadBalancing;
-      case RotationType.disabled:
-        return l10n.rotationTypeDisabled;
-    }
+    return rotationTypeLabel(AppLocalizations.of(context)!, type);
   }
 
   Future<void> _selectDeadline() async {
@@ -550,6 +542,9 @@ class _CreateTaskScreenState extends ConsumerState<CreateTaskScreen> {
     if (_isLoadingEditTask) {
       return Scaffold(
         appBar: AppBar(
+          leading: AppNavigationBackButton(
+            fallbackRoute: widget.groupId.isNotEmpty ? '/groups/${widget.groupId}' : '/home',
+          ),
           title: Text(l10n.editTask),
         ),
         body: const Center(child: CircularProgressIndicator()),
@@ -559,6 +554,9 @@ class _CreateTaskScreenState extends ConsumerState<CreateTaskScreen> {
     if (_editTaskLoadError != null) {
       return Scaffold(
         appBar: AppBar(
+          leading: AppNavigationBackButton(
+            fallbackRoute: widget.groupId.isNotEmpty ? '/groups/${widget.groupId}' : '/home',
+          ),
           title: Text(l10n.editTask),
         ),
         body: Center(
@@ -587,6 +585,9 @@ class _CreateTaskScreenState extends ConsumerState<CreateTaskScreen> {
 
     return Scaffold(
       appBar: AppBar(
+        leading: AppNavigationBackButton(
+          fallbackRoute: widget.groupId.isNotEmpty ? '/groups/${widget.groupId}' : '/home',
+        ),
         title: Text(widget.taskId == null ? l10n.createTask : l10n.editTask),
       ),
       body: Form(
@@ -668,7 +669,7 @@ class _CreateTaskScreenState extends ConsumerState<CreateTaskScreen> {
               items: TaskPriority.values.map((priority) {
                 return DropdownMenuItem(
                   value: priority,
-                  child: Text(priority.value),
+                  child: Text(priorityLabel(l10n, priority)),
                 );
               }).toList(),
               onChanged: (value) {
@@ -984,18 +985,18 @@ class _CreateTaskScreenState extends ConsumerState<CreateTaskScreen> {
               // Assignment Type
               DropdownButtonFormField<String>(
                 initialValue: _assigneeType,
-                decoration: const InputDecoration(
-                  labelText: 'Assign to',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: l10n.assignTo,
+                  border: const OutlineInputBorder(),
                 ),
                 items: [
-                  const DropdownMenuItem(
+                  DropdownMenuItem(
                     value: 'auto',
-                    child: Text('Auto (by rotation)'),
+                    child: Text(l10n.autoByRotation),
                   ),
-                  const DropdownMenuItem(
+                  DropdownMenuItem(
                     value: 'upForGrabs',
-                    child: Text('Up-for-Grabs (+50% bonus)'),
+                    child: Text(l10n.upForGrabsBonus),
                   ),
                   ...members.map((member) {
                     return DropdownMenuItem(
@@ -1028,9 +1029,9 @@ class _CreateTaskScreenState extends ConsumerState<CreateTaskScreen> {
                     border: const OutlineInputBorder(),
                   ),
                   items: [
-                    const DropdownMenuItem<RotationType>(
+                    DropdownMenuItem<RotationType>(
                       value: null,
-                      child: Text('Use group default'),
+                      child: Text(l10n.useGroupDefault),
                     ),
                     ...RotationType.values.map((rotationType) {
                       return DropdownMenuItem(
@@ -1050,7 +1051,7 @@ class _CreateTaskScreenState extends ConsumerState<CreateTaskScreen> {
               // Weight (only if load balancing)
               if (_assigneeType == 'auto' &&
                   _selectedRotationType == RotationType.loadBalancing) ...[
-                Text('Task Weight: $_weight'),
+                Text(l10n.taskWeight(_weight)),
                 Slider(
                   value: _weight.toDouble(),
                   min: 1,

@@ -35,4 +35,7 @@ abstract class TaskRepository {
 
   /// Approve or reject a task (PRD 3.4.7)
   Future<Either<Failure, Task>> approveTask(String taskId, bool approved, {String? rejectionReason});
+
+  /// Manually generate next task from recurring template (admin only, PRD 3.4.9)
+  Future<Either<Failure, Task>> generateNextRecurringTask(String taskId);
 }

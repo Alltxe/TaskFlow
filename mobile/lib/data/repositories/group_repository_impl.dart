@@ -5,6 +5,7 @@ import 'package:taskflow/data/datasources/group_remote_datasource.dart';
 import 'package:taskflow/data/models/create_group_request.dart';
 import 'package:taskflow/data/models/group.dart';
 import 'package:taskflow/data/models/group_member.dart';
+import 'package:taskflow/data/models/group_preview.dart';
 import 'package:taskflow/data/models/join_group_request.dart';
 import 'package:taskflow/data/models/update_group_request.dart';
 import 'package:taskflow/data/repositories/group_repository.dart';
@@ -191,6 +192,22 @@ class GroupRepositoryImpl implements GroupRepository {
     try {
       final group = await remoteDataSource.regenerateInviteToken(groupId);
       return Right(group);
+    } on NetworkException catch (e) {
+      return Left(Failure.network(message: e.message, code: e.code));
+    } on ServerException catch (e) {
+      return Left(Failure.server(message: e.message, code: e.code));
+    } on AuthException catch (e) {
+      return Left(Failure.auth(message: e.message, code: e.code));
+    } catch (e) {
+      return Left(Failure.unknown(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, GroupPreview>> getGroupPreviewByInviteToken(String inviteToken) async {
+    try {
+      final preview = await remoteDataSource.getGroupPreviewByInviteToken(inviteToken);
+      return Right(preview);
     } on NetworkException catch (e) {
       return Left(Failure.network(message: e.message, code: e.code));
     } on ServerException catch (e) {

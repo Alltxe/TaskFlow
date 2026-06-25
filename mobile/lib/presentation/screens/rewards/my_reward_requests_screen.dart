@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:taskflow/core/utils/date_l10n.dart';
 import 'package:taskflow/data/models/reward_transaction.dart';
 import 'package:taskflow/domain/usecases/reward/reward_usecase_providers.dart';
 import 'package:taskflow/l10n/app_localizations.dart';
-import 'package:intl/intl.dart';
 
 class MyRewardRequestsScreen extends ConsumerStatefulWidget {
   final String? groupId;
@@ -180,7 +180,6 @@ class _MyRewardRequestsScreenState
                       _getStatusColor(request.status, colorScheme);
                   final statusIcon = _getStatusIcon(request.status);
                   final statusText = _getStatusText(request.status, l10n);
-                  final dateFormat = DateFormat('MMM dd, yyyy \'at\' HH:mm');
 
                   return Card(
                     margin: const EdgeInsets.only(bottom: 12),
@@ -270,7 +269,7 @@ class _MyRewardRequestsScreenState
                                 ),
                                 const SizedBox(width: 4),
                                 Text(
-                                  'Requested: ${dateFormat.format(request.requestedAt)}',
+                                  'Requested: ${formatMonthDayYearTime(context, request.requestedAt)}',
                                   style: theme.textTheme.bodySmall?.copyWith(
                                     color: colorScheme.onSurfaceVariant,
                                   ),
@@ -290,7 +289,7 @@ class _MyRewardRequestsScreenState
                                   ),
                                   const SizedBox(width: 4),
                                   Text(
-                                    'Approved: ${dateFormat.format(request.approvedAt!)}',
+                                    'Approved: ${formatMonthDayYearTime(context, request.approvedAt!)}',
                                     style: theme.textTheme.bodySmall?.copyWith(
                                       color: colorScheme.onSurfaceVariant,
                                     ),
@@ -311,7 +310,7 @@ class _MyRewardRequestsScreenState
                                   ),
                                   const SizedBox(width: 4),
                                   Text(
-                                    'Rejected: ${dateFormat.format(request.rejectedAt!)}',
+                                    'Rejected: ${formatMonthDayYearTime(context, request.rejectedAt!)}',
                                     style: theme.textTheme.bodySmall?.copyWith(
                                       color: colorScheme.error,
                                     ),

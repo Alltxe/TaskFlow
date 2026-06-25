@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:taskflow/data/models/leaderboard_entry.dart';
 import 'package:taskflow/data/providers/auth_providers.dart';
@@ -240,6 +240,7 @@ class _GroupLeaderboardScreenState extends ConsumerState<GroupLeaderboardScreen>
     IconData icon;
     List<Color> gradientColors;
     Color shadowColor;
+    Color iconColor;
 
     switch (position) {
       case 1:
@@ -249,6 +250,7 @@ class _GroupLeaderboardScreenState extends ConsumerState<GroupLeaderboardScreen>
           const Color(0xFFFFA000),
         ];
         shadowColor = const Color(0xFFFFD700);
+        iconColor = const Color(0xFF5D4037);
         break;
       case 2:
         icon = Icons.emoji_events_rounded;
@@ -257,6 +259,7 @@ class _GroupLeaderboardScreenState extends ConsumerState<GroupLeaderboardScreen>
           const Color(0xFFBDBDBD),
         ];
         shadowColor = const Color(0xFFBDBDBD);
+        iconColor = const Color(0xFF424242);
         break;
       case 3:
         icon = Icons.emoji_events_rounded;
@@ -265,6 +268,7 @@ class _GroupLeaderboardScreenState extends ConsumerState<GroupLeaderboardScreen>
           const Color(0xFFCD7F32),
         ];
         shadowColor = const Color(0xFFCD7F32);
+        iconColor = const Color(0xFF3E2723);
         break;
       default:
         return Container(
@@ -309,7 +313,7 @@ class _GroupLeaderboardScreenState extends ConsumerState<GroupLeaderboardScreen>
           ),
         ],
       ),
-      child: Icon(icon, color: Colors.white, size: 28),
+      child: Icon(icon, color: iconColor, size: 28),
     );
   }
 }

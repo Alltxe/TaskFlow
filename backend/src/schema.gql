@@ -343,6 +343,8 @@ type RewardTransactionType {
   userId: ID!
   rewardId: ID!
   approvedById: ID
+  user: UserType
+  reward: RewardType
 }
 
 type PointBalanceType {

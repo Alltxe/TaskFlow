@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { PrismaService } from '../prisma/prisma.service';
 import { NotificationService } from '../notification/notification.service';
+import { NotificationMessages } from '../../common/i18n/notification-messages';
 import { NotificationType as NotificationTypeEnum } from '@prisma/client';
 
 /**
@@ -131,7 +132,7 @@ export class DeadlineService {
       // Send notifications via Notification Service (Phase 8)
       for (const task of tasks24h) {
         if (task.assignee) {
-          const title = 'Task due in 24h';
+          const title = NotificationMessages.deadline24hTitle();
           const alreadySent = await this.hasRecentReminder(
             task.assignee.id,
             task.id,
@@ -143,7 +144,7 @@ export class DeadlineService {
           await this.notifications.notify({
             userId: task.assignee.id,
             title,
-            message: `"${task.title}" is due in 24 hours`,
+            message: NotificationMessages.deadline24h(task.title),
             type: NotificationTypeEnum.SYSTEM,
             relatedEntityType: 'Task',
             relatedEntityId: task.id,
@@ -153,7 +154,7 @@ export class DeadlineService {
 
       for (const task of tasks1h) {
         if (task.assignee) {
-          const title = 'Task due in 1h';
+          const title = NotificationMessages.deadline1hTitle();
           const alreadySent = await this.hasRecentReminder(
             task.assignee.id,
             task.id,
@@ -165,7 +166,7 @@ export class DeadlineService {
           await this.notifications.notify({
             userId: task.assignee.id,
             title,
-            message: `"${task.title}" is due in 1 hour`,
+            message: NotificationMessages.deadline1h(task.title),
             type: NotificationTypeEnum.SYSTEM,
             relatedEntityType: 'Task',
             relatedEntityId: task.id,

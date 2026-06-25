@@ -10,6 +10,7 @@ import 'package:taskflow/data/models/create_group_request.dart';
 import 'package:taskflow/data/models/create_task_request.dart';
 import 'package:taskflow/data/models/group.dart';
 import 'package:taskflow/data/models/group_member.dart';
+import 'package:taskflow/data/models/group_preview.dart';
 import 'package:taskflow/data/models/join_group_request.dart';
 import 'package:taskflow/data/models/login_request.dart';
 import 'package:taskflow/data/models/register_request.dart';
@@ -95,6 +96,11 @@ class _CapturingTaskRepository implements TaskRepository {
   ) {
     return Future.value(const dartz.Left(UnknownFailure(message: 'Not used')));
   }
+
+  @override
+  Future<dartz.Either<Failure, Task>> generateNextRecurringTask(String taskId) {
+    return Future.value(const dartz.Left(UnknownFailure(message: 'Not used')));
+  }
 }
 
 class _FakeAuthRepository implements AuthRepository {
@@ -136,6 +142,20 @@ class _FakeAuthRepository implements AuthRepository {
 
   @override
   Future<void> resendVerificationCode() {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> requestPasswordReset(String email) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> resetPassword({
+    required String email,
+    required String code,
+    required String newPassword,
+  }) {
     throw UnimplementedError();
   }
 }
@@ -204,6 +224,11 @@ class _FakeGroupRepository implements GroupRepository {
     String userId,
     String role,
   ) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<dartz.Either<Failure, GroupPreview>> getGroupPreviewByInviteToken(String inviteToken) {
     throw UnimplementedError();
   }
 }

@@ -63,14 +63,6 @@ class _TasksScreenState extends ConsumerState<TasksScreen>
             if (widget.groupId != null) Tab(text: l10n.recurringTemplatesTab),
           ],
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.filter_list),
-            onPressed: () {
-              // TODO: Show filter dialog
-            },
-          ),
-        ],
       ),
       body: TabBarView(
         controller: _tabController,
@@ -200,8 +192,6 @@ class _MyTasksTab extends ConsumerWidget {
 
     return tasksAsync.when(
       data: (tasks) {
-        // If we're viewing tasks within a group, show only tasks assigned to the
-        // current user for the "My Tasks" tab.
         final list = groupId == null
             ? tasks
             : tasks.where((t) => t.assigneeId == authState.user?.id).toList();
@@ -311,10 +301,8 @@ class _UpForGrabsTab extends ConsumerWidget {
 
     return tasksAsync.when(
       data: (allTasks) {
-        // Filter for real pool tasks only (exclude recurring templates)
-        final upForGrabsTasks = allTasks
-            .where((task) => task.assigneeId == null && !task.isRecurring)
-            .toList();
+        final upForGrabsTasks =
+            allTasks.where((task) => task.assigneeId == null && !task.isRecurring).toList();
 
         return TaskListWidget(
           tasks: upForGrabsTasks,
@@ -345,10 +333,8 @@ class _PendingApprovalTab extends ConsumerWidget {
 
     return tasksAsync.when(
       data: (allTasks) {
-        // Filter for tasks awaiting approval
-        final pendingTasks = allTasks
-            .where((task) => task.status == TaskStatus.awaitingApproval.value)
-            .toList();
+        final pendingTasks =
+            allTasks.where((task) => task.status == TaskStatus.awaitingApproval.value).toList();
 
         return TaskListWidget(
           tasks: pendingTasks,

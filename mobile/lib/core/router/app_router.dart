@@ -14,12 +14,18 @@ import 'package:taskflow/presentation/screens/groups/group_layout_screen.dart';
 import 'package:taskflow/presentation/screens/groups/group_settings_screen.dart';
 import 'package:taskflow/presentation/screens/groups/groups_screen.dart';
 import 'package:taskflow/presentation/screens/groups/invite_screen.dart';
+import 'package:taskflow/presentation/screens/groups/group_audit_log_screen.dart';
+import 'package:taskflow/presentation/screens/groups/join_by_token_screen.dart';
 import 'package:taskflow/presentation/screens/groups/join_group_screen.dart';
 import 'package:taskflow/presentation/screens/main_navigation_screen.dart';
 import 'package:taskflow/presentation/screens/profile/change_password_screen.dart';
 import 'package:taskflow/presentation/screens/profile/edit_profile_screen.dart';
+import 'package:taskflow/presentation/screens/profile/my_audit_logs_screen.dart';
 import 'package:taskflow/presentation/screens/profile/points_detail_screen.dart';
 import 'package:taskflow/presentation/screens/profile/profile_screen.dart';
+import 'package:taskflow/presentation/screens/groups/group_recurring_templates_screen.dart';
+import 'package:taskflow/presentation/screens/groups/group_rotation_screen.dart';
+import 'package:taskflow/presentation/screens/notifications/notifications_screen.dart';
 import 'package:taskflow/presentation/screens/rewards/my_reward_requests_screen.dart';
 import 'package:taskflow/presentation/screens/settings/settings_screen.dart';
 import 'package:taskflow/presentation/screens/tasks/create_task_screen.dart';
@@ -52,6 +58,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           state.matchedLocation == '/welcome' ||
           state.matchedLocation == '/forgot-password';
       final isOnJoin = state.matchedLocation.startsWith('/join/');
+      final isOnJoinForm = state.matchedLocation == '/groups/join';
 
       // While verifying email — stay on /register
       if (isPendingVerification) {
@@ -69,7 +76,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       }
 
       // Allow join group screen for unauthenticated users
-      if (isOnJoin) {
+      if (isOnJoin || isOnJoinForm) {
         return null;
       }
 
@@ -122,12 +129,38 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const EditProfileScreen(),
       ),
       GoRoute(
-        path: '/change-password',
-        builder: (context, state) => const ChangePasswordScreen(),
+        path: '/my-audit-logs',
+        builder: (context, state) => const MyAuditLogsScreen(),
+      ),
+      GoRoute(
+        path: '/notifications',
+        builder: (context, state) => const NotificationsScreen(),
       ),
 
       // Group routes (nested)
       GoRoute(path: '/groups/create', builder: (context, state) => const CreateGroupScreen()),
+      GoRoute(path: '/groups/join', builder: (context, state) => const JoinByTokenScreen()),
+      GoRoute(
+        path: '/groups/:groupId/audit-log',
+        builder: (context, state) {
+          final groupId = state.pathParameters['groupId']!;
+          return GroupAuditLogScreen(groupId: groupId);
+        },
+      ),
+      GoRoute(
+        path: '/groups/:groupId/rotation',
+        builder: (context, state) {
+          final groupId = state.pathParameters['groupId']!;
+          return GroupRotationScreen(groupId: groupId);
+        },
+      ),
+      GoRoute(
+        path: '/groups/:groupId/recurring-templates',
+        builder: (context, state) {
+          final groupId = state.pathParameters['groupId']!;
+          return GroupRecurringTemplatesScreen(groupId: groupId);
+        },
+      ),
       GoRoute(
         path: '/groups/:groupId',
         builder: (context, state) {

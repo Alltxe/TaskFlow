@@ -30,7 +30,16 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
     final colorScheme = theme.colorScheme;
 
     return Scaffold(
-      appBar: AppBar(title: Text(AppLocalizations.of(context)!.groups)),
+      appBar: AppBar(
+        title: Text(AppLocalizations.of(context)!.groups),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.vpn_key_outlined),
+            tooltip: AppLocalizations.of(context)!.enterInviteCode,
+            onPressed: () => context.push('/groups/join'),
+          ),
+        ],
+      ),
       body: RefreshIndicator(
         onRefresh: () async {
           await ref.read(groupNotifierProvider.notifier).refresh();
@@ -72,11 +81,17 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Create a new group or join one with an invite link',
+                  AppLocalizations.of(context)!.joinOrCreateGroupHint,
                   textAlign: TextAlign.center,
                   style: Theme.of(
                     context,
                   ).textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant),
+                ),
+                const SizedBox(height: 16),
+                FilledButton.tonalIcon(
+                  onPressed: () => context.push('/groups/join'),
+                  icon: const Icon(Icons.vpn_key_outlined),
+                  label: Text(AppLocalizations.of(context)!.enterInviteCode),
                 ),
               ],
             ),
@@ -236,7 +251,7 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Error',
+                        AppLocalizations.of(context)!.error,
                         style: Theme.of(
                           context,
                         ).textTheme.titleMedium?.copyWith(color: colorScheme.onErrorContainer),

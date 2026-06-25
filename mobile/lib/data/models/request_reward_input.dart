@@ -7,7 +7,6 @@ part 'request_reward_input.g.dart';
 class RequestRewardInput with _$RequestRewardInput {
   const factory RequestRewardInput({
     required String rewardId,
-    required String groupId,
   }) = _RequestRewardInput;
 
   factory RequestRewardInput.fromJson(Map<String, dynamic> json) =>

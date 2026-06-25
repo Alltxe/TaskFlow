@@ -105,10 +105,11 @@ class ProfileRemoteDataSource {
     }
   }
 
-  /// Get user's groups
+  /// Get user's groups with real membership role via parallel member queries.
   Future<List<GroupSummary>> getUserGroups() async {
-    const query = r'''
+    const groupsQuery = r'''
       query GetUserGroups {
+        me { id }
         getUserGroups {
           id
           name
@@ -121,7 +122,10 @@ class ProfileRemoteDataSource {
 
     try {
       final gqlRequest = Request(
-        operation: Operation(document: gql_lang.parseString(query), operationName: 'GetUserGroups'),
+        operation: Operation(
+          document: gql_lang.parseString(groupsQuery),
+          operationName: 'GetUserGroups',
+        ),
       );
 
       final response = await GraphQLClientConfig.request(gqlRequest);
@@ -130,20 +134,57 @@ class ProfileRemoteDataSource {
         _handleGraphQLErrors(response.errors!);
       }
 
+      final String? currentUserId = response.data?['me']?['id'] as String?;
       final List<dynamic> groupsData = response.data?['getUserGroups'] ?? [];
 
-      // We need to get member role separately or transform the data
-      // For now, we'll return groups with default 'participant' role
-      return groupsData.map((json) {
+      if (groupsData.isEmpty) return [];
+
+      // Fetch members for all groups in parallel to resolve roles
+      final membersFutures = groupsData.map((g) async {
+        if (currentUserId == null) return 'participant';
+        try {
+          final membersQuery = '''
+            query GetGroupMembers(\$groupId: String!) {
+              getGroupMembers(groupId: \$groupId) {
+                userId
+                role
+              }
+            }
+          ''';
+          final mReq = Request(
+            operation: Operation(
+              document: gql_lang.parseString(membersQuery),
+              operationName: 'GetGroupMembers',
+            ),
+            variables: {'groupId': g['id']},
+          );
+          final mRes = await GraphQLClientConfig.request(mReq);
+          final members = mRes.data?['getGroupMembers'] as List<dynamic>? ?? [];
+          final me = members.firstWhere(
+            (m) => m['userId'] == currentUserId,
+            orElse: () => {'role': 'MEMBER'},
+          );
+          return (me['role'] as String? ?? 'MEMBER').toLowerCase() == 'admin'
+              ? 'admin'
+              : 'participant';
+        } catch (_) {
+          return 'participant';
+        }
+      });
+
+      final roles = await Future.wait(membersFutures);
+
+      return List.generate(groupsData.length, (i) {
+        final json = groupsData[i];
         return GroupSummary(
           id: json['id'],
           name: json['name'],
           description: json['description'],
-          role: 'participant', // TODO: Get actual role from GroupMember query
+          role: roles[i],
           gamificationEnabled: json['gamificationEnabled'],
           joinedAt: DateTime.parse(json['createdAt']),
         );
-      }).toList();
+      });
     } on AppException {
       rethrow;
     } catch (e) {
@@ -151,12 +192,10 @@ class ProfileRemoteDataSource {
     }
   }
 
-  /// Update user profile (username, avatarUrl, away status) via GraphQL updateUser mutation.
+  /// Update user profile (username, avatarUrl) via GraphQL updateUser mutation.
   Future<User> updateProfile({
     String? username,
     String? avatarUrl,
-    bool? isAway,
-    DateTime? awayUntil,
   }) async {
     const mutation = r'''
       mutation UpdateUser($input: UpdateUserInput!) {
@@ -196,6 +235,59 @@ class ProfileRemoteDataSource {
       final data = response.data?['updateUser'];
       if (data == null) {
         throw const ServerException(message: 'Failed to update profile');
+      }
+
+      return User.fromJson(data);
+    } on AppException {
+      rethrow;
+    } catch (e) {
+      throw ServerException(message: e.toString());
+    }
+  }
+
+  /// Set away status via dedicated GraphQL mutation.
+  Future<User> setUserAwayStatus({
+    required bool isAway,
+    DateTime? awayUntil,
+  }) async {
+    const mutation = r'''
+      mutation SetUserAwayStatus($input: SetAwayStatusInput!) {
+        setUserAwayStatus(input: $input) {
+          id
+          email
+          username
+          avatarUrl
+          isAway
+          awayUntil
+          createdAt
+          updatedAt
+        }
+      }
+    ''';
+
+    final input = <String, dynamic>{
+      'isAway': isAway,
+      if (awayUntil != null) 'awayUntil': awayUntil.toIso8601String(),
+    };
+
+    try {
+      final gqlRequest = Request(
+        operation: Operation(
+          document: gql_lang.parseString(mutation),
+          operationName: 'SetUserAwayStatus',
+        ),
+        variables: {'input': input},
+      );
+
+      final response = await GraphQLClientConfig.request(gqlRequest);
+
+      if (response.errors != null && response.errors!.isNotEmpty) {
+        _handleGraphQLErrors(response.errors!);
+      }
+
+      final data = response.data?['setUserAwayStatus'];
+      if (data == null) {
+        throw const ServerException(message: 'Failed to update away status');
       }
 
       return User.fromJson(data);

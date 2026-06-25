@@ -101,15 +101,7 @@ export class AuditLogService {
         entityType,
         entityId,
       },
-      include: {
-        user: {
-          select: {
-            id: true,
-            username: true,
-            email: true,
-          },
-        },
-      },
+      include: this.auditLogInclude(),
       orderBy: {
         performedAt: 'desc',
       },
@@ -117,22 +109,93 @@ export class AuditLogService {
   }
 
   /**
-   * Получить логи пользователя
+   * Логи, связанные с задачей (одобрение/отклонение + начисление очков).
+   */
+  async getLogsByTask(taskId: string) {
+    return this.prisma.auditLog.findMany({
+      where: {
+        OR: [
+          { entityType: 'Task', entityId: taskId },
+          { entityType: 'PointTransaction', entityId: taskId },
+        ],
+      },
+      include: this.auditLogInclude(),
+      orderBy: {
+        performedAt: 'desc',
+      },
+    });
+  }
+
+  /**
+   * Логи, связанные с группой (группа, участники, задачи, очки).
+   */
+  async getLogsByGroup(groupId: string) {
+    const groupTasks = await this.prisma.task.findMany({
+      where: { groupId },
+      select: { id: true },
+    });
+    const taskIds = groupTasks.map((task) => task.id);
+
+    const orConditions: any[] = [
+      { entityType: 'Group', entityId: groupId },
+      { entityType: 'GroupMember', entityId: { startsWith: `${groupId}-` } },
+      {
+        entityType: 'PointTransaction',
+        newValues: {
+          path: ['groupId'],
+          equals: groupId,
+        },
+      },
+      {
+        entityType: 'Task',
+        newValues: {
+          path: ['groupId'],
+          equals: groupId,
+        },
+      },
+    ];
+
+    if (taskIds.length > 0) {
+      orConditions.push(
+        { entityType: 'Task', entityId: { in: taskIds } },
+        { entityType: 'PointTransaction', entityId: { in: taskIds } },
+      );
+    }
+
+    return this.prisma.auditLog.findMany({
+      where: { OR: orConditions },
+      include: this.auditLogInclude(),
+      orderBy: {
+        performedAt: 'desc',
+      },
+    });
+  }
+
+  private auditLogInclude() {
+    return {
+      user: {
+        select: {
+          id: true,
+          username: true,
+          email: true,
+        },
+      },
+    };
+  }
+
+  /**
+   * Получить логи пользователя (выполненные им действия и события с его участием).
    */
   async getLogsByUser(userId: string, limit: number = 100) {
     return this.prisma.auditLog.findMany({
       where: {
-        userId,
+        OR: [
+          { userId },
+          { entityType: 'User', entityId: userId },
+          { entityType: 'GroupMember', entityId: { endsWith: `-${userId}` } },
+        ],
       },
-      include: {
-        user: {
-          select: {
-            id: true,
-            username: true,
-            email: true,
-          },
-        },
-      },
+      include: this.auditLogInclude(),
       orderBy: {
         performedAt: 'desc',
       },
@@ -233,6 +296,8 @@ export class AuditLogService {
     approved: boolean,
     reason: string | undefined,
     userId: string,
+    groupId?: string,
+    taskTitle?: string,
   ) {
     return this.createLog({
       action: approved ? AuditAction.TASK_APPROVED : AuditAction.TASK_REJECTED,
@@ -240,6 +305,8 @@ export class AuditLogService {
       entityId: taskId,
       newValues: {
         approved,
+        ...(groupId && { groupId }),
+        ...(taskTitle && { title: taskTitle }),
         ...(reason && { rejectionReason: reason }),
       },
       userId,

@@ -18,7 +18,8 @@ import {
 import { RotationService } from './rotation.service';
 import { RecurringTaskService } from './recurring-task.service';
 import { StorageService } from '../storage/storage.service';
-import { AuditLogService } from '../audit-log/audit-log.service';
+import { AuditLogService, AuditAction } from '../audit-log/audit-log.service';
+import { NotificationMessages } from '../../common/i18n/notification-messages';
 import { NotificationService } from '../notification/notification.service';
 import { NotificationType as NotificationTypeEnum } from '@prisma/client';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
@@ -160,14 +161,26 @@ export class TaskService {
     if (task.assigneeId && !task.isRecurring) {
       await this.notificationService.notify({
         userId: task.assigneeId,
-        title: 'Task assigned',
-        message: `You have been assigned: ${task.title}`,
+        title: NotificationMessages.taskAssignedTitle(),
+        message: NotificationMessages.taskAssigned(task.title),
         type: NotificationTypeEnum.TASK_ASSIGNED,
         relatedEntityType: 'Task',
         relatedEntityId: task.id,
         sentById: userId,
       });
     }
+
+    await this.auditLogService.createLog({
+      action: AuditAction.TASK_CREATED,
+      entityType: 'Task',
+      entityId: task.id,
+      userId,
+      newValues: {
+        title: task.title,
+        groupId: task.groupId,
+        isRecurring: task.isRecurring,
+      },
+    });
 
     if (task.isRecurring) {
       try {
@@ -365,8 +378,8 @@ export class TaskService {
     ) {
       await this.notificationService.notify({
         userId: updatedTask.assigneeId,
-        title: 'Task assigned',
-        message: `You have been assigned: ${updatedTask.title}`,
+        title: NotificationMessages.taskAssignedTitle(),
+        message: NotificationMessages.taskAssigned(updatedTask.title),
         type: NotificationTypeEnum.TASK_ASSIGNED,
         relatedEntityType: 'Task',
         relatedEntityId: updatedTask.id,
@@ -433,6 +446,19 @@ export class TaskService {
       },
     });
 
+    await this.auditLogService.createLog({
+      action: AuditAction.TASK_COMPLETED,
+      entityType: 'Task',
+      entityId: taskId,
+      userId,
+      newValues: {
+        title: task.title,
+        groupId: task.groupId,
+        status: newStatus,
+        requiresApproval: task.requiresApproval,
+      },
+    });
+
     // Если не требуется одобрение, создаем запись в истории
     if (!task.requiresApproval) {
       const wasOnTime = new Date() <= task.deadline;
@@ -471,11 +497,24 @@ export class TaskService {
         },
         });
 
+        await this.auditLogService.logPointTransaction(
+          'EARNED',
+          pointsAwarded,
+          userId,
+          task.groupId,
+          task.id,
+          `Task completed${wasClaimed ? ' (Up-for-Grabs bonus)' : ''}`,
+        );
+
         // Notify user about points awarded (Phase 8 - distinct from TASK_APPROVED)
         await this.notificationService.notify({
           userId,
-          title: 'Points Awarded',
-          message: `You earned ${pointsAwarded} points for completing "${task.title}"${wasClaimed ? ' (Up-for-Grabs bonus!)' : ''}`,
+          title: NotificationMessages.pointsAwardedTitle(),
+          message: NotificationMessages.pointsEarnedCompletion(
+            pointsAwarded,
+            task.title,
+            wasClaimed,
+          ),
           type: 'POINT_AWARDED' as any,
           relatedEntityType: 'Task',
           relatedEntityId: task.id,
@@ -486,8 +525,8 @@ export class TaskService {
     // If requires approval, notify group admins that task is awaiting review
     if (task.requiresApproval && updatedTask.status === 'AWAITING_APPROVAL') {
       await this.notificationService.notifyGroupAdmins(task.groupId, (adminId) => ({
-        title: 'Task pending review',
-        message: `Task "${task.title}" is awaiting approval`,
+        title: NotificationMessages.taskPendingReviewTitle(),
+        message: NotificationMessages.taskAwaitingApproval(task.title),
         type: NotificationTypeEnum.TASK_COMPLETED,
         relatedEntityType: 'Task',
         relatedEntityId: task.id,
@@ -592,8 +631,12 @@ export class TaskService {
         // Notify user about points awarded (Phase 8 - distinct from TASK_APPROVED)
         await this.notificationService.notify({
           userId: task.assigneeId,
-          title: 'Points Awarded',
-          message: `You earned ${pointsAwarded} points for "${task.title}" approval${wasClaimed ? ' (Up-for-Grabs bonus!)' : ''}`,
+          title: NotificationMessages.pointsAwardedTitle(),
+          message: NotificationMessages.pointsEarnedApproval(
+            pointsAwarded,
+            task.title,
+            wasClaimed,
+          ),
           type: 'POINT_AWARDED' as any,
           relatedEntityType: 'Task',
           relatedEntityId: task.id,
@@ -607,6 +650,8 @@ export class TaskService {
       approved,
       rejectionReason,
       userId,
+      task.groupId,
+      task.title,
     );
 
     // Phase 8: Notifications to assignee on approval/rejection
@@ -614,8 +659,8 @@ export class TaskService {
       if (approved) {
         await this.notificationService.notify({
           userId: task.assigneeId,
-          title: 'Task approved',
-          message: `Your task "${task.title}" has been approved`,
+          title: NotificationMessages.taskApprovedTitle(),
+          message: NotificationMessages.taskApproved(task.title),
           type: NotificationTypeEnum.TASK_APPROVED,
           relatedEntityType: 'Task',
           relatedEntityId: task.id,
@@ -628,8 +673,11 @@ export class TaskService {
       } else {
         await this.notificationService.notify({
           userId: task.assigneeId,
-          title: 'Task rejected',
-          message: `Your task "${task.title}" was rejected: ${rejectionReason}`,
+          title: NotificationMessages.taskRejectedTitle(),
+          message: NotificationMessages.taskRejected(
+            task.title,
+            rejectionReason ?? NotificationMessages.noReason(),
+          ),
           type: NotificationTypeEnum.TASK_REJECTED,
           relatedEntityType: 'Task',
           relatedEntityId: task.id,
@@ -686,8 +734,8 @@ export class TaskService {
     // Notify claimer about assignment confirmation
     await this.notificationService.notify({
       userId,
-      title: 'Task claimed',
-      message: `You claimed: ${updatedTask.title}`,
+      title: NotificationMessages.taskClaimedTitle(),
+      message: NotificationMessages.taskClaimed(updatedTask.title),
       type: NotificationTypeEnum.TASK_ASSIGNED,
       relatedEntityType: 'Task',
       relatedEntityId: updatedTask.id,

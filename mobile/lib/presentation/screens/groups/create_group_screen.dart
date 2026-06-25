@@ -1,10 +1,13 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:taskflow/core/utils/enum_l10n.dart';
 import 'package:taskflow/data/models/create_group_request.dart';
+import 'package:taskflow/data/models/task_enums.dart';
 import 'package:taskflow/data/providers/group_providers.dart';
 import 'package:taskflow/l10n/app_localizations.dart';
 import 'package:taskflow/presentation/providers/group_notifier.dart';
+import 'package:taskflow/presentation/widgets/common/app_navigation_back_button.dart';
 
 class CreateGroupScreen extends ConsumerStatefulWidget {
   const CreateGroupScreen({super.key});
@@ -18,17 +21,10 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
   final _nameController = TextEditingController();
   final _descriptionController = TextEditingController();
 
-  String _rotationType = 'ROUND_ROBIN';
+  String _rotationType = RotationType.roundRobin.value;
   bool _gamificationEnabled = true;
   bool _requiresApproval = true;
   bool _isLoading = false;
-
-  final List<Map<String, String>> _rotationTypes = [
-    {'value': 'ROUND_ROBIN', 'label': 'Round Robin'},
-    {'value': 'RANDOM', 'label': 'Random'},
-    {'value': 'LOAD_BALANCING', 'label': 'Load Balancing'},
-    {'value': 'DISABLED', 'label': 'Disabled'},
-  ];
 
   @override
   void dispose() {
@@ -86,9 +82,13 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: AppBar(title: Text(AppLocalizations.of(context)!.createGroup)),
+      appBar: AppBar(
+        leading: const AppNavigationBackButton(fallbackRoute: '/groups'),
+        title: Text(l10n.createGroup),
+      ),
       body: Form(
         key: _formKey,
         child: ListView(
@@ -97,18 +97,18 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
             // Name field
             TextFormField(
               controller: _nameController,
-              decoration: const InputDecoration(
-                labelText: 'Group Name',
-                hintText: 'Enter group name',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.group),
+              decoration: InputDecoration(
+                labelText: l10n.groupName,
+                hintText: l10n.groupNameHint,
+                border: const OutlineInputBorder(),
+                prefixIcon: const Icon(Icons.group),
               ),
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
-                  return 'Group name is required';
+                  return l10n.groupNameRequired;
                 }
                 if (value.trim().length < 3) {
-                  return 'Group name must be at least 3 characters';
+                  return l10n.groupNameMinLength;
                 }
                 return null;
               },
@@ -120,11 +120,11 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
             // Description field
             TextFormField(
               controller: _descriptionController,
-              decoration: const InputDecoration(
-                labelText: 'Description (Optional)',
-                hintText: 'Enter group description',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.description),
+              decoration: InputDecoration(
+                labelText: l10n.groupDescriptionOptional,
+                hintText: l10n.groupDescriptionHint,
+                border: const OutlineInputBorder(),
+                prefixIcon: const Icon(Icons.description),
               ),
               maxLines: 3,
               textCapitalization: TextCapitalization.sentences,
@@ -133,19 +133,21 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
             const SizedBox(height: 24),
 
             // Configuration section
-            Text(AppLocalizations.of(context)!.configuration, style: theme.textTheme.titleMedium),
+            Text(l10n.configuration, style: theme.textTheme.titleMedium),
             const SizedBox(height: 12),
 
-            // Rotation type dropdown
             DropdownButtonFormField<String>(
               initialValue: _rotationType,
-              decoration: const InputDecoration(
-                labelText: 'Rotation Type',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.sync),
+              decoration: InputDecoration(
+                labelText: l10n.rotationType,
+                border: const OutlineInputBorder(),
+                prefixIcon: const Icon(Icons.sync),
               ),
-              items: _rotationTypes.map((type) {
-                return DropdownMenuItem<String>(value: type['value'], child: Text(type['label']!));
+              items: RotationType.values.map((type) {
+                return DropdownMenuItem<String>(
+                  value: type.value,
+                  child: Text(rotationTypeLabel(l10n, type)),
+                );
               }).toList(),
               onChanged: _isLoading
                   ? null
@@ -166,8 +168,8 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
                     : (value) {
                         setState(() => _gamificationEnabled = value);
                       },
-                title: Text(AppLocalizations.of(context)!.gamificationLabel),
-                subtitle: Text(AppLocalizations.of(context)!.enablePointsAndRewardsSystem),
+                title: Text(l10n.gamificationLabel),
+                subtitle: Text(l10n.enablePointsAndRewardsSystem),
                 secondary: Icon(
                   Icons.emoji_events,
                   color: _gamificationEnabled ? colorScheme.primary : colorScheme.onSurfaceVariant,
@@ -185,8 +187,8 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
                     : (value) {
                         setState(() => _requiresApproval = value);
                       },
-                title: Text(AppLocalizations.of(context)!.requireApprovalTitle),
-                subtitle: Text(AppLocalizations.of(context)!.adminMustApproveCompletedTasks),
+                title: Text(l10n.requireApprovalTitle),
+                subtitle: Text(l10n.adminMustApproveCompletedTasks),
                 secondary: Icon(
                   Icons.check_circle,
                   color: _requiresApproval ? colorScheme.primary : colorScheme.onSurfaceVariant,
@@ -204,7 +206,7 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
                       width: 20,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : Text(AppLocalizations.of(context)!.createGroup),
+                  : Text(l10n.createGroup),
             ),
           ],
         ),

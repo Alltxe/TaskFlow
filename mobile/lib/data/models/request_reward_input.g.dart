@@ -10,12 +10,10 @@ _$RequestRewardInputImpl _$$RequestRewardInputImplFromJson(
         Map<String, dynamic> json) =>
     _$RequestRewardInputImpl(
       rewardId: json['rewardId'] as String,
-      groupId: json['groupId'] as String,
     );
 
 Map<String, dynamic> _$$RequestRewardInputImplToJson(
         _$RequestRewardInputImpl instance) =>
     <String, dynamic>{
       'rewardId': instance.rewardId,
-      'groupId': instance.groupId,
     };

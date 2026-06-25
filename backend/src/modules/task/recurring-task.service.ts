@@ -1,10 +1,12 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { Cron, CronExpression } from '@nestjs/schedule';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Cron, CronExpression, SchedulerRegistry } from '@nestjs/schedule';
+import { CronJob } from 'cron';
 import { PrismaService } from '../prisma/prisma.service';
 import { RotationService } from './rotation.service';
 import { NotificationType as NotificationTypeEnum, RotationType, TaskPriority } from '@prisma/client';
 import { RRule, RRuleSet, rrulestr } from 'rrule';
 import { NotificationService } from '../notification/notification.service';
+import { NotificationMessages } from '../../common/i18n/notification-messages';
 
 /**
  * Интерфейс для правила повторения задачи
@@ -19,22 +21,41 @@ export interface RecurrenceRuleParser {
 }
 
 @Injectable()
-export class RecurringTaskService {
+export class RecurringTaskService implements OnModuleInit {
   private readonly logger = new Logger(RecurringTaskService.name);
 
   constructor(
     private prisma: PrismaService,
     private rotationService: RotationService,
     private notificationService: NotificationService,
+    private schedulerRegistry: SchedulerRegistry,
   ) {}
 
-  /**
-   * CRON задача: проверяет необходимость генерации новых задач из шаблонов
-   * Выполняется каждый час согласно PRD 3.3.3 (генерация за 24 часа до deadline)
-   */
-  @Cron(CronExpression.EVERY_HOUR)
-  async generateRecurringTasks() {
-    await this.runRecurringGenerationCycle('hourly');
+  onModuleInit() {
+    const schedule = this.resolveRecurringCronSchedule();
+    const job = new CronJob(schedule, () => {
+      void this.runRecurringGenerationCycle('configured');
+    });
+    this.schedulerRegistry.addCronJob('recurring-task-generation', job);
+    job.start();
+    this.logger.log(`Recurring task cron registered: ${schedule}`);
+  }
+
+  private resolveRecurringCronSchedule(): string {
+    const explicit = process.env.RECURRING_CRON_SCHEDULE?.trim();
+    if (explicit) {
+      return explicit;
+    }
+
+    const intervalMinutes = Number.parseInt(
+      process.env.RECURRING_CRON_INTERVAL_MINUTES ?? '',
+      10,
+    );
+    if (Number.isFinite(intervalMinutes) && intervalMinutes > 0) {
+      return `*/${intervalMinutes} * * * *`;
+    }
+
+    return CronExpression.EVERY_HOUR;
   }
 
   /**
@@ -50,7 +71,9 @@ export class RecurringTaskService {
     await this.runRecurringGenerationCycle('minutely-test');
   }
 
-  private async runRecurringGenerationCycle(mode: 'hourly' | 'minutely-test') {
+  private async runRecurringGenerationCycle(
+    mode: 'hourly' | 'minutely-test' | 'configured',
+  ) {
     this.logger.log('Starting recurring task generation check...');
 
     try {
@@ -297,8 +320,8 @@ export class RecurringTaskService {
     if (newTask.assigneeId) {
       await this.notificationService.notify({
         userId: newTask.assigneeId,
-        title: 'Task assigned',
-        message: `You have been assigned: ${newTask.title}`,
+        title: NotificationMessages.taskAssignedTitle(),
+        message: NotificationMessages.taskAssigned(newTask.title),
         type: NotificationTypeEnum.TASK_ASSIGNED,
         relatedEntityType: 'Task',
         relatedEntityId: newTask.id,
