@@ -74,6 +74,12 @@ class AppConfig {
   static const Duration receiveTimeout = Duration(seconds: 30);
   static const Duration sendTimeout = Duration(seconds: 30);
 
+  /// Сколько раз повторить запрос при сетевой ошибке
+  static const int networkRetryCount = 2;
+
+  /// Пауза между повторными попытками при сетевой ошибке.
+  static const Duration networkRetryDelay = Duration(seconds: 2);
+
   static const String accessTokenKey = 'access_token';
   static const String refreshTokenKey = 'refresh_token';
   static const String userIdKey = 'user_id';

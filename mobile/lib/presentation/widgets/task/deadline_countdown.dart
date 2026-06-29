@@ -37,16 +37,22 @@ class _DeadlineCountdownState extends State<DeadlineCountdown> {
 
   @override
   Widget build(BuildContext context) {
-    // If the task is completed, we don't need to show a timer — show status instead
+    // If the task is completed, we don't need to show a timer. The completion
+    // status is already shown by the StatusBadge, so here we only show the
+    // deadline date to avoid duplicating the "completed" label.
     final l10n = AppLocalizations.of(context)!;
     if (widget.status == TaskStatus.completed) {
+      final completedDateText = formatMonthDayTime(context, widget.deadline);
       if (widget.compact) {
         return Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(Icons.check_circle, color: Colors.green.shade700, size: 14),
             const SizedBox(width: 4),
-            Text(l10n.completed, style: TextStyle(color: Colors.green.shade700, fontSize: 12)),
+            Text(
+              completedDateText,
+              style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+            ),
           ],
         );
       }
@@ -56,8 +62,8 @@ class _DeadlineCountdownState extends State<DeadlineCountdown> {
           Icon(Icons.check_circle, color: Colors.green.shade700),
           const SizedBox(width: 8),
           Text(
-            l10n.completed,
-            style: TextStyle(color: Colors.green.shade700, fontWeight: FontWeight.w600),
+            completedDateText,
+            style: TextStyle(color: Colors.grey.shade700, fontWeight: FontWeight.w600),
           ),
         ],
       );

@@ -1089,7 +1089,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get recurringDeadlineSelectorHint =>
-      'Пример: 1 неделя означает, что срок каждой сгенерированной задачи — через неделю после создания';
+      'Пример: 1 неделя означает, что крайний срок каждой сгенерированной задачи — через неделю после создания';
 
   @override
   String get recurrenceFrequencyLabel => 'Частота';

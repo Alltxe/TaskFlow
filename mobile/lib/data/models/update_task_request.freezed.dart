@@ -26,7 +26,6 @@ mixin _$UpdateTaskRequest {
   String? get priority => throw _privateConstructorUsedError;
   int? get points => throw _privateConstructorUsedError;
   String? get assigneeId => throw _privateConstructorUsedError;
-  int? get weight => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -46,8 +45,7 @@ abstract class $UpdateTaskRequestCopyWith<$Res> {
       DateTime? deadline,
       String? priority,
       int? points,
-      String? assigneeId,
-      int? weight});
+      String? assigneeId});
 }
 
 /// @nodoc
@@ -69,7 +67,6 @@ class _$UpdateTaskRequestCopyWithImpl<$Res, $Val extends UpdateTaskRequest>
     Object? priority = freezed,
     Object? points = freezed,
     Object? assigneeId = freezed,
-    Object? weight = freezed,
   }) {
     return _then(_value.copyWith(
       title: freezed == title
@@ -96,10 +93,6 @@ class _$UpdateTaskRequestCopyWithImpl<$Res, $Val extends UpdateTaskRequest>
           ? _value.assigneeId
           : assigneeId // ignore: cast_nullable_to_non_nullable
               as String?,
-      weight: freezed == weight
-          ? _value.weight
-          : weight // ignore: cast_nullable_to_non_nullable
-              as int?,
     ) as $Val);
   }
 }
@@ -118,8 +111,7 @@ abstract class _$$UpdateTaskRequestImplCopyWith<$Res>
       DateTime? deadline,
       String? priority,
       int? points,
-      String? assigneeId,
-      int? weight});
+      String? assigneeId});
 }
 
 /// @nodoc
@@ -139,7 +131,6 @@ class __$$UpdateTaskRequestImplCopyWithImpl<$Res>
     Object? priority = freezed,
     Object? points = freezed,
     Object? assigneeId = freezed,
-    Object? weight = freezed,
   }) {
     return _then(_$UpdateTaskRequestImpl(
       title: freezed == title
@@ -166,10 +157,6 @@ class __$$UpdateTaskRequestImplCopyWithImpl<$Res>
           ? _value.assigneeId
           : assigneeId // ignore: cast_nullable_to_non_nullable
               as String?,
-      weight: freezed == weight
-          ? _value.weight
-          : weight // ignore: cast_nullable_to_non_nullable
-              as int?,
     ));
   }
 }
@@ -183,8 +170,7 @@ class _$UpdateTaskRequestImpl implements _UpdateTaskRequest {
       this.deadline,
       this.priority,
       this.points,
-      this.assigneeId,
-      this.weight});
+      this.assigneeId});
 
   factory _$UpdateTaskRequestImpl.fromJson(Map<String, dynamic> json) =>
       _$$UpdateTaskRequestImplFromJson(json);
@@ -201,12 +187,10 @@ class _$UpdateTaskRequestImpl implements _UpdateTaskRequest {
   final int? points;
   @override
   final String? assigneeId;
-  @override
-  final int? weight;
 
   @override
   String toString() {
-    return 'UpdateTaskRequest(title: $title, description: $description, deadline: $deadline, priority: $priority, points: $points, assigneeId: $assigneeId, weight: $weight)';
+    return 'UpdateTaskRequest(title: $title, description: $description, deadline: $deadline, priority: $priority, points: $points, assigneeId: $assigneeId)';
   }
 
   @override
@@ -223,14 +207,13 @@ class _$UpdateTaskRequestImpl implements _UpdateTaskRequest {
                 other.priority == priority) &&
             (identical(other.points, points) || other.points == points) &&
             (identical(other.assigneeId, assigneeId) ||
-                other.assigneeId == assigneeId) &&
-            (identical(other.weight, weight) || other.weight == weight));
+                other.assigneeId == assigneeId));
   }
 
   @JsonKey(ignore: true)
   @override
-  int get hashCode => Object.hash(runtimeType, title, description, deadline,
-      priority, points, assigneeId, weight);
+  int get hashCode => Object.hash(
+      runtimeType, title, description, deadline, priority, points, assigneeId);
 
   @JsonKey(ignore: true)
   @override
@@ -254,8 +237,7 @@ abstract class _UpdateTaskRequest implements UpdateTaskRequest {
       final DateTime? deadline,
       final String? priority,
       final int? points,
-      final String? assigneeId,
-      final int? weight}) = _$UpdateTaskRequestImpl;
+      final String? assigneeId}) = _$UpdateTaskRequestImpl;
 
   factory _UpdateTaskRequest.fromJson(Map<String, dynamic> json) =
       _$UpdateTaskRequestImpl.fromJson;
@@ -272,8 +254,6 @@ abstract class _UpdateTaskRequest implements UpdateTaskRequest {
   int? get points;
   @override
   String? get assigneeId;
-  @override
-  int? get weight;
   @override
   @JsonKey(ignore: true)
   _$$UpdateTaskRequestImplCopyWith<_$UpdateTaskRequestImpl> get copyWith =>

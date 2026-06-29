@@ -338,24 +338,56 @@ class GraphQLClientConfig {
     }
   }
 
+  /// Perform a single link request with the receive timeout applied.
+  static Future<Response> _performLinkRequest(Link link, Request gqlRequest) {
+    return link
+        .request(gqlRequest)
+        .timeout(
+          AppConfig.receiveTimeout,
+          onTimeout: (sink) {
+            sink.addError(
+              const TimeoutException(
+                message: 'Request timeout. Please check your connection.',
+              ),
+            );
+          },
+        )
+        .first;
+  }
+
+  /// Perform a link request, retrying transient connectivity failures.
+  ///
+  /// On a weak/cold demo VPS the very first request can be dropped instantly
+  /// (connection refused), which previously surfaced an error immediately.
+  /// Retrying a couple of times with a short delay smooths over these blips.
+  static Future<Response> _requestWithRetry(Link link, Request gqlRequest) async {
+    var attempt = 0;
+    while (true) {
+      try {
+        return await _performLinkRequest(link, gqlRequest);
+      } catch (e) {
+        final isConnectivity = e is SocketException ||
+            e is NetworkException ||
+            e is TimeoutException ||
+            _looksLikeConnectivityFailure(e);
+
+        if (!isConnectivity || attempt >= AppConfig.networkRetryCount) {
+          rethrow;
+        }
+
+        attempt += 1;
+        _log('Connectivity failure (attempt $attempt), retrying: $e');
+        await Future<void>.delayed(AppConfig.networkRetryDelay);
+      }
+    }
+  }
+
   /// Execute a GraphQL request with timeout
   static Future<Response> request(Request gqlRequest) async {
     try {
       final link = getLink();
 
-      final response = await link
-          .request(gqlRequest)
-          .timeout(
-            AppConfig.receiveTimeout,
-            onTimeout: (sink) {
-              sink.addError(
-                const TimeoutException(
-                  message: 'Request timeout. Please check your connection.',
-                ),
-              );
-            },
-          )
-          .first;
+      final response = await _requestWithRetry(link, gqlRequest);
 
       // Check if we got a response
       // Check for GraphQL errors in the response
@@ -367,19 +399,7 @@ class GraphQLClientConfig {
           final refreshed = await _refreshAccessToken();
 
           if (refreshed) {
-            final retriedResponse = await link
-                .request(gqlRequest)
-                .timeout(
-                  AppConfig.receiveTimeout,
-                  onTimeout: (sink) {
-                    sink.addError(
-                      const TimeoutException(
-                        message: 'Request timeout. Please check your connection.',
-                      ),
-                    );
-                  },
-                )
-                .first;
+            final retriedResponse = await _requestWithRetry(link, gqlRequest);
 
             if (retriedResponse.errors != null && retriedResponse.errors!.isNotEmpty) {
               _log('Retried request still has errors: ${retriedResponse.errors}');

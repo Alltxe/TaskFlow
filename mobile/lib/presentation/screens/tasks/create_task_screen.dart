@@ -628,7 +628,6 @@ class _CreateTaskScreenState extends ConsumerState<CreateTaskScreen> {
               priority: request.priority,
               points: request.points,
               assigneeId: request.assigneeId,
-              weight: request.weight,
             ),
           )
         : await ref.read(createTaskUseCaseProvider)(request);

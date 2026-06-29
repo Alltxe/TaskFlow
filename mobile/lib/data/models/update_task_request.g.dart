@@ -17,7 +17,6 @@ _$UpdateTaskRequestImpl _$$UpdateTaskRequestImplFromJson(
       priority: json['priority'] as String?,
       points: (json['points'] as num?)?.toInt(),
       assigneeId: json['assigneeId'] as String?,
-      weight: (json['weight'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$$UpdateTaskRequestImplToJson(
@@ -29,5 +28,4 @@ Map<String, dynamic> _$$UpdateTaskRequestImplToJson(
       'priority': instance.priority,
       'points': instance.points,
       'assigneeId': instance.assigneeId,
-      'weight': instance.weight,
     };

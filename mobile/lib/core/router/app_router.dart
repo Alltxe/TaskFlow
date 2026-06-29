@@ -129,6 +129,10 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const EditProfileScreen(),
       ),
       GoRoute(
+        path: '/change-password',
+        builder: (context, state) => const ChangePasswordScreen(),
+      ),
+      GoRoute(
         path: '/my-audit-logs',
         builder: (context, state) => const MyAuditLogsScreen(),
       ),

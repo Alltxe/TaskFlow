@@ -64,11 +64,10 @@ class TaskActionsNotifier extends StateNotifier<AsyncValue<void>> {
       (failure) => AsyncValue.error(failure.message, StackTrace.current),
       (_) => const AsyncValue.data(null),
     );
-    // Invalidate task lists to refresh
+    // Invalidate task lists and the task detail to refresh the UI.
     ref.invalidate(userTasksProvider);
+    ref.invalidate(taskDetailsProvider(taskId));
     if (groupId != null) ref.invalidate(groupTasksProvider(groupId));
-    // If this claim was for a group list, invalidate that as well.
-    // Caller can pass groupId for group-scoped views.
   }
 
   Future<void> completeTask(String taskId, {String? groupId}) async {

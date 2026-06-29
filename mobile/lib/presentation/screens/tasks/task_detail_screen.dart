@@ -169,16 +169,28 @@ class _TaskDetailScreenState extends ConsumerState<TaskDetailScreen> {
     final currentStatus =
         currentTask != null ? TaskStatus.fromString(currentTask.status) : null;
 
+    final currentUserId = ref.watch(authStateProvider).user?.id;
+    final isAdmin = currentTask != null
+        ? (ref.watch(isGroupAdminProvider(currentTask.groupId)).value ?? false)
+        : false;
+    final isCreator = currentTask != null &&
+        currentUserId != null &&
+        currentTask.createdById == currentUserId;
+    // Backend allows editing for admins or the task creator; deletion is admin-only.
+    final canEdit = currentStatus != TaskStatus.cancelled && (isAdmin || isCreator);
+    final canDelete = currentStatus != TaskStatus.cancelled && isAdmin;
+
     return Scaffold(
       appBar: AppBar(
         leading: const AppNavigationBackButton(fallbackRoute: '/home'),
         title: Text(l10n.taskDetailsTitle),
         actions: [
-          if (currentStatus != TaskStatus.cancelled) ...[
+          if (canEdit)
             IconButton(
               icon: const Icon(Icons.edit),
               onPressed: () => context.push('/tasks/${widget.taskId}/edit'),
             ),
+          if (canDelete)
             PopupMenuButton(
               itemBuilder: (context) => [
                 PopupMenuItem(
@@ -223,7 +235,6 @@ class _TaskDetailScreenState extends ConsumerState<TaskDetailScreen> {
                 }
               },
             ),
-          ],
         ],
       ),
       body: taskAsync.when(
@@ -314,16 +325,6 @@ class _TaskDetailScreenState extends ConsumerState<TaskDetailScreen> {
                           ],
                         ),
                       ),
-                      if (isUpForGrabsTask)
-                        ElevatedButton.icon(
-                          onPressed: () async {
-                            await ref
-                                .read(taskActionsProvider.notifier)
-                                .claimTask(widget.taskId, groupId: task.groupId);
-                          },
-                          icon: const Icon(Icons.volunteer_activism, size: 18),
-                          label: Text(l10n.claimTask),
-                        ),
                     ],
                   ),
                 ),
@@ -549,6 +550,7 @@ class _TaskDetailScreenState extends ConsumerState<TaskDetailScreen> {
 
     final isAssignedToMe =
         currentUserId != null && task.assigneeId != null && task.assigneeId == currentUserId;
+    final isUpForGrabsTask = !task.isRecurring && task.assigneeId == null;
 
     switch (status) {
       case TaskStatus.pending:
@@ -563,6 +565,21 @@ class _TaskDetailScreenState extends ConsumerState<TaskDetailScreen> {
               },
               icon: const Icon(Icons.check_circle),
               label: Text(l10n.markAsComplete),
+              style: ElevatedButton.styleFrom(padding: const EdgeInsets.all(16)),
+            ),
+          );
+        }
+        if (isUpForGrabsTask) {
+          return SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: () async {
+                await ref
+                    .read(taskActionsProvider.notifier)
+                    .claimTask(widget.taskId, groupId: task.groupId);
+              },
+              icon: const Icon(Icons.volunteer_activism),
+              label: Text(l10n.claimTask),
               style: ElevatedButton.styleFrom(padding: const EdgeInsets.all(16)),
             ),
           );
@@ -729,6 +746,17 @@ class _AttachmentTile extends StatelessWidget {
   }
 
   Future<void> _openAttachment(BuildContext context) async {
+    // Images open in an in-app full-screen viewer; other files (PDF/docs)
+    // are handed off to an external app.
+    if (attachment.isImage) {
+      await showDialog<void>(
+        context: context,
+        barrierColor: Colors.black,
+        builder: (dialogContext) => _ImageViewer(attachment: attachment),
+      );
+      return;
+    }
+
     final uri = Uri.parse(attachment.url);
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
@@ -739,6 +767,60 @@ class _AttachmentTile extends StatelessWidget {
         );
       }
     }
+  }
+}
+
+/// Full-screen in-app image viewer with pinch-to-zoom.
+class _ImageViewer extends StatelessWidget {
+  final TaskAttachment attachment;
+
+  const _ImageViewer({required this.attachment});
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      backgroundColor: Colors.black,
+      insetPadding: EdgeInsets.zero,
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: InteractiveViewer(
+              minScale: 0.5,
+              maxScale: 4,
+              child: Center(
+                child: Image.network(
+                  attachment.url,
+                  fit: BoxFit.contain,
+                  loadingBuilder: (context, child, progress) {
+                    if (progress == null) return child;
+                    return const Center(
+                      child: CircularProgressIndicator(color: Colors.white),
+                    );
+                  },
+                  errorBuilder: (_, __, ___) => const Center(
+                    child: Icon(
+                      Icons.broken_image_outlined,
+                      color: Colors.white54,
+                      size: 64,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            top: 8,
+            right: 8,
+            child: SafeArea(
+              child: IconButton(
+                icon: const Icon(Icons.close, color: Colors.white),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 

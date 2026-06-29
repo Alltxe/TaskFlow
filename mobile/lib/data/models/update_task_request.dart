@@ -12,7 +12,6 @@ class UpdateTaskRequest with _$UpdateTaskRequest {
     String? priority,
     int? points,
     String? assigneeId,
-    int? weight,
   }) = _UpdateTaskRequest;
 
   factory UpdateTaskRequest.fromJson(Map<String, dynamic> json) =>
